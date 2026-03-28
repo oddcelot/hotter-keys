@@ -1,193 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-  parseShortcut,
-  parseSequence,
-  formatShortcut,
-  formatSequence,
-  Hotkeys,
-  recordShortcut,
-  type Shortcut,
-} from "./index.js";
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function fireKey(
-  target: EventTarget,
-  key: string,
-  mods: Partial<{
-    ctrlKey: boolean;
-    shiftKey: boolean;
-    metaKey: boolean;
-    altKey: boolean;
-    repeat: boolean;
-  }> = {}
-): KeyboardEvent {
-  const event = new KeyboardEvent("keydown", {
-    key,
-    ctrlKey: mods.ctrlKey ?? false,
-    shiftKey: mods.shiftKey ?? false,
-    metaKey: mods.metaKey ?? false,
-    altKey: mods.altKey ?? false,
-    repeat: mods.repeat ?? false,
-    bubbles: true,
-    cancelable: true,
-  });
-  target.dispatchEvent(event);
-  return event;
-}
-
-function fireKeyUp(
-  target: EventTarget,
-  key: string,
-  mods: Partial<{
-    ctrlKey: boolean;
-    shiftKey: boolean;
-    metaKey: boolean;
-    altKey: boolean;
-  }> = {}
-): KeyboardEvent {
-  const event = new KeyboardEvent("keyup", {
-    key,
-    ctrlKey: mods.ctrlKey ?? false,
-    shiftKey: mods.shiftKey ?? false,
-    metaKey: mods.metaKey ?? false,
-    altKey: mods.altKey ?? false,
-    bubbles: true,
-    cancelable: true,
-  });
-  target.dispatchEvent(event);
-  return event;
-}
-
-// ---------------------------------------------------------------------------
-// parseShortcut
-// ---------------------------------------------------------------------------
-
-describe("parseShortcut", () => {
-  it("parses a simple letter", () => {
-    expect(parseShortcut("k")).toEqual({ key: "k", ctrl: false, shift: false, meta: false });
-  });
-
-  it("parses a digit", () => {
-    expect(parseShortcut("3")).toEqual({ key: "3", ctrl: false, shift: false, meta: false });
-  });
-
-  it("parses ctrl+letter", () => {
-    expect(parseShortcut("ctrl+k")).toEqual({ key: "k", ctrl: true, shift: false, meta: false });
-  });
-
-  it("parses meta+shift+letter", () => {
-    expect(parseShortcut("meta+shift+s")).toEqual({
-      key: "s",
-      ctrl: false,
-      shift: true,
-      meta: true,
-    });
-  });
-
-  it("is case-insensitive", () => {
-    expect(parseShortcut("Ctrl+K")).toEqual(parseShortcut("ctrl+k"));
-  });
-
-  it("accepts cmd / command / win / super as meta aliases", () => {
-    const expected: Shortcut = { key: "a", ctrl: false, shift: false, meta: true };
-    expect(parseShortcut("cmd+a")).toEqual(expected);
-    expect(parseShortcut("command+a")).toEqual(expected);
-    expect(parseShortcut("win+a")).toEqual(expected);
-    expect(parseShortcut("super+a")).toEqual(expected);
-  });
-
-  it("handles extra whitespace around +", () => {
-    expect(parseShortcut("ctrl + k")).toEqual(parseShortcut("ctrl+k"));
-  });
-
-  // Error cases
-  it("throws on empty string", () => {
-    expect(() => parseShortcut("")).toThrow("Empty shortcut");
-  });
-
-  it("throws when no non-modifier key is present", () => {
-    expect(() => parseShortcut("ctrl+shift")).toThrow("no non-modifier key");
-  });
-
-  it("throws on multiple non-modifier keys", () => {
-    expect(() => parseShortcut("a+b")).toThrow("more than one non-modifier");
-  });
-
-  it("throws on unsafe symbol keys", () => {
-    expect(() => parseShortcut("ctrl+[")).toThrow("not a safe cross-layout key");
-  });
-
-  it("throws on shift+digit (locale-dependent)", () => {
-    expect(() => parseShortcut("shift+2")).toThrow("per locale");
-  });
-
-  it("allows shift+letter", () => {
-    expect(parseShortcut("shift+a")).toEqual({ key: "a", ctrl: false, shift: true, meta: false });
-  });
-});
-
-// ---------------------------------------------------------------------------
-// parseSequence
-// ---------------------------------------------------------------------------
-
-describe("parseSequence", () => {
-  it("parses a single chord", () => {
-    const seq = parseSequence("ctrl+k");
-    expect(seq).toHaveLength(1);
-    expect(seq[0]).toEqual({ key: "k", ctrl: true, shift: false, meta: false });
-  });
-
-  it("parses a multi-chord sequence", () => {
-    const seq = parseSequence("ctrl+k ctrl+c");
-    expect(seq).toHaveLength(2);
-    expect(seq[0]!.key).toBe("k");
-    expect(seq[1]!.key).toBe("c");
-    expect(seq[0]!.ctrl).toBe(true);
-    expect(seq[1]!.ctrl).toBe(true);
-  });
-
-  it("handles extra whitespace between chords", () => {
-    const seq = parseSequence("  ctrl+k   ctrl+c  ");
-    expect(seq).toHaveLength(2);
-  });
-
-  it("throws on empty string", () => {
-    expect(() => parseSequence("")).toThrow();
-  });
-});
-
-// ---------------------------------------------------------------------------
-// formatShortcut / formatSequence
-// ---------------------------------------------------------------------------
-
-describe("formatShortcut", () => {
-  it("formats for non-mac", () => {
-    expect(formatShortcut({ key: "k", ctrl: true, shift: false, meta: false })).toBe("Ctrl+K");
-  });
-
-  it("formats for mac", () => {
-    expect(formatShortcut({ key: "s", ctrl: false, shift: true, meta: true }, true)).toBe("⇧⌘S");
-  });
-
-  it("formats plain key", () => {
-    expect(formatShortcut({ key: "a", ctrl: false, shift: false, meta: false })).toBe("A");
-  });
-});
-
-describe("formatSequence", () => {
-  it("formats a multi-chord sequence", () => {
-    const seq = parseSequence("ctrl+k ctrl+c");
-    expect(formatSequence(seq)).toBe("Ctrl+K Ctrl+C");
-    expect(formatSequence(seq, true)).toBe("⌃K ⌃C");
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Hotkeys — basic shortcut matching
-// ---------------------------------------------------------------------------
+import { Hotkeys } from "./hotkeys";
+import { fireKey, fireKeyUp } from "./test-helpers";
 
 describe("Hotkeys — basic matching", () => {
   let target: HTMLDivElement;
@@ -294,17 +107,12 @@ describe("Hotkeys — basic matching", () => {
   it("guards against e.key being undefined", () => {
     const handler = vi.fn();
     hk.add("ctrl+k", handler);
-    // Simulate the <datalist> edge case where e.key is undefined
     const event = new KeyboardEvent("keydown", { bubbles: true, cancelable: true });
     Object.defineProperty(event, "key", { value: undefined });
     target.dispatchEvent(event);
     expect(handler).not.toHaveBeenCalled();
   });
 });
-
-// ---------------------------------------------------------------------------
-// Hotkeys — scopes
-// ---------------------------------------------------------------------------
 
 describe("Hotkeys — scopes", () => {
   let target: HTMLDivElement;
@@ -342,10 +150,6 @@ describe("Hotkeys — scopes", () => {
     expect(handler).toHaveBeenCalledOnce();
   });
 });
-
-// ---------------------------------------------------------------------------
-// Hotkeys — input filtering
-// ---------------------------------------------------------------------------
 
 describe("Hotkeys — input filtering", () => {
   let target: HTMLDivElement;
@@ -391,10 +195,6 @@ describe("Hotkeys — input filtering", () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// Hotkeys — lifecycle
-// ---------------------------------------------------------------------------
-
 describe("Hotkeys — lifecycle", () => {
   let target: HTMLDivElement;
   let hk: Hotkeys;
@@ -421,10 +221,6 @@ describe("Hotkeys — lifecycle", () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// Hotkeys — sequences (inspired by solid-primitives createShortcut)
-// ---------------------------------------------------------------------------
-
 describe("Hotkeys — sequences", () => {
   let target: HTMLDivElement;
   let hk: Hotkeys;
@@ -442,11 +238,9 @@ describe("Hotkeys — sequences", () => {
     const handler = vi.fn();
     hk.add("ctrl+k ctrl+c", handler);
 
-    // First chord
     fireKey(target, "k", { ctrlKey: true });
     expect(handler).not.toHaveBeenCalled();
 
-    // Second chord
     fireKey(target, "c", { ctrlKey: true });
     expect(handler).toHaveBeenCalledOnce();
   });
@@ -459,7 +253,6 @@ describe("Hotkeys — sequences", () => {
     fireKey(target, "x", { ctrlKey: true }); // wrong
     expect(handler).not.toHaveBeenCalled();
 
-    // The sequence should have reset, so ctrl+c alone shouldn't fire it
     fireKey(target, "c", { ctrlKey: true });
     expect(handler).not.toHaveBeenCalled();
   });
@@ -471,10 +264,8 @@ describe("Hotkeys — sequences", () => {
     fireKey(target, "k", { ctrlKey: true });
     expect(handler).not.toHaveBeenCalled();
 
-    // Wait for sequence timeout
     await new Promise((r) => setTimeout(r, 600));
 
-    // Now ctrl+c should not complete the sequence
     fireKey(target, "c", { ctrlKey: true });
     expect(handler).not.toHaveBeenCalled();
   });
@@ -487,7 +278,6 @@ describe("Hotkeys — sequences", () => {
     fireKey(target, "c", { ctrlKey: true });
     expect(handler).toHaveBeenCalledTimes(1);
 
-    // Do it again
     fireKey(target, "k", { ctrlKey: true });
     fireKey(target, "c", { ctrlKey: true });
     expect(handler).toHaveBeenCalledTimes(2);
@@ -511,10 +301,6 @@ describe("Hotkeys — sequences", () => {
   });
 });
 
-// ---------------------------------------------------------------------------
-// Hotkeys — requireReset (inspired by solid-primitives)
-// ---------------------------------------------------------------------------
-
 describe("Hotkeys — requireReset", () => {
   let target: HTMLDivElement;
   let hk: Hotkeys;
@@ -535,23 +321,16 @@ describe("Hotkeys — requireReset", () => {
     fireKey(target, "k", { ctrlKey: true });
     expect(handler).toHaveBeenCalledTimes(1);
 
-    // Press again without releasing — should not fire
     fireKey(target, "k", { ctrlKey: true });
     expect(handler).toHaveBeenCalledTimes(1);
 
-    // Release all keys
     fireKeyUp(target, "k");
     fireKeyUp(target, "Control");
 
-    // Now it should fire again
     fireKey(target, "k", { ctrlKey: true });
     expect(handler).toHaveBeenCalledTimes(2);
   });
 });
-
-// ---------------------------------------------------------------------------
-// Hotkeys — held-keys tracking (inspired by solid-primitives useKeyDownList)
-// ---------------------------------------------------------------------------
 
 describe("Hotkeys — held-keys tracking", () => {
   let target: HTMLDivElement;
@@ -639,7 +418,6 @@ describe("Hotkeys — held-keys tracking", () => {
   });
 
   it("recovers stale modifiers (modifier pressed before tracking started)", () => {
-    // Simulate: ctrl was already held when focus arrived, first event is a non-modifier
     fireKey(target, "k", { ctrlKey: true });
     const keys = [...hk.getHeldKeys()];
     expect(keys).toContain("control");
@@ -657,15 +435,10 @@ describe("Hotkeys — held-keys tracking", () => {
   });
 
   it("does NOT recover stale alt (rule 5)", () => {
-    // altKey events are rejected entirely by _handleKeyDown, so nothing gets tracked
     fireKey(target, "k", { altKey: true });
     expect(hk.getHeldKeys().length).toBe(0);
   });
 });
-
-// ---------------------------------------------------------------------------
-// Hotkeys — key hold (inspired by solid-primitives createKeyHold)
-// ---------------------------------------------------------------------------
 
 describe("Hotkeys — key hold", () => {
   let target: HTMLDivElement;
@@ -715,59 +488,5 @@ describe("Hotkeys — key hold", () => {
 
     fireKey(target, "Shift", { shiftKey: true });
     expect(listener).not.toHaveBeenCalled();
-  });
-});
-
-// ---------------------------------------------------------------------------
-// recordShortcut
-// ---------------------------------------------------------------------------
-
-describe("recordShortcut", () => {
-  it("resolves with the pressed shortcut", async () => {
-    const target = document.createElement("div");
-    const promise = recordShortcut(target);
-    queueMicrotask(() => fireKey(target, "k", { ctrlKey: true }));
-    const result = await promise;
-    expect(result.key).toBe("k");
-    expect(result.ctrl).toBe(true);
-    expect(result.safe).toBe(true);
-  });
-
-  it("marks alt-modified shortcuts as unsafe", async () => {
-    const target = document.createElement("div");
-    const promise = recordShortcut(target);
-    queueMicrotask(() => fireKey(target, "ç", { altKey: true }));
-    const result = await promise;
-    expect(result.safe).toBe(false);
-    expect(result.unsafeReason).toContain("Alt");
-  });
-
-  it("marks symbol keys as unsafe", async () => {
-    const target = document.createElement("div");
-    const promise = recordShortcut(target);
-    queueMicrotask(() => fireKey(target, "[", { ctrlKey: true }));
-    const result = await promise;
-    expect(result.safe).toBe(false);
-    expect(result.unsafeReason).toContain("not a safe cross-layout key");
-  });
-
-  it("ignores lone modifier presses", async () => {
-    const target = document.createElement("div");
-    const promise = recordShortcut(target);
-    queueMicrotask(() => {
-      fireKey(target, "Shift");
-      fireKey(target, "a", { shiftKey: true });
-    });
-    const result = await promise;
-    expect(result.key).toBe("a");
-    expect(result.shift).toBe(true);
-  });
-
-  it("rejects on abort", async () => {
-    const target = document.createElement("div");
-    const ac = new AbortController();
-    const promise = recordShortcut(target, ac.signal);
-    queueMicrotask(() => ac.abort());
-    await expect(promise).rejects.toThrow("Aborted");
   });
 });
