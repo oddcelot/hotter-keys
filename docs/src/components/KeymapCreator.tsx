@@ -1,4 +1,4 @@
-import { createSignal, createEffect, onMount, For, Show } from "solid-js";
+import { createSignal, createEffect, onMount, onCleanup, For, Show } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { recordShortcut, formatShortcut } from "hotter-keys";
 import type { RecordedShortcut } from "hotter-keys";
@@ -105,12 +105,22 @@ export default function KeymapCreator() {
   const [entries, setEntries] = createStore<KeymapEntry[]>([]);
   const [loaded, setLoaded] = createSignal(false);
   const [recordingId, setRecordingId] = createSignal<string | null>(null);
+  const [pendingChords, setPendingChords] = createSignal<string[]>([]);
   const [saveStatus, setSaveStatus] = createSignal<string>("");
   const [opfsOk, setOpfsOk] = createSignal(false);
 
   let containerRef!: HTMLDivElement;
 
+  // Suppress browser shortcuts during recording, but don't stop propagation
+  // so recordShortcut's listener still receives the event
+  const suppressWhileRecording = (e: KeyboardEvent) => {
+    if (recordingId() !== null) {
+      e.preventDefault();
+    }
+  };
+
   onMount(async () => {
+    containerRef.addEventListener("keydown", suppressWhileRecording, { capture: true });
     const available = isOpfsAvailable();
     setOpfsOk(available);
     if (available) {
@@ -118,6 +128,10 @@ export default function KeymapCreator() {
       setEntries(data);
     }
     setLoaded(true);
+
+    onCleanup(() => {
+      containerRef.removeEventListener("keydown", suppressWhileRecording, { capture: true });
+    });
   });
 
   // Auto-save on change (debounced)
@@ -157,15 +171,43 @@ export default function KeymapCreator() {
 
   const recordForRow = async (id: string) => {
     setRecordingId(id);
-    try {
-      const result = await recordShortcut(containerRef);
-      if (!result.safe) return;
-      const comboStr = recordedToCombo(result);
+    setPendingChords([]);
+    containerRef.focus();
+
+    const chords: string[] = [];
+    let done = false;
+
+    while (!done) {
+      const ac = new AbortController();
+      const onEscape = (e: KeyboardEvent) => {
+        if (e.key === "Escape") { ac.abort(); e.preventDefault(); }
+      };
+      containerRef.addEventListener("keydown", onEscape, { capture: true });
+      try {
+        const result = await recordShortcut(containerRef, ac.signal);
+        containerRef.removeEventListener("keydown", onEscape, { capture: true });
+        if (!result.safe) {
+          // Unsafe chord ends recording — keep what we have
+          done = true;
+        } else {
+          chords.push(recordedToCombo(result));
+          setPendingChords([...chords]);
+        }
+      } catch {
+        // Escape pressed — finish with collected chords
+        containerRef.removeEventListener("keydown", onEscape, { capture: true });
+        done = true;
+      }
+    }
+
+    if (chords.length > 0) {
+      const comboStr = chords.join(" ");
       const idx = entries.findIndex((e) => e.id === id);
       if (idx !== -1) setEntries(idx, "shortcut", comboStr);
-    } finally {
-      setRecordingId(null);
     }
+
+    setPendingChords([]);
+    setRecordingId(null);
   };
 
   return (
@@ -246,8 +288,13 @@ export default function KeymapCreator() {
                         />
                       </td>
                       <td style={CELL}>
-                        <div style={{ display: "flex", "align-items": "center", gap: "0.4rem" }}>
-                          <Show when={entry.shortcut}>
+                        <div style={{ display: "flex", "align-items": "center", gap: "0.4rem", "flex-wrap": "wrap" }}>
+                          <Show when={isThisRecording() && pendingChords().length > 0}>
+                            <For each={pendingChords()}>
+                              {(chord) => <kbd style={{ ...KBD, background: "var(--sl-color-accent)", color: "var(--sl-color-accent-high)" }}>{comboToLabel(chord)}</kbd>}
+                            </For>
+                          </Show>
+                          <Show when={!isThisRecording() && entry.shortcut}>
                             <kbd style={KBD}>{comboToLabel(entry.shortcut)}</kbd>
                           </Show>
                           <button
@@ -260,7 +307,11 @@ export default function KeymapCreator() {
                                 : {}),
                             }}
                           >
-                            {isThisRecording() ? "Press key\u2026" : entry.shortcut ? "Rebind" : "Record"}
+                            {isThisRecording()
+                              ? pendingChords().length > 0
+                                ? "Next chord (Esc to finish)"
+                                : "Press key (Esc to cancel)"
+                              : entry.shortcut ? "Rebind" : "Record"}
                           </button>
                         </div>
                       </td>

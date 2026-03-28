@@ -173,6 +173,20 @@ export default function Playground() {
     unbindMap.set(row.id, unsub);
   };
 
+  // --- Escape-to-cancel helper ---
+  const withEscapeCancel = (fn: (ac: AbortController) => void): AbortController => {
+    const ac = new AbortController();
+    const onEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { ac.abort(); e.preventDefault(); }
+    };
+    containerRef.addEventListener("keydown", onEscape, { capture: true });
+    ac.signal.addEventListener("abort", () => {
+      containerRef.removeEventListener("keydown", onEscape, { capture: true });
+    });
+    fn(ac);
+    return ac;
+  };
+
   // --- Rebind a row via recording ---
   const rebindRow = async (
     rowId: number,
@@ -180,8 +194,10 @@ export default function Playground() {
     type: "shortcut" | "sequence",
   ) => {
     setRecordingRowId(rowId);
+    containerRef.focus();
+    const ac = withEscapeCancel(() => {});
     try {
-      const result = await recordShortcut(containerRef);
+      const result = await recordShortcut(containerRef, ac.signal);
       if (!result.safe) {
         pushLog(`Rejected: ${result.unsafeReason}`, "record");
         return;
@@ -204,8 +220,18 @@ export default function Playground() {
       bindRow(row, type);
 
       pushLog(`Rebound to ${label}`, "record");
+    } catch {
+      // aborted via Escape
     } finally {
       setRecordingRowId(null);
+    }
+  };
+
+  // Suppress browser shortcuts during recording, but don't stop propagation
+  // so recordShortcut's listener still receives the event
+  const suppressWhileRecording = (e: KeyboardEvent) => {
+    if (recordingRowId() !== null || recording()) {
+      e.preventDefault();
     }
   };
 
@@ -235,10 +261,12 @@ export default function Playground() {
     for (const s of shortcuts()) bindRow(s, "shortcut");
     for (const s of sequences()) bindRow(s, "sequence");
 
+    containerRef.addEventListener("keydown", suppressWhileRecording, { capture: true });
     containerRef.addEventListener("keydown", captureRaw);
 
     onCleanup(() => {
       hk.destroy();
+      containerRef.removeEventListener("keydown", suppressWhileRecording, { capture: true });
       containerRef.removeEventListener("keydown", captureRaw);
     });
   });
@@ -247,14 +275,18 @@ export default function Playground() {
   const doRecord = async () => {
     setRecording(true);
     setRecorded(null);
+    containerRef.focus();
+    const ac = withEscapeCancel(() => {});
     try {
-      const result = await recordShortcut(containerRef);
+      const result = await recordShortcut(containerRef, ac.signal);
       setRecorded(result);
       if (result.safe) {
         pushLog(`Recorded: ${formatShortcut(result)}`, "record");
       } else {
         pushLog(`Recorded (unsafe): ${result.unsafeReason}`, "record");
       }
+    } catch {
+      // aborted via Escape
     } finally {
       setRecording(false);
     }
@@ -339,7 +371,7 @@ export default function Playground() {
                         : {}),
                     }}
                   >
-                    {isThisRecording() ? "Press key\u2026" : "Rebind"}
+                    {isThisRecording() ? "Press key (Esc to cancel)" : "Rebind"}
                   </button>
                 </div>
               );
@@ -393,7 +425,7 @@ export default function Playground() {
                         : {}),
                     }}
                   >
-                    {isThisRecording() ? "Press key\u2026" : "Rebind"}
+                    {isThisRecording() ? "Press key (Esc to cancel)" : "Rebind"}
                   </button>
                 </div>
               );
@@ -420,7 +452,7 @@ export default function Playground() {
               "font-size": "0.8rem",
             }}
           >
-            {recording() ? "Press any key\u2026" : "Record Shortcut"}
+            {recording() ? "Press any key (Esc to cancel)" : "Record Shortcut"}
           </button>
           <Show when={recorded()}>
             {(r) => (
