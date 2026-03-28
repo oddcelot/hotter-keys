@@ -1,0 +1,8 @@
+packages:
+  - docs
+
+catalogs:
+  default:
+    "@astrojs/starlight": "0.38.2"
+    astro: "6.1.1"
+    sharp: "0.34.5"
