@@ -13,6 +13,7 @@ import {
   eventMatchesShortcut,
   isInputElement,
   shortcutEquals,
+  translateForPlatform,
 } from "./parse";
 
 const MODIFIER_KEYS = new Set(["control", "shift", "meta", "alt"]);
@@ -248,6 +249,11 @@ export class Hotkeys {
       sequence = shortcut;
     } else {
       sequence = [shortcut];
+    }
+
+    // Cross-platform: translate ctrl ↔ meta based on platform
+    if (options.crossPlatform !== false) {
+      sequence = sequence.map((s) => translateForPlatform(s));
     }
 
     const binding: Binding = {

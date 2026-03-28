@@ -59,12 +59,16 @@ const INITIAL_SEQUENCES: ShortcutRow[] = [
 // ---------------------------------------------------------------------------
 
 function recordedToCombo(r: RecordedShortcut): string {
-  return [
-    r.ctrl ? "ctrl" : "",
-    r.shift ? "shift" : "",
-    r.meta ? "meta" : "",
-    r.key,
-  ].filter(Boolean).join("+");
+  const parts: string[] = [];
+  if (r.mod) {
+    parts.push("mod");
+  } else {
+    if (r.ctrl) parts.push("ctrl");
+    if (r.meta) parts.push("meta");
+  }
+  if (r.shift) parts.push("shift");
+  parts.push(r.key);
+  return parts.join("+");
 }
 
 // ---------------------------------------------------------------------------

@@ -32,10 +32,12 @@ export type {
 } from "./types";
 
 export {
+  isMac,
   parseShortcut,
   parseSequence,
   formatShortcut,
   formatSequence,
+  translateForPlatform,
 } from "./parse";
 
 export { Hotkeys, createHotkeys } from "./hotkeys";

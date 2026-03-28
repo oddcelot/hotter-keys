@@ -1,9 +1,18 @@
-import type { Modifiers, Shortcut, ShortcutSequence } from "./types.js";
+import type { Modifiers, Shortcut, ShortcutSequence } from "./types";
 
 export const ALPHA = /^[a-z]$/;
 export const DIGIT = /^[0-9]$/;
 
 const EMPTY_MODS: Modifiers = { ctrl: false, shift: false, meta: false };
+
+/**
+ * Detect whether the current platform is macOS/iOS.
+ * On macOS the primary modifier is Meta (Cmd); elsewhere it is Ctrl.
+ */
+export function isMac(): boolean {
+  if (typeof navigator === "undefined") return false;
+  return /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+}
 
 const MODIFIER_NAMES: Record<string, keyof Modifiers> = {
   ctrl: "ctrl",
@@ -19,12 +28,19 @@ const MODIFIER_NAMES: Record<string, keyof Modifiers> = {
 /**
  * Parse a single chord like `"ctrl+shift+k"` into a {@link Shortcut}.
  *
- * Modifiers: `ctrl` | `control` | `meta` | `cmd` | `command` | `win` | `super` | `shift`
- * Key:       a single letter a-z (case-insensitive) or digit 0-9
+ * Modifiers: `ctrl` | `control` | `meta` | `cmd` | `command` | `win` | `super` | `shift` | `mod`
  *
+ * The `mod` modifier resolves to `meta` on macOS and `ctrl` on Windows/Linux,
+ * making shortcuts portable across platforms.
+ *
+ * Key: a single letter a-z (case-insensitive) or digit 0-9
+ *
+ * @param raw The shortcut string to parse.
+ * @param platform Override platform detection (for testing or SSR).
  * @throws if the chord is malformed or violates safety rules.
  */
-export function parseShortcut(raw: string): Shortcut {
+export function parseShortcut(raw: string, platform?: { mac: boolean }): Shortcut {
+  const mac = platform ? platform.mac : isMac();
   const parts = raw
     .toLowerCase()
     .split("+")
@@ -39,6 +55,11 @@ export function parseShortcut(raw: string): Shortcut {
   let key: string | undefined;
 
   for (const part of parts) {
+    // `mod` resolves to the platform primary modifier
+    if (part === "mod") {
+      mods[mac ? "meta" : "ctrl"] = true;
+      continue;
+    }
     const mod = MODIFIER_NAMES[part];
     if (mod) {
       mods[mod] = true;
@@ -80,12 +101,12 @@ export function parseShortcut(raw: string): Shortcut {
  * parseSequence("ctrl+s")        // => [{ key:"s", ctrl:true, … }]
  * ```
  */
-export function parseSequence(raw: string): ShortcutSequence {
+export function parseSequence(raw: string, platform?: { mac: boolean }): ShortcutSequence {
   const chords = raw.trim().split(/\s+/);
   if (chords.length === 0 || (chords.length === 1 && chords[0] === "")) {
     throw new Error("Empty sequence string");
   }
-  return chords.map(parseShortcut);
+  return chords.map((c) => parseShortcut(c, platform));
 }
 
 /**
@@ -127,4 +148,26 @@ export function eventMatchesShortcut(e: KeyboardEvent, s: Shortcut): boolean {
 
 export function shortcutEquals(a: Shortcut, b: Shortcut): boolean {
   return a.key === b.key && a.ctrl === b.ctrl && a.shift === b.shift && a.meta === b.meta;
+}
+
+/**
+ * Swap `ctrl` ↔ `meta` based on platform so that shortcuts registered with
+ * one modifier work with the platform primary modifier.
+ *
+ * On macOS: `{ ctrl: true, meta: false }` → `{ ctrl: false, meta: true }`
+ * On Windows/Linux: `{ ctrl: false, meta: true }` → `{ ctrl: true, meta: false }`
+ *
+ * If both or neither are set, the shortcut is left unchanged.
+ */
+export function translateForPlatform(s: Shortcut, platform?: { mac: boolean }): Shortcut {
+  const mac = platform ? platform.mac : isMac();
+  // Only translate when exactly one of ctrl/meta is set
+  if (s.ctrl === s.meta) return s;
+  if (mac && s.ctrl && !s.meta) {
+    return { ...s, ctrl: false, meta: true };
+  }
+  if (!mac && s.meta && !s.ctrl) {
+    return { ...s, ctrl: true, meta: false };
+  }
+  return s;
 }

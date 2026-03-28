@@ -40,6 +40,13 @@ export interface BindingOptions {
    * @default false
    */
   requireReset?: boolean;
+  /**
+   * If true, automatically translate `ctrl` ↔ `meta` based on platform:
+   * on macOS, `ctrl` in a shortcut matches `meta` (Cmd); on Windows/Linux,
+   * `meta` matches `ctrl`. Set to false for explicit per-platform bindings.
+   * @default true
+   */
+  crossPlatform?: boolean;
 }
 
 export interface Binding extends BindingOptions {
@@ -90,6 +97,12 @@ export interface RecordedShortcut {
   ctrl: boolean;
   shift: boolean;
   meta: boolean;
+  /**
+   * Whether the platform primary modifier was used
+   * (Cmd on macOS, Ctrl on Windows/Linux). Use this to store
+   * shortcuts as `mod+key` for cross-platform portability.
+   */
+  mod: boolean;
   /** Whether the recorded key is safe to use cross-layout. */
   safe: boolean;
   /** If unsafe, a human-readable reason. */

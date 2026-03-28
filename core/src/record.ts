@@ -1,5 +1,5 @@
 import type { RecordedShortcut } from "./types";
-import { ALPHA, DIGIT } from "./parse";
+import { ALPHA, DIGIT, isMac } from "./parse";
 
 /**
  * Returns a promise that resolves with the next shortcut the user presses.
@@ -33,6 +33,12 @@ export function recordShortcut(
       const shift = event.shiftKey;
       const meta = event.metaKey;
 
+      // Platform primary modifier: Cmd on macOS, Ctrl elsewhere.
+      // Only set when exclusively the primary modifier is used (not both ctrl+meta).
+      const mod = isMac()
+        ? (meta && !ctrl)
+        : (ctrl && !meta);
+
       let safe = true;
       let unsafeReason: string | undefined;
 
@@ -47,7 +53,7 @@ export function recordShortcut(
         unsafeReason = `Shift+${key} produces locale-dependent symbols`;
       }
 
-      resolve({ key, ctrl, shift, meta, safe, unsafeReason });
+      resolve({ key, ctrl, shift, meta, mod, safe, unsafeReason });
     };
 
     const onAbort = () => {

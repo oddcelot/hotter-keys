@@ -4,6 +4,7 @@ import {
   parseSequence,
   formatShortcut,
   formatSequence,
+  translateForPlatform,
 } from "./parse";
 import type { Shortcut } from "./types";
 
@@ -116,5 +117,53 @@ describe("formatSequence", () => {
     const seq = parseSequence("ctrl+k ctrl+c");
     expect(formatSequence(seq)).toBe("Ctrl+K Ctrl+C");
     expect(formatSequence(seq, true)).toBe("⌃K ⌃C");
+  });
+});
+
+describe("mod keyword", () => {
+  it("resolves mod to meta on macOS", () => {
+    expect(parseShortcut("mod+s", { mac: true })).toEqual({ key: "s", ctrl: false, shift: false, meta: true });
+  });
+
+  it("resolves mod to ctrl on non-macOS", () => {
+    expect(parseShortcut("mod+s", { mac: false })).toEqual({ key: "s", ctrl: true, shift: false, meta: false });
+  });
+
+  it("mod+shift works", () => {
+    expect(parseShortcut("mod+shift+p", { mac: true })).toEqual({ key: "p", ctrl: false, shift: true, meta: true });
+  });
+
+  it("mod works in sequences", () => {
+    const seq = parseSequence("mod+k mod+c", { mac: true });
+    expect(seq[0]!.meta).toBe(true);
+    expect(seq[0]!.ctrl).toBe(false);
+    expect(seq[1]!.meta).toBe(true);
+  });
+});
+
+describe("translateForPlatform", () => {
+  it("translates ctrl to meta on macOS", () => {
+    const result = translateForPlatform({ key: "s", ctrl: true, shift: false, meta: false }, { mac: true });
+    expect(result).toEqual({ key: "s", ctrl: false, shift: false, meta: true });
+  });
+
+  it("translates meta to ctrl on non-macOS", () => {
+    const result = translateForPlatform({ key: "s", ctrl: false, shift: false, meta: true }, { mac: false });
+    expect(result).toEqual({ key: "s", ctrl: true, shift: false, meta: false });
+  });
+
+  it("does not translate when both ctrl and meta are set", () => {
+    const input: Shortcut = { key: "s", ctrl: true, shift: false, meta: true };
+    expect(translateForPlatform(input, { mac: true })).toEqual(input);
+  });
+
+  it("does not translate when neither ctrl nor meta is set", () => {
+    const input: Shortcut = { key: "a", ctrl: false, shift: true, meta: false };
+    expect(translateForPlatform(input, { mac: true })).toEqual(input);
+  });
+
+  it("preserves shift alongside translation", () => {
+    const result = translateForPlatform({ key: "p", ctrl: true, shift: true, meta: false }, { mac: true });
+    expect(result).toEqual({ key: "p", ctrl: false, shift: true, meta: true });
   });
 });
