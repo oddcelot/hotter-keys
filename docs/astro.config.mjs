@@ -25,6 +25,10 @@ export default defineConfig({
           label: "Reference",
           autogenerate: { directory: "reference" },
         },
+        {
+          label: "Tools",
+          items: [{ label: "Keymap Creator", slug: "tools/keymap-creator" }],
+        },
       ],
     }),
     solidJs(),
