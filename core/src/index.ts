@@ -29,15 +29,15 @@ export type {
   KeyHoldListener,
   HotkeysOptions,
   RecordedShortcut,
-} from "./types.js";
+} from "./types";
 
 export {
   parseShortcut,
   parseSequence,
   formatShortcut,
   formatSequence,
-} from "./parse.js";
+} from "./parse";
 
-export { Hotkeys, createHotkeys } from "./hotkeys.js";
+export { Hotkeys, createHotkeys } from "./hotkeys";
 
-export { recordShortcut } from "./record.js";
+export { recordShortcut } from "./record";

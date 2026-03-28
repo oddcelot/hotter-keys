@@ -7,13 +7,13 @@ import type {
   Shortcut,
   ShortcutHandler,
   ShortcutSequence,
-} from "./types.js";
+} from "./types";
 import {
   parseSequence,
   eventMatchesShortcut,
   isInputElement,
   shortcutEquals,
-} from "./parse.js";
+} from "./parse";
 
 const MODIFIER_KEYS = new Set(["control", "shift", "meta", "alt"]);
 

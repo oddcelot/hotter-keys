@@ -1,5 +1,5 @@
-import type { RecordedShortcut } from "./types.js";
-import { ALPHA, DIGIT } from "./parse.js";
+import type { RecordedShortcut } from "./types";
+import { ALPHA, DIGIT } from "./parse";
 
 /**
  * Returns a promise that resolves with the next shortcut the user presses.
