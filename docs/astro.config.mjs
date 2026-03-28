@@ -1,27 +1,32 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
-import starlight from '@astrojs/starlight';
-import solidJs from '@astrojs/solid-js';
+import { defineConfig } from "astro/config";
+import starlight from "@astrojs/starlight";
+import solidJs from "@astrojs/solid-js";
 
 // https://astro.build/config
 export default defineConfig({
-	integrations: [
-		starlight({
-			title: 'Hotter Keys',
-			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/withastro/starlight' }],
-			sidebar: [
-				{
-					label: 'Guides',
-					items: [
-						{ label: 'Getting Started', slug: 'guides/getting-started' },
-					],
-				},
-				{
-					label: 'Reference',
-					autogenerate: { directory: 'reference' },
-				},
-			],
-		}),
-		solidJs(),
-	],
+  integrations: [
+    starlight({
+      pagefind: false,
+      title: "Hotter Keys",
+      social: [
+        {
+          icon: "github",
+          label: "GitHub",
+          href: "https://github.com/withastro/starlight",
+        },
+      ],
+      sidebar: [
+        {
+          label: "Guides",
+          items: [{ label: "Getting Started", slug: "guides/getting-started" }],
+        },
+        {
+          label: "Reference",
+          autogenerate: { directory: "reference" },
+        },
+      ],
+    }),
+    solidJs(),
+  ],
 });
