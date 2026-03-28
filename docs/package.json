@@ -11,8 +11,11 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/solid-js": "catalog:",
     "@astrojs/starlight": "catalog:",
     "astro": "catalog:",
-    "sharp": "catalog:"
+    "hotter-keys": "workspace:*",
+    "sharp": "catalog:",
+    "solid-js": "catalog:"
   }
 }
