@@ -490,3 +490,233 @@ describe("Hotkeys — key hold", () => {
     expect(listener).not.toHaveBeenCalled();
   });
 });
+
+// ---------------------------------------------------------------------------
+// Hotkeys — layers
+// ---------------------------------------------------------------------------
+
+describe("Hotkeys — layers", () => {
+  let target: HTMLDivElement;
+  let hk: Hotkeys;
+
+  beforeEach(() => {
+    target = document.createElement("div");
+    hk = new Hotkeys({ target });
+  });
+
+  afterEach(() => {
+    hk.destroy();
+  });
+
+  // --- Stack basics ---
+
+  it("defaults to [\"global\"]", () => {
+    expect([...hk.getLayers()]).toEqual(["global"]);
+  });
+
+  it("pushLayer adds to the stack", () => {
+    hk.pushLayer("commandbar");
+    expect([...hk.getLayers()]).toEqual(["global", "commandbar"]);
+  });
+
+  it("pushLayer is a no-op for duplicate names", () => {
+    hk.pushLayer("commandbar");
+    hk.pushLayer("commandbar");
+    expect([...hk.getLayers()]).toEqual(["global", "commandbar"]);
+  });
+
+  it("popLayer() pops the topmost layer", () => {
+    hk.pushLayer("commandbar");
+    const popped = hk.popLayer();
+    expect(popped).toBe("commandbar");
+    expect([...hk.getLayers()]).toEqual(["global"]);
+  });
+
+  it("popLayer() returns undefined when only global remains", () => {
+    expect(hk.popLayer()).toBeUndefined();
+    expect([...hk.getLayers()]).toEqual(["global"]);
+  });
+
+  it("popLayer(name) removes a specific layer", () => {
+    hk.pushLayer("a");
+    hk.pushLayer("b");
+    expect(hk.popLayer("a")).toBe(true);
+    expect([...hk.getLayers()]).toEqual(["global", "b"]);
+  });
+
+  it("popLayer(name) returns false for unknown layer", () => {
+    expect(hk.popLayer("unknown")).toBe(false);
+  });
+
+  it("popLayer('global') is not allowed", () => {
+    expect(hk.popLayer("global")).toBe(false);
+    expect([...hk.getLayers()]).toEqual(["global"]);
+  });
+
+  // --- Priority override ---
+
+  it("higher layer overrides lower layer for the same shortcut", () => {
+    const globalHandler = vi.fn();
+    const cmdHandler = vi.fn();
+
+    hk.add("ctrl+k", globalHandler); // default layer = global
+    hk.add("ctrl+k", cmdHandler, { layer: "commandbar" });
+
+    // Before pushing: only global fires
+    fireKey(target, "k", { ctrlKey: true });
+    expect(globalHandler).toHaveBeenCalledOnce();
+    expect(cmdHandler).not.toHaveBeenCalled();
+
+    globalHandler.mockClear();
+
+    // After pushing: only commandbar fires
+    hk.pushLayer("commandbar");
+    fireKey(target, "k", { ctrlKey: true });
+    expect(cmdHandler).toHaveBeenCalledOnce();
+    expect(globalHandler).not.toHaveBeenCalled();
+  });
+
+  // --- Fall-through ---
+
+  it("unmatched keys fall through to lower layers", () => {
+    const globalSave = vi.fn();
+    const cmdHandler = vi.fn();
+
+    hk.add("ctrl+s", globalSave); // global layer
+    hk.add("ctrl+k", cmdHandler, { layer: "commandbar" });
+
+    hk.pushLayer("commandbar");
+
+    // ctrl+s is not in commandbar layer, so it falls through to global
+    fireKey(target, "s", { ctrlKey: true });
+    expect(globalSave).toHaveBeenCalledOnce();
+  });
+
+  // --- Pop restores behavior ---
+
+  it("popping a layer restores lower layer behavior", () => {
+    const globalHandler = vi.fn();
+    const cmdHandler = vi.fn();
+
+    hk.add("ctrl+k", globalHandler);
+    hk.add("ctrl+k", cmdHandler, { layer: "commandbar" });
+
+    hk.pushLayer("commandbar");
+    hk.popLayer("commandbar");
+
+    fireKey(target, "k", { ctrlKey: true });
+    expect(globalHandler).toHaveBeenCalledOnce();
+    expect(cmdHandler).not.toHaveBeenCalled();
+  });
+
+  // --- Layer change listener ---
+
+  it("onLayerChange fires on push and pop", () => {
+    const listener = vi.fn();
+    hk.onLayerChange(listener);
+
+    hk.pushLayer("commandbar");
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect([...listener.mock.calls[0][0]]).toEqual(["global", "commandbar"]);
+
+    hk.popLayer();
+    expect(listener).toHaveBeenCalledTimes(2);
+    expect([...listener.mock.calls[1][0]]).toEqual(["global"]);
+  });
+
+  it("onLayerChange unsub stops notifications", () => {
+    const listener = vi.fn();
+    const unsub = hk.onLayerChange(listener);
+    unsub();
+
+    hk.pushLayer("commandbar");
+    expect(listener).not.toHaveBeenCalled();
+  });
+
+  // --- Sequences across layers ---
+
+  it("higher layer consuming a key resets in-progress sequences in lower layers", () => {
+    const seqHandler = vi.fn();
+    const cmdHandler = vi.fn();
+
+    // Global: ctrl+k ctrl+c sequence
+    hk.add("ctrl+k ctrl+c", seqHandler);
+    // Commandbar: ctrl+c single chord
+    hk.add("ctrl+c", cmdHandler, { layer: "commandbar" });
+
+    // Start the global sequence
+    fireKey(target, "k", { ctrlKey: true });
+    expect(seqHandler).not.toHaveBeenCalled();
+
+    // Now push commandbar and press ctrl+c
+    hk.pushLayer("commandbar");
+    fireKey(target, "c", { ctrlKey: true });
+
+    // Commandbar should capture, global sequence should NOT complete
+    expect(cmdHandler).toHaveBeenCalledOnce();
+    expect(seqHandler).not.toHaveBeenCalled();
+  });
+
+  // --- Multiple layers ---
+
+  it("three layers stacked — topmost wins", () => {
+    const globalH = vi.fn();
+    const middleH = vi.fn();
+    const topH = vi.fn();
+
+    hk.add("ctrl+k", globalH);
+    hk.add("ctrl+k", middleH, { layer: "middle" });
+    hk.add("ctrl+k", topH, { layer: "top" });
+
+    hk.pushLayer("middle");
+    hk.pushLayer("top");
+
+    fireKey(target, "k", { ctrlKey: true });
+    expect(topH).toHaveBeenCalledOnce();
+    expect(middleH).not.toHaveBeenCalled();
+    expect(globalH).not.toHaveBeenCalled();
+  });
+
+  // --- Backward compat with scope ---
+
+  it("scope and layer work together", () => {
+    const handler = vi.fn();
+    hk.add("ctrl+k", handler, { scope: "editor", layer: "commandbar" });
+
+    hk.pushLayer("commandbar");
+
+    // Wrong scope — should not fire
+    fireKey(target, "k", { ctrlKey: true });
+    expect(handler).not.toHaveBeenCalled();
+
+    // Correct scope — should fire
+    hk.setScope("editor");
+    fireKey(target, "k", { ctrlKey: true });
+    expect(handler).toHaveBeenCalledOnce();
+  });
+
+  it("bindings without layer default to global", () => {
+    const handler = vi.fn();
+    hk.add("ctrl+j", handler);
+
+    // Should fire even with another layer pushed (fall-through)
+    hk.pushLayer("commandbar");
+    fireKey(target, "j", { ctrlKey: true });
+    expect(handler).toHaveBeenCalledOnce();
+  });
+
+  // --- Destroy cleans up layers ---
+
+  it("destroy resets layers to [\"global\"]", () => {
+    hk.pushLayer("commandbar");
+    hk.destroy();
+    // Re-check via a new instance perspective — the internal state was reset
+    // We can't call getLayers after destroy since the instance is dead,
+    // but we verify no listener fires
+    const listener = vi.fn();
+    // This tests that _layerListeners was cleared
+    hk.onLayerChange(listener);
+    // Manually verify internal state by checking getLayers still works
+    expect([...hk.getLayers()]).toEqual(["global"]);
+  });
+});

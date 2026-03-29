@@ -5,8 +5,10 @@ import solidJs from "@astrojs/solid-js";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://oddcelot.github.io",
-  base: "/hotter-keys",
+  site: process.env.CI
+    ? "https://oddcelot.github.io"
+    : "http://localhost:4321",
+  base: process.env.CI ? "/hotter-keys" : "/",
   integrations: [
     starlight({
       pagefind: false,
@@ -29,7 +31,10 @@ export default defineConfig({
         },
         {
           label: "Tools",
-          items: [{ label: "Keymap Creator", slug: "tools/keymap-creator" }],
+          items: [
+            { label: "Keymap Creator", slug: "tools/keymap-creator" },
+            { label: "Layers Demo", slug: "tools/layers-demo" },
+          ],
         },
       ],
     }),

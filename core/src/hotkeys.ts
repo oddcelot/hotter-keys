@@ -4,6 +4,7 @@ import type {
   HeldKeysListener,
   HotkeysOptions,
   KeyHoldListener,
+  LayerChangeListener,
   Shortcut,
   ShortcutHandler,
   ShortcutSequence,
@@ -50,6 +51,10 @@ export class Hotkeys {
   private _heldKeysListeners = new Set<HeldKeysListener>();
   private _keyHolds = new Map<string, Set<KeyHoldListener>>();
   private _prevHeldSingle: string | null = null;
+
+  // --- Layer stack ---
+  private _layers: string[] = ["global"];
+  private _layerListeners = new Set<LayerChangeListener>();
 
   // --- Bound handlers ---
   private _onKeyDown = (e: Event) => this._handleKeyDown(e as KeyboardEvent);
@@ -107,6 +112,8 @@ export class Hotkeys {
     this._heldKeys = [];
     this._heldKeysListeners.clear();
     this._keyHolds.clear();
+    this._layers = ["global"];
+    this._layerListeners.clear();
   }
 
   // -----------------------------------------------------------------------
@@ -119,6 +126,73 @@ export class Hotkeys {
 
   setScope(scope: string): void {
     this.scope = scope;
+  }
+
+  // -----------------------------------------------------------------------
+  // Layers
+  // -----------------------------------------------------------------------
+
+  /**
+   * Get the current layer stack (bottom to top).
+   * The bottom layer is always `"global"`.
+   */
+  getLayers(): ReadonlyArray<string> {
+    return [...this._layers];
+  }
+
+  /**
+   * Push a named layer onto the stack. Bindings in higher layers
+   * take priority over lower layers for the same key combination.
+   * No-op if the layer is already in the stack.
+   */
+  pushLayer(name: string): void {
+    if (this._layers.includes(name)) return;
+    this._layers.push(name);
+    this._emitLayerChange();
+  }
+
+  /**
+   * Pop a layer from the stack.
+   *
+   * - No arguments: pops the topmost layer (never pops `"global"`).
+   *   Returns the popped name, or `undefined` if only global remains.
+   * - With a name: removes that specific layer from anywhere in the stack.
+   *   Returns `true` if found and removed, `false` otherwise.
+   *   `"global"` cannot be removed.
+   */
+  popLayer(): string | undefined;
+  popLayer(name: string): boolean;
+  popLayer(name?: string): string | boolean | undefined {
+    if (name !== undefined) {
+      if (name === "global") return false;
+      const idx = this._layers.indexOf(name);
+      if (idx === -1) return false;
+      this._layers.splice(idx, 1);
+      this._emitLayerChange();
+      return true;
+    }
+    // No-arg: pop topmost (but not global)
+    if (this._layers.length <= 1) return undefined;
+    const popped = this._layers.pop()!;
+    this._emitLayerChange();
+    return popped;
+  }
+
+  /**
+   * Subscribe to layer stack changes. Returns an unsubscribe function.
+   */
+  onLayerChange(listener: LayerChangeListener): () => void {
+    this._layerListeners.add(listener);
+    return () => {
+      this._layerListeners.delete(listener);
+    };
+  }
+
+  private _emitLayerChange(): void {
+    const snapshot = Object.freeze([...this._layers]);
+    for (const listener of this._layerListeners) {
+      listener(snapshot);
+    }
   }
 
   // -----------------------------------------------------------------------
@@ -264,6 +338,7 @@ export class Hotkeys {
       enableInInput: options.enableInInput ?? false,
       requireReset: options.requireReset ?? false,
       scope: options.scope,
+      layer: options.layer,
       _seqIndex: 0,
       _awaitingReset: false,
       _seqTimer: undefined,
@@ -342,53 +417,81 @@ export class Hotkeys {
       this._trackKeyDown(event);
     }
 
-    // Match bindings
-    for (const binding of this.bindings) {
-      // Scope check
-      if (binding.scope && binding.scope !== "*" && binding.scope !== this.scope) {
-        continue;
-      }
+    // Match bindings — iterate layers top-to-bottom, first match wins
+    let consumed = false;
+    let consumedLayerIdx = -1;
 
-      // Input check
-      if (!binding.enableInInput && isInputElement(event.target)) {
-        continue;
-      }
+    for (let li = this._layers.length - 1; li >= 0 && !consumed; li--) {
+      const layerName = this._layers[li]!;
 
-      // requireReset: already fired, waiting for full release
-      if (binding._awaitingReset) {
-        continue;
-      }
+      for (const binding of this.bindings) {
+        // Layer check
+        const bindingLayer = binding.layer ?? "global";
+        if (bindingLayer !== layerName) continue;
 
-      const target = binding.sequence[binding._seqIndex]!;
-
-      if (eventMatchesShortcut(event, target)) {
-        // Optimistically preventDefault even on intermediate chords
-        if (binding.preventDefault !== false) {
-          event.preventDefault();
-        }
-        if (binding.stopPropagation) {
-          event.stopPropagation();
+        // Scope check
+        if (binding.scope && binding.scope !== "*" && binding.scope !== this.scope) {
+          continue;
         }
 
-        binding._seqIndex++;
+        // Input check
+        if (!binding.enableInInput && isInputElement(event.target)) {
+          continue;
+        }
 
-        if (binding._seqIndex >= binding.sequence.length) {
-          // Full sequence matched — fire!
-          this._resetBindingSequence(binding);
-          if (binding.requireReset) {
-            binding._awaitingReset = true;
+        // requireReset: already fired, waiting for full release
+        if (binding._awaitingReset) {
+          continue;
+        }
+
+        const target = binding.sequence[binding._seqIndex]!;
+
+        if (eventMatchesShortcut(event, target)) {
+          consumed = true;
+          consumedLayerIdx = li;
+
+          // Optimistically preventDefault even on intermediate chords
+          if (binding.preventDefault !== false) {
+            event.preventDefault();
           }
-          binding.handler(event);
-        } else {
-          // Waiting for next chord in sequence — start timeout
-          if (binding._seqTimer !== undefined) clearTimeout(binding._seqTimer);
-          binding._seqTimer = setTimeout(() => {
+          if (binding.stopPropagation) {
+            event.stopPropagation();
+          }
+
+          binding._seqIndex++;
+
+          if (binding._seqIndex >= binding.sequence.length) {
+            // Full sequence matched — fire!
             this._resetBindingSequence(binding);
-          }, this.sequenceTimeout);
+            if (binding.requireReset) {
+              binding._awaitingReset = true;
+            }
+            binding.handler(event);
+          } else {
+            // Waiting for next chord in sequence — start timeout
+            if (binding._seqTimer !== undefined) clearTimeout(binding._seqTimer);
+            binding._seqTimer = setTimeout(() => {
+              this._resetBindingSequence(binding);
+            }, this.sequenceTimeout);
+          }
+
+          break; // This layer consumed the event
+        } else if (binding._seqIndex > 0) {
+          // Wrong key during a sequence — reset progress
+          this._resetBindingSequence(binding);
         }
-      } else if (binding._seqIndex > 0) {
-        // Wrong key during a sequence — reset progress
-        this._resetBindingSequence(binding);
+      }
+    }
+
+    // If a higher layer consumed the event, reset in-progress sequences
+    // in lower layers to prevent stale sequence state
+    if (consumed) {
+      for (const binding of this.bindings) {
+        const bindingLayer = binding.layer ?? "global";
+        const bindingLayerIdx = this._layers.indexOf(bindingLayer);
+        if (bindingLayerIdx < consumedLayerIdx && binding._seqIndex > 0) {
+          this._resetBindingSequence(binding);
+        }
       }
     }
   }

@@ -27,6 +27,7 @@ export type {
   Binding,
   HeldKeysListener,
   KeyHoldListener,
+  LayerChangeListener,
   HotkeysOptions,
   RecordedShortcut,
 } from "./types";

@@ -47,6 +47,13 @@ export interface BindingOptions {
    * @default true
    */
   crossPlatform?: boolean;
+  /**
+   * The layer this binding belongs to. Bindings in higher layers take
+   * priority over lower layers for the same key combination. Unmatched
+   * keys fall through to lower layers.
+   * @default "global"
+   */
+  layer?: string;
 }
 
 export interface Binding extends BindingOptions {
@@ -65,6 +72,9 @@ export type HeldKeysListener = (keys: ReadonlyArray<string>) => void;
 
 /** Subscribe to key-hold state changes. */
 export type KeyHoldListener = (held: boolean) => void;
+
+/** Subscribe to layer stack changes. */
+export type LayerChangeListener = (layers: ReadonlyArray<string>) => void;
 
 export interface HotkeysOptions {
   /**
