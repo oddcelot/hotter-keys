@@ -162,6 +162,7 @@ kbd.kbd-dim {
     background: var(--sl-color-gray-6);
     transition: background 0.15s;
     gap: 0.4rem;
+    margin: 0;
 }
 
 .row-fired-green {

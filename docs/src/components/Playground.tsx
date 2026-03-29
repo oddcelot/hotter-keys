@@ -1,6 +1,8 @@
 import { createSignal, onCleanup, onMount, For, Show } from "solid-js";
 import { createHotkeys, recordShortcut, formatShortcut } from "hotter-keys";
 import type { Hotkeys, RecordedShortcut } from "hotter-keys";
+import Gauge from "./Gauge";
+import FireCounter from "./FireCounter";
 import "../styles/demo.css";
 import styles from "./Playground.module.css";
 
@@ -97,6 +99,7 @@ export default function Playground() {
   const [recording, setRecording] = createSignal(false);
   const [recorded, setRecorded] = createSignal<RecordedShortcut | null>(null);
   const [recordingRowId, setRecordingRowId] = createSignal<number | null>(null);
+  const [fireCount, setFireCount] = createSignal(0);
 
   let containerRef!: HTMLDivElement;
   let hk: Hotkeys;
@@ -115,6 +118,7 @@ export default function Playground() {
 
   const flash = (setter: typeof setFiredShortcuts, combo: string) => {
     setter((prev) => ({ ...prev, [combo]: Date.now() }));
+    setFireCount((c) => c + 1);
     setTimeout(() => {
       setter((prev) => {
         const next = { ...prev };
@@ -244,18 +248,29 @@ export default function Playground() {
       {/* ---- HELD KEYS ---- */}
       <div class="section">
         <h4 class="section-title">Held Keys</h4>
-        <div class={styles.heldKeysRow}>
-          <Show
-            when={heldKeys().length > 0}
-            fallback={<span class="muted">No keys held</span>}
-          >
-            <For each={[...heldKeys()]}>
-              {(key) => <kbd class="kbd kbd-accent">{key}</kbd>}
-            </For>
-          </Show>
-          <Show when={shiftHeld()}>
-            <span class={`badge badge-yellow ${styles.shiftBadge}`}>SHIFT HELD ALONE</span>
-          </Show>
+        <div class={styles.instrumentRow}>
+          <Gauge count={Math.min(heldKeys().length, 6)} />
+          <div style={{ flex: "1" }}>
+            <div class={styles.heldKeysRow}>
+              <Show
+                when={heldKeys().length > 0}
+                fallback={<span class="muted">No keys held</span>}
+              >
+                <For each={[...heldKeys()]}>
+                  {(key, i) => (
+                    <span>
+                      <span class={styles.heldKeysOrdinal}>{String(i() + 1).padStart(2, "0")}</span>
+                      <kbd class="kbd kbd-accent">{key}</kbd>
+                    </span>
+                  )}
+                </For>
+              </Show>
+              <Show when={shiftHeld()}>
+                <span class={`badge badge-yellow ${styles.shiftBadge}`}>SHIFT HELD ALONE</span>
+              </Show>
+            </div>
+          </div>
+          <FireCounter count={fireCount()} />
         </div>
       </div>
 

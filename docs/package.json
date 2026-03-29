@@ -15,6 +15,7 @@
     "@astrojs/starlight": "catalog:",
     "astro": "catalog:",
     "hotter-keys": "workspace:*",
+    "starlight-theme-hotter-keys": "workspace:*",
     "sharp": "catalog:",
     "solid-js": "catalog:"
   }

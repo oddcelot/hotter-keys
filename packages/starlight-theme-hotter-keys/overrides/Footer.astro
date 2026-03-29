@@ -1,0 +1,29 @@
+---
+import type { Props } from "@astrojs/starlight/props";
+import Pagination from "virtual:starlight/components/Pagination";
+---
+
+<footer class="sl-flex">
+  <Pagination />
+  <div class="hk-footer-rule"></div>
+  <span class="hk-footer-text">Hotter Keys</span>
+</footer>
+
+<style>
+  footer {
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .hk-footer-rule {
+    border-top: 1px solid var(--hk-rule);
+    margin-top: 2rem;
+  }
+  .hk-footer-text {
+    font-family: var(--sl-font-mono);
+    font-size: var(--hk-label-size);
+    text-transform: uppercase;
+    letter-spacing: var(--hk-label-tracking);
+    color: var(--sl-color-gray-4);
+    padding-bottom: 2rem;
+  }
+</style>

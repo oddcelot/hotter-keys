@@ -1,6 +1,7 @@
 packages:
   - core
   - docs
+  - packages/*
 
 catalogs:
   default:

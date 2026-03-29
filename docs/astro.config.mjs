@@ -2,6 +2,7 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import solidJs from "@astrojs/solid-js";
+import starlightThemeHotterKeys from "starlight-theme-hotter-keys";
 
 // https://astro.build/config
 export default defineConfig({
@@ -13,6 +14,7 @@ export default defineConfig({
     starlight({
       pagefind: false,
       title: "Hotter Keys",
+      plugins: [starlightThemeHotterKeys()],
       social: [
         {
           icon: "github",
@@ -34,6 +36,7 @@ export default defineConfig({
           items: [
             { label: "Keymap Creator", slug: "tools/keymap-creator" },
             { label: "Layers Demo", slug: "tools/layers-demo" },
+            { label: "Kitchen Sink", slug: "tools/kitchen-sink" },
           ],
         },
       ],

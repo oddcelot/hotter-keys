@@ -5,11 +5,11 @@
   transform: translateX(-50%);
   width: min(24rem, 90%);
   z-index: 10;
-  background: var(--sl-color-bg-nav);
-  border: 1px solid var(--sl-color-accent);
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  background: var(--hk-card-bg, var(--sl-color-bg-nav));
+  border: 1px solid var(--hk-card-border, var(--sl-color-gray-5));
+  border-radius: 6px;
+  padding: 20px;
+  box-shadow: none;
   margin-top: 0.5rem;
 }
 
@@ -22,12 +22,16 @@
 
 .overlayTitle {
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: var(--hk-label-size, 0.5rem);
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking, 0.16em);
 }
 
 .overlayHint {
   color: var(--sl-color-gray-4);
-  font-size: 0.7rem;
+  font-size: var(--hk-label-size, 0.5rem);
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking, 0.16em);
 }
 
 .actionKey {
@@ -38,23 +42,25 @@
 /* --- Layer visualizer --- */
 
 .layerBlock {
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.25rem;
-  border: 1px solid var(--sl-color-gray-5);
-  background: var(--sl-color-gray-6);
-  opacity: 0.6;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--hk-card-border, var(--sl-color-gray-5));
+  background: transparent;
+  opacity: 0.4;
   transition: all 0.2s;
 }
 
 .layerBlockActive {
-  border-color: var(--sl-color-accent);
-  background: rgba(var(--sl-color-accent-rgb, 59, 130, 246), 0.08);
+  border-color: var(--hk-ink, var(--sl-color-white));
+  background: transparent;
   opacity: 1;
 }
 
 .layerName {
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: var(--hk-label-size, 0.5rem);
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking, 0.16em);
 }
 
 .layerShortcuts {
@@ -64,6 +70,8 @@
 }
 
 .layerShortcut {
-  font-size: 0.7rem;
+  font-size: var(--hk-label-size, 0.5rem);
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking, 0.16em);
   color: var(--sl-color-gray-3);
 }

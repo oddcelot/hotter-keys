@@ -1,0 +1,388 @@
+---
+title: Kitchen Sink
+description: Every component, element, and pattern available in the theme — in one page.
+---
+
+import { Aside, Badge, Card, CardGrid, LinkCard, Steps, Tabs, TabItem, FileTree } from '@astrojs/starlight/components';
+import Playground from '../../../../src/components/Playground.tsx';
+import CommandBarDemo from '../../../../src/components/CommandBarDemo.tsx';
+import KeymapCreator from '../../../../src/components/KeymapCreator.tsx';
+import Gauge from '../../../../src/components/Gauge.tsx';
+import FireCounter from '../../../../src/components/FireCounter.tsx';
+
+## Typography
+
+# Heading 1
+
+## Heading 2
+
+### Heading 3
+
+#### Heading 4
+
+##### Heading 5
+
+###### Heading 6
+
+Body text. The quick brown fox jumps over the lazy dog. This is a paragraph demonstrating the base typographic style — Lilex Variable as the mono font, with Instrument Serif reserved for headings and display numbers.
+
+**Bold text** and *italic text* and ~~strikethrough text~~ and `inline code` and [a link to somewhere](#).
+
+> Blockquote. Design is not just what it looks like and feels like. Design is how it works.
+>
+> — Steve Jobs
+
+---
+
+## Lists
+
+### Unordered
+
+- First item
+- Second item
+  - Nested item
+  - Another nested item
+- Third item
+
+### Ordered
+
+1. First step
+2. Second step
+   1. Sub-step one
+   2. Sub-step two
+3. Third step
+
+### Definition-style
+
+**`key`**
+: The value returned by `KeyboardEvent.key`. This is what hotter-keys matches on.
+
+**`code`**
+: The physical key position. Layout-dependent — **do not use**.
+
+---
+
+## Code
+
+Inline: `createHotkeys({ target: document.body })`
+
+```ts title="basic-usage.ts"
+import { createHotkeys } from "hotter-keys";
+
+const hk = createHotkeys({ target: document.body });
+
+// Single shortcut
+hk.add("ctrl+k", () => {
+  console.log("Command palette opened");
+});
+
+// Key sequence (chord)
+hk.add("ctrl+k ctrl+c", () => {
+  console.log("Comment block");
+});
+
+// Held-keys tracking
+hk.onHeldKeysChange((keys) => {
+  console.log("Currently held:", keys);
+});
+```
+
+```css title="theme-tokens.css"
+:root {
+  --hk-card-bg: #e4e4da;
+  --hk-card-border: rgba(26, 26, 23, 0.10);
+  --hk-rule: rgba(26, 26, 23, 0.07);
+  --hk-danger: #c45040;
+  --hk-font-display: "Instrument Serif", serif;
+}
+```
+
+```json title="keymap.json"
+{
+  "entries": [
+    { "name": "save", "shortcut": "ctrl+s" },
+    { "name": "undo", "shortcut": "ctrl+z" }
+  ]
+}
+```
+
+---
+
+## Tables
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `target` | `HTMLElement` | — | The element to listen on |
+| `timeout` | `number` | `1000` | Sequence timeout in ms |
+| `suppress` | `boolean` | `true` | Prevent default on match |
+
+A wider table:
+
+| Key | Code | keyCode | Deprecated | Layout-aware | Safe |
+|-----|------|---------|------------|--------------|------|
+| `a` | `KeyA` | 65 | No | Yes | Yes |
+| `ArrowUp` | `ArrowUp` | 38 | No | N/A | Yes |
+| `Alt` | `AltLeft` | 18 | No | N/A | No |
+
+---
+
+## Asides
+
+:::note
+This is a **note** aside. Use it for supplementary information.
+:::
+
+:::tip
+This is a **tip** aside. Use it to highlight best practices.
+:::
+
+:::caution
+This is a **caution** aside. Use it to warn about potential issues.
+:::
+
+:::danger
+This is a **danger** aside. Matching on `event.code` instead of `event.key` will break on non-QWERTY layouts.
+:::
+
+---
+
+## Badges
+
+Inline badges: <Badge text="New" variant="success" /> <Badge text="Deprecated" variant="danger" /> <Badge text="Beta" variant="caution" /> <Badge text="Note" variant="note" /> <Badge text="Default" /> <Badge text="Tip" variant="tip" />
+
+Sizes: <Badge text="Small" size="small" /> <Badge text="Medium" size="medium" /> <Badge text="Large" size="large" />
+
+---
+
+## Cards
+
+<CardGrid>
+  <Card title="Safe by default" icon="approve-check">
+    Matches on `event.key`, not `event.code` — works across all keyboard layouts.
+  </Card>
+  <Card title="Key sequences" icon="list-format">
+    Multi-chord shortcuts like `Ctrl+K Ctrl+C` with configurable timeout.
+  </Card>
+  <Card title="Held-keys tracking" icon="setting">
+    Real-time tracking of which keys are currently pressed.
+  </Card>
+  <Card title="Shortcut recording" icon="pencil">
+    Built-in `recordShortcut()` utility with safety validation.
+  </Card>
+</CardGrid>
+
+---
+
+## Link Cards
+
+<CardGrid>
+  <LinkCard title="Getting Started" href="/guides/getting-started/" description="Install and configure hotter-keys in your project." />
+  <LinkCard title="Keymap Creator" href="/tools/keymap-creator/" description="Visual keymap editor with persistence." />
+</CardGrid>
+
+---
+
+## Tabs
+
+<Tabs>
+  <TabItem label="npm">
+    ```sh
+    npm install hotter-keys
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```sh
+    pnpm add hotter-keys
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```sh
+    yarn add hotter-keys
+    ```
+  </TabItem>
+</Tabs>
+
+<Tabs>
+  <TabItem label="Browser">
+    ```ts
+    import { createHotkeys } from "hotter-keys";
+    const hk = createHotkeys({ target: document.body });
+    ```
+  </TabItem>
+  <TabItem label="Solid.js">
+    ```tsx
+    import { createHotkeys } from "hotter-keys";
+    import { onMount, onCleanup } from "solid-js";
+
+    function App() {
+      let ref!: HTMLDivElement;
+      onMount(() => {
+        const hk = createHotkeys({ target: ref });
+        hk.add("ctrl+k", () => console.log("fired"));
+        onCleanup(() => hk.destroy());
+      });
+      return <div ref={ref} tabIndex={0} />;
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## Steps
+
+<Steps>
+1. Install the package
+
+   ```sh
+   pnpm add hotter-keys
+   ```
+
+2. Create a hotkeys instance
+
+   ```ts
+   const hk = createHotkeys({ target: document.body });
+   ```
+
+3. Register shortcuts
+
+   ```ts
+   hk.add("ctrl+s", () => save());
+   hk.add("ctrl+k ctrl+c", () => comment());
+   ```
+
+4. Clean up when done
+
+   ```ts
+   hk.destroy();
+   ```
+</Steps>
+
+---
+
+## File Tree
+
+<FileTree>
+- src/
+  - index.ts
+  - hotkeys.ts
+  - types.ts
+  - record.ts
+  - format.ts
+  - **layers.ts** (layer management)
+- docs/
+  - astro.config.mjs
+  - src/
+    - components/
+      - Playground.tsx
+      - CommandBarDemo.tsx
+      - KeymapCreator.tsx
+      - Gauge.tsx
+      - FireCounter.tsx
+    - styles/
+      - demo.css
+- packages/
+  - starlight-theme-hotter-keys/
+    - index.ts
+    - styles/
+      - theme.css
+      - base.css
+      - demo.css
+</FileTree>
+
+---
+
+## Standard HTML Elements
+
+### Images
+
+![Placeholder](https://placehold.co/600x200/d8d8cd/1a1a17?text=Hotter+Keys)
+
+### Horizontal rule
+
+---
+
+### Details / Summary
+
+<details>
+<summary>Expand to see raw keymap JSON</summary>
+
+```json
+{
+  "entries": [
+    { "id": "1", "name": "save", "description": "Save file", "shortcut": "ctrl+s" },
+    { "id": "2", "name": "undo", "description": "Undo last action", "shortcut": "ctrl+z" },
+    { "id": "3", "name": "comment", "description": "Toggle comment", "shortcut": "ctrl+k ctrl+c" }
+  ]
+}
+```
+
+</details>
+
+### Keyboard input
+
+Press <kbd>Ctrl</kbd> + <kbd>K</kbd> then <kbd>Ctrl</kbd> + <kbd>C</kbd> to comment a block.
+
+### Abbreviations
+
+The <abbr title="Application Programming Interface">API</abbr> uses <abbr title="HyperText Markup Language">HTML</abbr> keyboard events.
+
+### Small text
+
+<small>This is small text, useful for footnotes or fine print.</small>
+
+### Superscript and subscript
+
+E = mc<sup>2</sup> and H<sub>2</sub>O.
+
+---
+
+## Custom Components
+
+### Gauge
+
+A standalone gauge at different values:
+
+<div style="display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;">
+  <div style="text-align: center;">
+    <Gauge client:load count={0} />
+    <small>0 keys</small>
+  </div>
+  <div style="text-align: center;">
+    <Gauge client:load count={2} />
+    <small>2 keys</small>
+  </div>
+  <div style="text-align: center;">
+    <Gauge client:load count={4} />
+    <small>4 keys</small>
+  </div>
+  <div style="text-align: center;">
+    <Gauge client:load count={6} />
+    <small>6 keys</small>
+  </div>
+</div>
+
+### Fire Counter
+
+<div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;">
+  <FireCounter client:load count={0} />
+  <FireCounter client:load count={7} />
+  <FireCounter client:load count={42} />
+  <FireCounter client:load count={128} label="total" />
+</div>
+
+---
+
+## Interactive Demos
+
+### Playground
+
+<Playground client:load />
+
+### Command Bar (Layers)
+
+<CommandBarDemo client:load />
+
+### Keymap Creator
+
+<KeymapCreator client:load />

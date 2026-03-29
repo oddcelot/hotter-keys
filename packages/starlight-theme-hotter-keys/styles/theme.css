@@ -1,0 +1,133 @@
+@import "@fontsource/instrument-serif";
+@import "@fontsource-variable/lilex";
+
+/* ── Dark mode (Starlight default) ── */
+:root,
+::backdrop {
+    /* Grayscale — warm, desaturated */
+    --sl-color-white: #d8d8cd;
+    --sl-color-gray-1: #b8b8ad;
+    --sl-color-gray-2: #8a8a80;
+    --sl-color-gray-3: #6a6a62;
+    --sl-color-gray-4: #4a4a43;
+    --sl-color-gray-5: #333330;
+    --sl-color-gray-6: #252521;
+    --sl-color-black: #1a1a17;
+
+    /* Accent — salmon-red, danger only */
+    --sl-color-accent-low: #3a1a15;
+    --sl-color-accent: #c45040;
+    --sl-color-accent-high: #e8a89f;
+
+    /* Semantic aliases */
+    --sl-color-text: var(--sl-color-gray-1);
+    --sl-color-text-accent: var(--sl-color-accent-high);
+    --sl-color-text-invert: var(--sl-color-accent-low);
+    --sl-color-bg: var(--sl-color-black);
+    --sl-color-bg-nav: var(--sl-color-black);
+    --sl-color-bg-sidebar: var(--sl-color-black);
+    --sl-color-bg-inline-code: var(--sl-color-gray-5);
+    --sl-color-bg-accent: var(--sl-color-accent-high);
+    --sl-color-hairline-light: var(--sl-color-gray-5);
+    --sl-color-hairline: var(--sl-color-gray-6);
+    --sl-color-hairline-shade: var(--sl-color-black);
+    --sl-color-backdrop-overlay: rgba(26, 26, 23, 0.66);
+
+    /* Status colors — muted to match the warm palette */
+    --sl-color-orange-low: #3a2a15;
+    --sl-color-orange: #c49040;
+    --sl-color-orange-high: #e8c89f;
+    --sl-color-green-low: #1a3a20;
+    --sl-color-green: #5a9a60;
+    --sl-color-green-high: #9fcea5;
+    --sl-color-blue-low: #1a2a3a;
+    --sl-color-blue: #5a8ab0;
+    --sl-color-blue-high: #9fc0e0;
+    --sl-color-purple-low: #2a1a3a;
+    --sl-color-purple: #8a5ab0;
+    --sl-color-purple-high: #bfa0d8;
+    --sl-color-red-low: #3a1a15;
+    --sl-color-red: #c45040;
+    --sl-color-red-high: #e8a89f;
+
+    /* No shadows — hierarchy from size/weight only */
+    --sl-shadow-sm: none;
+    --sl-shadow-md: none;
+    --sl-shadow-lg: none;
+
+    /* Typography */
+    --sl-font: "Lilex Variable", monospace;
+    --sl-font-mono: "Lilex Variable", monospace;
+
+    /* ── Hotter Keys tokens ── */
+    --hk-font-display: "Instrument Serif", serif;
+    --hk-card-bg: #252521;
+    --hk-card-border: rgba(216, 216, 205, 0.10);
+    --hk-rule: rgba(216, 216, 205, 0.07);
+    --hk-danger: #c45040;
+    --hk-label-tracking: 0.16em;
+    --hk-label-size: 0.5rem;
+    --hk-ink: #d8d8cd;
+    --hk-ink-inverse: #1a1a17;
+}
+
+/* ── Light mode ── */
+:root[data-theme="light"],
+[data-theme="light"] ::backdrop {
+    /* Grayscale — warm sage */
+    --sl-color-white: #1a1a17;
+    --sl-color-gray-1: #2a2a25;
+    --sl-color-gray-2: #4a4a43;
+    --sl-color-gray-3: #6a6a62;
+    --sl-color-gray-4: #8a8a80;
+    --sl-color-gray-5: #c0c0b6;
+    --sl-color-gray-6: #e4e4da;
+    --sl-color-gray-7: #ececdf;
+    --sl-color-black: #d8d8cd;
+
+    /* Accent — salmon-red */
+    --sl-color-accent-high: #7a2018;
+    --sl-color-accent: #c45040;
+    --sl-color-accent-low: #f0d0ca;
+
+    /* Semantic aliases */
+    --sl-color-text: var(--sl-color-gray-2);
+    --sl-color-text-accent: var(--sl-color-accent);
+    --sl-color-text-invert: var(--sl-color-black);
+    --sl-color-bg-nav: var(--sl-color-black);
+    --sl-color-bg-sidebar: var(--sl-color-black);
+    --sl-color-bg-inline-code: var(--sl-color-gray-6);
+    --sl-color-bg-accent: var(--sl-color-accent);
+    --sl-color-hairline-light: var(--sl-color-gray-6);
+    --sl-color-hairline-shade: var(--sl-color-gray-6);
+    --sl-color-backdrop-overlay: rgba(26, 26, 23, 0.33);
+
+    /* Status colors — muted warm */
+    --sl-color-orange-high: #5a3a10;
+    --sl-color-orange: #b08030;
+    --sl-color-orange-low: #f0e0c0;
+    --sl-color-green-high: #1a3a20;
+    --sl-color-green: #408040;
+    --sl-color-green-low: #d0e8d0;
+    --sl-color-blue-high: #1a2a3a;
+    --sl-color-blue: #3070a0;
+    --sl-color-blue-low: #d0e0f0;
+    --sl-color-purple-high: #2a1a3a;
+    --sl-color-purple: #7050a0;
+    --sl-color-purple-low: #e0d0f0;
+    --sl-color-red-high: #5a1810;
+    --sl-color-red: #c45040;
+    --sl-color-red-low: #f0d0ca;
+
+    /* No shadows */
+    --sl-shadow-sm: none;
+    --sl-shadow-md: none;
+    --sl-shadow-lg: none;
+
+    /* ── Hotter Keys tokens (light) ── */
+    --hk-card-bg: #e4e4da;
+    --hk-card-border: rgba(26, 26, 23, 0.10);
+    --hk-rule: rgba(26, 26, 23, 0.07);
+    --hk-ink: #1a1a17;
+    --hk-ink-inverse: #d8d8cd;
+}

@@ -14,12 +14,14 @@
 
 .storageHint {
   color: var(--sl-color-gray-4);
-  font-size: 0.7rem;
+  font-size: var(--hk-label-size, 0.5rem);
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking, 0.16em);
 }
 
 .emptyState {
-  border: 1px dashed var(--sl-color-gray-5);
-  border-radius: 0.5rem;
+  border: 1px dashed var(--hk-card-border, var(--sl-color-gray-5));
+  border-radius: 6px;
   padding: 2rem;
   text-align: center;
   color: var(--sl-color-gray-4);
@@ -32,28 +34,30 @@
 }
 
 .thead {
-  border-bottom: 2px solid var(--sl-color-gray-5);
+  border-bottom: 1px solid var(--hk-card-border, var(--sl-color-gray-5));
 }
 
 .th {
-  padding: 0.5rem;
+  padding: 0.75rem 0.5rem;
   text-align: left;
-  font-size: 0.75rem;
+  font-size: var(--hk-label-size, 0.5rem);
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking, 0.16em);
   color: var(--sl-color-gray-3);
-  font-weight: 600;
-  border-bottom: 1px solid var(--sl-color-gray-6);
+  font-weight: 700;
+  border-bottom: 1px solid var(--hk-rule, var(--sl-color-gray-6));
   vertical-align: middle;
 }
 
 .td {
-  padding: 0.5rem;
-  border-bottom: 1px solid var(--sl-color-gray-6);
+  padding: 0.75rem 0.5rem;
+  border-bottom: 1px solid var(--hk-rule, var(--sl-color-gray-6));
   vertical-align: middle;
-  transition: background 0.15s;
+  transition: opacity 0.15s;
 }
 
 :global(.row-fired-green) .td {
-  background: rgba(34, 197, 94, 0.15);
+  background: transparent;
 }
 
 .shortcutCol {
@@ -79,14 +83,17 @@
 .jsonSummary {
   cursor: pointer;
   color: var(--sl-color-gray-3);
-  font-size: 0.8rem;
+  font-size: var(--hk-label-size, 0.5rem);
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking, 0.16em);
 }
 
 .jsonPre {
   margin-top: 0.5rem;
-  padding: 0.75rem;
-  background: var(--sl-color-gray-6);
-  border-radius: 0.25rem;
+  padding: 20px;
+  background: var(--hk-card-bg, var(--sl-color-gray-6));
+  border: 1px solid var(--hk-card-border, var(--sl-color-gray-6));
+  border-radius: 6px;
   overflow-x: auto;
   font-size: 0.75rem;
 }

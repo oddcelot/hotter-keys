@@ -1,0 +1,203 @@
+/* ── Base Starlight chrome overrides ── */
+
+/* ── Header ── */
+.header {
+    background: transparent;
+    border-bottom: 1px solid var(--hk-rule);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+}
+
+.title-wrapper a {
+    font-family: var(--hk-font-display);
+    font-size: var(--sl-text-xl);
+    font-weight: 400;
+    text-decoration: none;
+    letter-spacing: 0.01em;
+}
+
+/* ── Sidebar ── */
+nav.sidebar {
+    background: transparent;
+    border-inline-end: 1px solid var(--hk-rule);
+}
+
+.sidebar-content a,
+.sidebar-content summary {
+    font-size: var(--hk-label-size);
+    text-transform: uppercase;
+    letter-spacing: var(--hk-label-tracking);
+    font-weight: 500;
+}
+
+.sidebar-content a[aria-current="page"] {
+    color: var(--sl-color-white);
+    font-weight: 700;
+    background: transparent;
+    border-color: transparent;
+}
+
+/* Sidebar group labels */
+.sidebar-content .top-level > li > details > summary,
+.sidebar-content .top-level > li > a {
+    font-size: 0.625rem;
+    text-transform: uppercase;
+    letter-spacing: var(--hk-label-tracking);
+    font-weight: 700;
+}
+
+/* ── Content headings ── */
+.sl-markdown-content h1,
+.sl-markdown-content h2 {
+    font-family: var(--hk-font-display);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+}
+
+.sl-markdown-content h3,
+.sl-markdown-content h4,
+.sl-markdown-content h5,
+.sl-markdown-content h6 {
+    font-family: var(--sl-font-mono);
+    text-transform: uppercase;
+    letter-spacing: var(--hk-label-tracking);
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+}
+
+/* Page title (outside markdown) */
+h1#_top {
+    font-family: var(--hk-font-display);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+}
+
+/* ── Links ── */
+.sl-markdown-content a {
+    color: var(--sl-color-white);
+    text-decoration: underline;
+    text-decoration-color: var(--hk-rule);
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color 0.15s;
+}
+
+.sl-markdown-content a:hover {
+    text-decoration-color: var(--sl-color-accent);
+}
+
+/* ── Asides / callouts ── */
+.starlight-aside {
+    background: var(--hk-card-bg);
+    border: 1px solid var(--hk-card-border);
+    border-radius: 6px;
+    border-inline-start: 1px solid var(--hk-card-border);
+    padding: 20px;
+}
+
+.starlight-aside--note {
+    --sl-color-asides-text-accent: var(--sl-color-gray-3);
+}
+
+.starlight-aside--tip {
+    --sl-color-asides-text-accent: var(--sl-color-gray-3);
+}
+
+.starlight-aside--caution {
+    --sl-color-asides-text-accent: var(--hk-danger);
+}
+
+.starlight-aside--danger {
+    --sl-color-asides-text-accent: var(--hk-danger);
+}
+
+.starlight-aside__title {
+    font-size: var(--hk-label-size);
+    text-transform: uppercase;
+    letter-spacing: var(--hk-label-tracking);
+    font-weight: 700;
+}
+
+/* ── Code blocks ── */
+.sl-markdown-content pre {
+    background: var(--hk-card-bg);
+    border: 1px solid var(--hk-card-border);
+    border-radius: 6px;
+    box-shadow: none;
+}
+
+.sl-markdown-content code:not(pre code) {
+    background: var(--hk-card-bg);
+    border: 1px solid var(--hk-card-border);
+    border-radius: 3px;
+    padding: 0.15em 0.35em;
+}
+
+/* ── Tables ── */
+.sl-markdown-content table {
+    border-collapse: collapse;
+}
+
+.sl-markdown-content th {
+    font-size: var(--hk-label-size);
+    text-transform: uppercase;
+    letter-spacing: var(--hk-label-tracking);
+    font-weight: 700;
+    border-bottom: 1px solid var(--hk-card-border);
+}
+
+.sl-markdown-content td {
+    border-bottom: 1px solid var(--hk-rule);
+}
+
+/* ── Content panel ── */
+.content-panel {
+    border-top: 1px solid var(--hk-rule);
+}
+
+/* ── Right sidebar (TOC) ── */
+.right-sidebar {
+    border-inline-start: 1px solid var(--hk-rule);
+}
+
+.right-sidebar a {
+    font-size: var(--hk-label-size);
+    text-transform: uppercase;
+    letter-spacing: var(--hk-label-tracking);
+}
+
+/* ── Hero section ── */
+.hero h1 {
+    font-family: var(--hk-font-display);
+    font-weight: 400;
+}
+
+.hero .tagline {
+    font-size: var(--sl-text-sm);
+    letter-spacing: 0.02em;
+}
+
+/* ── Footer ── */
+footer {
+    border-top: 1px solid var(--hk-rule);
+}
+
+footer a,
+footer span {
+    font-size: var(--hk-label-size);
+    text-transform: uppercase;
+    letter-spacing: var(--hk-label-tracking);
+    color: var(--sl-color-gray-3);
+}
+
+/* ── General polish ── */
+
+/* Remove all box shadows site-wide */
+* {
+    box-shadow: none !important;
+}
+
+/* Mobile menu */
+.sidebar-pane {
+    background: var(--sl-color-bg);
+}
