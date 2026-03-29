@@ -76,15 +76,20 @@ export default function KeymapCreator() {
     }
   };
 
-  const suppressWhileRecording = (e: KeyboardEvent) => {
+  // Suppress browser shortcuts while the container is focused:
+  // during recording (all keys) and otherwise any Mod+key combos
+  // so registered shortcuts can fire without triggering browser actions.
+  const suppressBrowserShortcuts = (e: KeyboardEvent) => {
     if (recordingId() !== null) {
+      e.preventDefault();
+    } else if (e.metaKey || e.ctrlKey) {
       e.preventDefault();
     }
   };
 
   onMount(async () => {
     hk = createHotkeys({ target: containerRef });
-    containerRef.addEventListener("keydown", suppressWhileRecording, { capture: true });
+    containerRef.addEventListener("keydown", suppressBrowserShortcuts, { capture: true });
     const available = isOpfsAvailable();
     setOpfsOk(available);
     if (available) {
@@ -96,7 +101,7 @@ export default function KeymapCreator() {
 
     onCleanup(() => {
       hk.destroy();
-      containerRef.removeEventListener("keydown", suppressWhileRecording, { capture: true });
+      containerRef.removeEventListener("keydown", suppressBrowserShortcuts, { capture: true });
     });
   });
 
