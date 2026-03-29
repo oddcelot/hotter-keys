@@ -138,7 +138,7 @@ export default function CommandBarDemo() {
   };
 
   onMount(() => {
-    hk = createHotkeys({ target: containerRef });
+    hk = createHotkeys({ target: document });
 
     // Track layer changes
     hk.onLayerChange((l) => setLayers(l));
@@ -174,31 +174,30 @@ export default function CommandBarDemo() {
         closeCommandBar();
       }
     };
-    containerRef.addEventListener("keydown", onEscape);
+    document.addEventListener("keydown", onEscape);
 
-    // Suppress browser shortcuts when focused
+    // Suppress browser shortcuts globally
     const suppress = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && ["k", "s", "p"].includes(e.key.toLowerCase())) {
         e.preventDefault();
       }
     };
-    containerRef.addEventListener("keydown", suppress, { capture: true });
+    document.addEventListener("keydown", suppress, { capture: true });
 
     onCleanup(() => {
       hk.destroy();
-      containerRef.removeEventListener("keydown", onEscape);
-      containerRef.removeEventListener("keydown", suppress, { capture: true });
+      document.removeEventListener("keydown", onEscape);
+      document.removeEventListener("keydown", suppress, { capture: true });
     });
   });
 
   return (
     <div
       ref={containerRef}
-      tabIndex={0}
-      style={{ ...MONO, outline: "none", cursor: "default", position: "relative" }}
+      style={{ ...MONO, position: "relative" }}
     >
       <p style={{ "font-size": "0.8rem", color: "var(--sl-color-gray-3)", "margin-top": "0" }}>
-        Click here to focus, then press <kbd style={KBD}>Mod+K</kbd> to open the command bar.
+        Press <kbd style={KBD}>Mod+K</kbd> to open the command bar.
         Try <kbd style={KBD}>Mod+S</kbd> and <kbd style={KBD}>Mod+P</kbd> as global shortcuts.
       </p>
 
