@@ -25,7 +25,7 @@ nav.sidebar {
 
 .sidebar-content a,
 .sidebar-content summary {
-    font-size: var(--hk-label-size);
+    font-size: var(--sl-text-xs);
     text-transform: uppercase;
     letter-spacing: var(--hk-label-tracking);
     font-weight: 500;
@@ -67,7 +67,7 @@ nav.sidebar {
 
 /* Page title (outside markdown) */
 h1#_top {
-    font-weight: 300;
+    font-weight: 500;
     letter-spacing: 0.01em;
 }
 
@@ -114,6 +114,36 @@ h1#_top {
     text-transform: uppercase;
     letter-spacing: var(--hk-label-tracking);
     font-weight: 700;
+}
+
+/* ── Link buttons (hero actions) — styled as keyboard keys ── */
+.sl-link-button {
+    font-family: var(--sl-font-mono);
+    font-size: var(--sl-text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--hk-label-tracking);
+    background: var(--hk-card-bg);
+    border: 1px solid var(--hk-card-border);
+    border-bottom-width: 3px;
+    border-radius: 6px;
+    color: var(--hk-ink);
+    transition: border-color 0.15s;
+}
+
+.sl-link-button:hover {
+    color: var(--hk-ink);
+    border-color: var(--sl-color-accent);
+}
+
+.sl-link-button.primary {
+    background: var(--sl-color-accent);
+    border-color: var(--sl-color-accent-high);
+    color: var(--sl-color-black);
+}
+
+.sl-link-button.primary:hover {
+    color: var(--sl-color-black);
+    border-color: var(--sl-color-white);
 }
 
 /* ── Keyboard keys ── */
@@ -175,7 +205,7 @@ kbd {
 }
 
 .right-sidebar a {
-    font-size: var(--hk-label-size);
+    font-size: var(--sl-text-xs);
     text-transform: uppercase;
     letter-spacing: var(--hk-label-tracking);
 }

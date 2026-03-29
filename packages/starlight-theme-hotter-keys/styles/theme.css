@@ -1,5 +1,3 @@
-@import "@fontsource-variable/lilex";
-
 /* ── Dark mode (Starlight default) ── */
 :root,
 ::backdrop {
@@ -13,10 +11,10 @@
     --sl-color-gray-6: #252521;
     --sl-color-black: #1a1a17;
 
-    /* Accent — salmon-red, danger only */
-    --sl-color-accent-low: #3a1a15;
-    --sl-color-accent: #c45040;
-    --sl-color-accent-high: #e8a89f;
+    /* Accent — logo blue */
+    --sl-color-accent-low: #0a2a4a;
+    --sl-color-accent: #0091ff;
+    --sl-color-accent-high: #80c8ff;
 
     /* Semantic aliases */
     --sl-color-text: var(--sl-color-gray-1);
@@ -55,8 +53,8 @@
     --sl-shadow-lg: none;
 
     /* Typography */
-    --sl-font: "Lilex Variable", monospace;
-    --sl-font-mono: "Lilex Variable", monospace;
+    --sl-font: var(--font-lilex), monospace;
+    --sl-font-mono: var(--font-lilex), monospace;
 
     /* ── Hotter Keys tokens ── */
     --hk-card-bg: #252521;
@@ -83,10 +81,10 @@
     --sl-color-gray-7: #ececdf;
     --sl-color-black: #d8d8cd;
 
-    /* Accent — salmon-red */
-    --sl-color-accent-high: #7a2018;
-    --sl-color-accent: #c45040;
-    --sl-color-accent-low: #f0d0ca;
+    /* Accent — logo blue */
+    --sl-color-accent-high: #004a80;
+    --sl-color-accent: #0091ff;
+    --sl-color-accent-low: #d0e8ff;
 
     /* Semantic aliases */
     --sl-color-text: var(--sl-color-gray-2);

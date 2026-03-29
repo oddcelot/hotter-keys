@@ -1,6 +1,8 @@
 ---
 import type { Props } from "@astrojs/starlight/props";
 import Default from "@astrojs/starlight/components/Head.astro";
+import { Font } from "astro:assets";
 ---
 
 <Default {...Astro.props}><slot /></Default>
+<Font cssVariable="--font-lilex" />
