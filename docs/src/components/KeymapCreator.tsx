@@ -46,7 +46,6 @@ export default function KeymapCreator() {
   const [loaded, setLoaded] = createSignal(false);
   const [recordingId, setRecordingId] = createSignal<string | null>(null);
   const [pendingChords, setPendingChords] = createSignal<string[]>([]);
-  const [saveStatus, setSaveStatus] = createSignal<string>("");
   const [opfsOk, setOpfsOk] = createSignal(false);
 
   let containerRef!: HTMLDivElement;
@@ -72,21 +71,50 @@ export default function KeymapCreator() {
     });
   });
 
+  // Auto-save to OPFS (debounced)
   let saveTimer: ReturnType<typeof setTimeout>;
   createEffect(() => {
-    const data = [...entries];
+    // Deep-read every field so the effect re-runs on any property change
+    const data = entries.map((e) => ({ ...e }));
     if (!loaded() || !opfsOk()) return;
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(async () => {
-      try {
-        await saveKeymap(data);
-        setSaveStatus("Saved");
-        setTimeout(() => setSaveStatus(""), 2000);
-      } catch {
-        setSaveStatus("Save failed");
-      }
+    saveTimer = setTimeout(() => {
+      console.log("[keymap] saving to OPFS", data.length, "entries");
+      saveKeymap(data)
+        .then(() => console.log("[keymap] saved"))
+        .catch((err) => console.error("[keymap] save failed", err));
     }, 500);
   });
+
+  const getExportJson = () =>
+    JSON.stringify(entries.map(({ id: _, ...rest }) => rest), null, 2);
+
+  const saveToFile = async () => {
+    const json = getExportJson();
+    // Try File System Access API (Chrome/Edge)
+    if ("showSaveFilePicker" in window) {
+      try {
+        const handle = await (window as any).showSaveFilePicker({
+          suggestedName: "keymap.json",
+          types: [{ description: "JSON", accept: { "application/json": [".json"] } }],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(json);
+        await writable.close();
+        return;
+      } catch (e: any) {
+        if (e?.name === "AbortError") return; // user cancelled
+      }
+    }
+    // Fallback: download via blob link
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "keymap.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const addEntry = () => {
     setEntries(produce((list) => {
@@ -151,15 +179,12 @@ export default function KeymapCreator() {
       <div class={styles.statusBar}>
         <div class={styles.statusActions}>
           <button onClick={addEntry} class="btn">+ Add Entry</button>
-          <Show when={saveStatus()}>
-            <span class="badge badge-green">{saveStatus()}</span>
+          <Show when={entries.length > 0}>
+            <button onClick={saveToFile} class="btn-sm">Save as file</button>
           </Show>
         </div>
-        <Show
-          when={opfsOk()}
-          fallback={<span class="badge badge-yellow">OPFS unavailable — changes won't persist</span>}
-        >
-          <span class={styles.storageHint}>Stored in Origin Private File System</span>
+        <Show when={!opfsOk()}>
+          <span class="badge badge-yellow">OPFS unavailable — changes won't persist</span>
         </Show>
       </div>
 
@@ -252,11 +277,7 @@ export default function KeymapCreator() {
         <details class={styles.jsonOutput}>
           <summary class={styles.jsonSummary}>JSON output</summary>
           <pre class={styles.jsonPre}>
-            {JSON.stringify(
-              entries.map(({ id: _, ...rest }) => rest),
-              null,
-              2,
-            )}
+            {getExportJson()}
           </pre>
         </details>
       </Show>
