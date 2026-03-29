@@ -118,6 +118,22 @@ h1#_top {
     font-weight: 700;
 }
 
+/* ── Keyboard keys ── */
+kbd {
+    display: inline-block;
+    padding: 0.15em 0.45em;
+    font-family: var(--sl-font-mono);
+    font-size: 0.85em;
+    line-height: 1.4;
+    color: var(--hk-ink);
+    background: var(--hk-card-bg);
+    border: 1px solid var(--hk-card-border);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    white-space: nowrap;
+    vertical-align: baseline;
+}
+
 /* ── Code blocks ── */
 .sl-markdown-content pre {
     background: var(--hk-card-bg);
