@@ -1,5 +1,3 @@
-import type { Accessor } from "solid-js";
-
 /** The modifier flags we track. Alt is intentionally excluded. */
 export interface Modifiers {
   ctrl: boolean;
@@ -35,7 +33,7 @@ export interface BindingOptions {
   enableInInput?: boolean;
   /**
    * If true, the shortcut fires once per press cycle — all keys must be
-   * released before it can fire again. Matches solid-primitives' `requireReset`.
+   * released before it can fire again.
    * @default false
    */
   requireReset?: boolean;
@@ -66,6 +64,15 @@ export interface Binding extends BindingOptions {
   _seqTimer: ReturnType<typeof setTimeout> | undefined;
 }
 
+/** Subscribe to held-keys changes. */
+export type HeldKeysListener = (keys: ReadonlyArray<string>) => void;
+
+/** Subscribe to key-hold state changes. */
+export type KeyHoldListener = (held: boolean) => void;
+
+/** Subscribe to layer stack changes. */
+export type LayerChangeListener = (layers: ReadonlyArray<string>) => void;
+
 export interface HotkeysOptions {
   /**
    * The element to listen on.
@@ -82,33 +89,6 @@ export interface HotkeysOptions {
    * @default 1000
    */
   sequenceTimeout?: number;
-}
-
-/** The object returned by `createHotkeys()`. */
-export interface HotkeysInstance {
-  /** Reactive accessor for currently held keys (ordered least → most recent). */
-  heldKeys: Accessor<readonly string[]>;
-  /** Reactive accessor for the layer stack (bottom → top). */
-  layers: Accessor<readonly string[]>;
-  /** Reactive accessor for the current scope. */
-  scope: Accessor<string>;
-
-  /** Returns a reactive accessor that is `true` when `key` is held alone. */
-  createKeyHold(key: string): Accessor<boolean>;
-
-  setScope(scope: string): void;
-  pushLayer(name: string): void;
-  popLayer(): string | undefined;
-  popLayer(name: string): boolean;
-
-  add(shortcut: string | Shortcut | ShortcutSequence, handler: ShortcutHandler, options?: BindingOptions): () => void;
-  addMany(map: Record<string, ShortcutHandler>, options?: BindingOptions): () => void;
-  remove(shortcut: string | Shortcut | ShortcutSequence): void;
-  removeAll(): void;
-
-  start(): void;
-  stop(): void;
-  destroy(): void;
 }
 
 export interface RecordedShortcut {

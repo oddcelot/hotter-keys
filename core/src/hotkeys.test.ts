@@ -1,11 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import type { HotkeysInstance } from "./types";
-import { createHotkeys } from "./hotkeys";
-import { fireKey, fireKeyUp, trackSignal, trackDerived } from "./test-helpers";
+import { Hotkeys, createHotkeys } from "./hotkeys";
+import { fireKey, fireKeyUp } from "./test-helpers";
 
 describe("Hotkeys — basic matching", () => {
   let target: HTMLDivElement;
-  let hk: HotkeysInstance;
+  let hk: Hotkeys;
 
   beforeEach(() => {
     target = document.createElement("div");
@@ -117,7 +116,7 @@ describe("Hotkeys — basic matching", () => {
 
 describe("Hotkeys — scopes", () => {
   let target: HTMLDivElement;
-  let hk: HotkeysInstance;
+  let hk: Hotkeys;
 
   beforeEach(() => {
     target = document.createElement("div");
@@ -154,7 +153,7 @@ describe("Hotkeys — scopes", () => {
 
 describe("Hotkeys — input filtering", () => {
   let target: HTMLDivElement;
-  let hk: HotkeysInstance;
+  let hk: Hotkeys;
 
   beforeEach(() => {
     target = document.createElement("div");
@@ -198,7 +197,7 @@ describe("Hotkeys — input filtering", () => {
 
 describe("Hotkeys — lifecycle", () => {
   let target: HTMLDivElement;
-  let hk: HotkeysInstance;
+  let hk: Hotkeys;
 
   beforeEach(() => {
     target = document.createElement("div");
@@ -224,7 +223,7 @@ describe("Hotkeys — lifecycle", () => {
 
 describe("Hotkeys — sequences", () => {
   let target: HTMLDivElement;
-  let hk: HotkeysInstance;
+  let hk: Hotkeys;
 
   beforeEach(() => {
     target = document.createElement("div");
@@ -304,7 +303,7 @@ describe("Hotkeys — sequences", () => {
 
 describe("Hotkeys — requireReset", () => {
   let target: HTMLDivElement;
-  let hk: HotkeysInstance;
+  let hk: Hotkeys;
 
   beforeEach(() => {
     target = document.createElement("div");
@@ -335,7 +334,7 @@ describe("Hotkeys — requireReset", () => {
 
 describe("Hotkeys — held-keys tracking", () => {
   let target: HTMLDivElement;
-  let hk: HotkeysInstance;
+  let hk: Hotkeys;
 
   beforeEach(() => {
     target = document.createElement("div");
@@ -348,33 +347,30 @@ describe("Hotkeys — held-keys tracking", () => {
 
   it("tracks pressed keys in order", () => {
     fireKey(target, "Control", { ctrlKey: true });
-    expect([...hk.heldKeys()]).toEqual(["control"]);
+    expect([...hk.getHeldKeys()]).toEqual(["control"]);
 
     fireKey(target, "k", { ctrlKey: true });
-    expect([...hk.heldKeys()]).toEqual(["control", "k"]);
+    expect([...hk.getHeldKeys()]).toEqual(["control", "k"]);
   });
 
   it("removes keys on keyup", () => {
     fireKey(target, "a");
-    expect([...hk.heldKeys()]).toEqual(["a"]);
+    expect([...hk.getHeldKeys()]).toEqual(["a"]);
 
     fireKeyUp(target, "a");
-    expect([...hk.heldKeys()]).toEqual([]);
+    expect([...hk.getHeldKeys()]).toEqual([]);
   });
 
   it("ignores repeat events", () => {
     fireKey(target, "a");
     fireKey(target, "a", { repeat: true });
     fireKey(target, "a", { repeat: true });
-    expect([...hk.heldKeys()]).toEqual(["a"]);
+    expect([...hk.getHeldKeys()]).toEqual(["a"]);
   });
 
-  it("notifies reactive listeners on change", () => {
+  it("notifies listeners on change", () => {
     const listener = vi.fn();
-    const dispose = trackSignal(hk.heldKeys, listener);
-
-    // createRenderEffect fires once immediately with initial value
-    listener.mockClear();
+    hk.onHeldKeysChange(listener);
 
     fireKey(target, "a");
     expect(listener).toHaveBeenCalledTimes(1);
@@ -387,33 +383,30 @@ describe("Hotkeys — held-keys tracking", () => {
     fireKeyUp(target, "a");
     expect(listener).toHaveBeenCalledTimes(3);
     expect([...listener.mock.calls[2][0]]).toEqual(["b"]);
-
-    dispose();
   });
 
-  it("dispose stops notifications", () => {
+  it("unsubscribe stops notifications", () => {
     const listener = vi.fn();
-    const dispose = trackSignal(hk.heldKeys, listener);
-    listener.mockClear();
-    dispose();
+    const unsub = hk.onHeldKeysChange(listener);
+    unsub();
     fireKey(target, "a");
     expect(listener).not.toHaveBeenCalled();
   });
 
   it("resets on blur", () => {
     fireKey(target, "a");
-    expect(hk.heldKeys().length).toBe(1);
+    expect(hk.getHeldKeys().length).toBe(1);
 
     target.dispatchEvent(new Event("blur"));
-    expect(hk.heldKeys().length).toBe(0);
+    expect(hk.getHeldKeys().length).toBe(0);
   });
 
   it("resets on contextmenu (unless default prevented)", () => {
     fireKey(target, "a");
-    expect(hk.heldKeys().length).toBe(1);
+    expect(hk.getHeldKeys().length).toBe(1);
 
     target.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true }));
-    expect(hk.heldKeys().length).toBe(0);
+    expect(hk.getHeldKeys().length).toBe(0);
   });
 
   it("does NOT reset on contextmenu if defaultPrevented", () => {
@@ -421,12 +414,12 @@ describe("Hotkeys — held-keys tracking", () => {
     const evt = new MouseEvent("contextmenu", { bubbles: true, cancelable: true });
     evt.preventDefault();
     target.dispatchEvent(evt);
-    expect(hk.heldKeys().length).toBe(1);
+    expect(hk.getHeldKeys().length).toBe(1);
   });
 
   it("recovers stale modifiers (modifier pressed before tracking started)", () => {
     fireKey(target, "k", { ctrlKey: true });
-    const keys = [...hk.heldKeys()];
+    const keys = [...hk.getHeldKeys()];
     expect(keys).toContain("control");
     expect(keys).toContain("k");
     expect(keys.indexOf("control")).toBeLessThan(keys.indexOf("k"));
@@ -434,7 +427,7 @@ describe("Hotkeys — held-keys tracking", () => {
 
   it("recovers multiple stale modifiers", () => {
     fireKey(target, "k", { ctrlKey: true, shiftKey: true, metaKey: true });
-    const keys = [...hk.heldKeys()];
+    const keys = [...hk.getHeldKeys()];
     expect(keys).toContain("meta");
     expect(keys).toContain("control");
     expect(keys).toContain("shift");
@@ -443,7 +436,7 @@ describe("Hotkeys — held-keys tracking", () => {
 
   it("tracks alt in held keys for display even though shortcuts don't match", () => {
     fireKey(target, "k", { altKey: true });
-    const keys = [...hk.heldKeys()];
+    const keys = [...hk.getHeldKeys()];
     expect(keys).toContain("alt");
     expect(keys).toContain("k");
   });
@@ -451,8 +444,7 @@ describe("Hotkeys — held-keys tracking", () => {
 
 describe("Hotkeys — key hold", () => {
   let target: HTMLDivElement;
-  let hk: HotkeysInstance;
-  let dispose: () => void;
+  let hk: Hotkeys;
 
   beforeEach(() => {
     target = document.createElement("div");
@@ -460,23 +452,20 @@ describe("Hotkeys — key hold", () => {
   });
 
   afterEach(() => {
-    dispose?.();
     hk.destroy();
   });
 
-  it("returns true when a key is held alone", () => {
+  it("fires true when a key is held alone", () => {
     const listener = vi.fn();
-    dispose = trackDerived(() => hk.createKeyHold("shift"), listener);
-    listener.mockClear();
+    hk.onKeyHold("shift", listener);
 
     fireKey(target, "Shift", { shiftKey: true });
     expect(listener).toHaveBeenCalledWith(true);
   });
 
-  it("returns false when a second key is pressed", () => {
+  it("fires false when a second key is pressed", () => {
     const listener = vi.fn();
-    dispose = trackDerived(() => hk.createKeyHold("shift"), listener);
-    listener.mockClear();
+    hk.onKeyHold("shift", listener);
 
     fireKey(target, "Shift", { shiftKey: true });
     expect(listener).toHaveBeenLastCalledWith(true);
@@ -485,34 +474,28 @@ describe("Hotkeys — key hold", () => {
     expect(listener).toHaveBeenLastCalledWith(false);
   });
 
-  it("returns false when the held key is released", () => {
+  it("fires false when the held key is released", () => {
     const listener = vi.fn();
-    dispose = trackDerived(() => hk.createKeyHold("shift"), listener);
-    listener.mockClear();
+    hk.onKeyHold("shift", listener);
 
     fireKey(target, "Shift", { shiftKey: true });
     fireKeyUp(target, "Shift");
     expect(listener).toHaveBeenLastCalledWith(false);
   });
 
-  it("dispose stops notifications", () => {
+  it("unsubscribe stops notifications", () => {
     const listener = vi.fn();
-    dispose = trackDerived(() => hk.createKeyHold("shift"), listener);
-    listener.mockClear();
-    dispose();
+    const unsub = hk.onKeyHold("shift", listener);
+    unsub();
 
     fireKey(target, "Shift", { shiftKey: true });
     expect(listener).not.toHaveBeenCalled();
   });
 });
 
-// ---------------------------------------------------------------------------
-// Hotkeys — layers
-// ---------------------------------------------------------------------------
-
 describe("Hotkeys — layers", () => {
   let target: HTMLDivElement;
-  let hk: HotkeysInstance;
+  let hk: Hotkeys;
 
   beforeEach(() => {
     target = document.createElement("div");
@@ -523,40 +506,38 @@ describe("Hotkeys — layers", () => {
     hk.destroy();
   });
 
-  // --- Stack basics ---
-
   it("defaults to [\"global\"]", () => {
-    expect([...hk.layers()]).toEqual(["global"]);
+    expect([...hk.getLayers()]).toEqual(["global"]);
   });
 
   it("pushLayer adds to the stack", () => {
     hk.pushLayer("commandbar");
-    expect([...hk.layers()]).toEqual(["global", "commandbar"]);
+    expect([...hk.getLayers()]).toEqual(["global", "commandbar"]);
   });
 
   it("pushLayer is a no-op for duplicate names", () => {
     hk.pushLayer("commandbar");
     hk.pushLayer("commandbar");
-    expect([...hk.layers()]).toEqual(["global", "commandbar"]);
+    expect([...hk.getLayers()]).toEqual(["global", "commandbar"]);
   });
 
   it("popLayer() pops the topmost layer", () => {
     hk.pushLayer("commandbar");
     const popped = hk.popLayer();
     expect(popped).toBe("commandbar");
-    expect([...hk.layers()]).toEqual(["global"]);
+    expect([...hk.getLayers()]).toEqual(["global"]);
   });
 
   it("popLayer() returns undefined when only global remains", () => {
     expect(hk.popLayer()).toBeUndefined();
-    expect([...hk.layers()]).toEqual(["global"]);
+    expect([...hk.getLayers()]).toEqual(["global"]);
   });
 
   it("popLayer(name) removes a specific layer", () => {
     hk.pushLayer("a");
     hk.pushLayer("b");
     expect(hk.popLayer("a")).toBe(true);
-    expect([...hk.layers()]).toEqual(["global", "b"]);
+    expect([...hk.getLayers()]).toEqual(["global", "b"]);
   });
 
   it("popLayer(name) returns false for unknown layer", () => {
@@ -565,49 +546,40 @@ describe("Hotkeys — layers", () => {
 
   it("popLayer('global') is not allowed", () => {
     expect(hk.popLayer("global")).toBe(false);
-    expect([...hk.layers()]).toEqual(["global"]);
+    expect([...hk.getLayers()]).toEqual(["global"]);
   });
-
-  // --- Priority override ---
 
   it("higher layer overrides lower layer for the same shortcut", () => {
     const globalHandler = vi.fn();
     const cmdHandler = vi.fn();
 
-    hk.add("ctrl+k", globalHandler); // default layer = global
+    hk.add("ctrl+k", globalHandler);
     hk.add("ctrl+k", cmdHandler, { layer: "commandbar" });
 
-    // Before pushing: only global fires
     fireKey(target, "k", { ctrlKey: true });
     expect(globalHandler).toHaveBeenCalledOnce();
     expect(cmdHandler).not.toHaveBeenCalled();
 
     globalHandler.mockClear();
 
-    // After pushing: only commandbar fires
     hk.pushLayer("commandbar");
     fireKey(target, "k", { ctrlKey: true });
     expect(cmdHandler).toHaveBeenCalledOnce();
     expect(globalHandler).not.toHaveBeenCalled();
   });
 
-  // --- Fall-through ---
-
   it("unmatched keys fall through to lower layers", () => {
     const globalSave = vi.fn();
     const cmdHandler = vi.fn();
 
-    hk.add("ctrl+s", globalSave); // global layer
+    hk.add("ctrl+s", globalSave);
     hk.add("ctrl+k", cmdHandler, { layer: "commandbar" });
 
     hk.pushLayer("commandbar");
 
-    // ctrl+s is not in commandbar layer, so it falls through to global
     fireKey(target, "s", { ctrlKey: true });
     expect(globalSave).toHaveBeenCalledOnce();
   });
-
-  // --- Pop restores behavior ---
 
   it("popping a layer restores lower layer behavior", () => {
     const globalHandler = vi.fn();
@@ -624,12 +596,9 @@ describe("Hotkeys — layers", () => {
     expect(cmdHandler).not.toHaveBeenCalled();
   });
 
-  // --- Layer change listener ---
-
-  it("layers signal updates on push and pop", () => {
+  it("onLayerChange fires on push and pop", () => {
     const listener = vi.fn();
-    const dispose = trackSignal(hk.layers, listener);
-    listener.mockClear();
+    hk.onLayerChange(listener);
 
     hk.pushLayer("commandbar");
     expect(listener).toHaveBeenCalledTimes(1);
@@ -638,45 +607,33 @@ describe("Hotkeys — layers", () => {
     hk.popLayer();
     expect(listener).toHaveBeenCalledTimes(2);
     expect([...listener.mock.calls[1][0]]).toEqual(["global"]);
-
-    dispose();
   });
 
-  it("dispose stops layer notifications", () => {
+  it("onLayerChange unsub stops notifications", () => {
     const listener = vi.fn();
-    const dispose = trackSignal(hk.layers, listener);
-    listener.mockClear();
-    dispose();
+    const unsub = hk.onLayerChange(listener);
+    unsub();
 
     hk.pushLayer("commandbar");
     expect(listener).not.toHaveBeenCalled();
   });
 
-  // --- Sequences across layers ---
-
   it("higher layer consuming a key resets in-progress sequences in lower layers", () => {
     const seqHandler = vi.fn();
     const cmdHandler = vi.fn();
 
-    // Global: ctrl+k ctrl+c sequence
     hk.add("ctrl+k ctrl+c", seqHandler);
-    // Commandbar: ctrl+c single chord
     hk.add("ctrl+c", cmdHandler, { layer: "commandbar" });
 
-    // Start the global sequence
     fireKey(target, "k", { ctrlKey: true });
     expect(seqHandler).not.toHaveBeenCalled();
 
-    // Now push commandbar and press ctrl+c
     hk.pushLayer("commandbar");
     fireKey(target, "c", { ctrlKey: true });
 
-    // Commandbar should capture, global sequence should NOT complete
     expect(cmdHandler).toHaveBeenCalledOnce();
     expect(seqHandler).not.toHaveBeenCalled();
   });
-
-  // --- Multiple layers ---
 
   it("three layers stacked — topmost wins", () => {
     const globalH = vi.fn();
@@ -696,19 +653,15 @@ describe("Hotkeys — layers", () => {
     expect(globalH).not.toHaveBeenCalled();
   });
 
-  // --- Backward compat with scope ---
-
   it("scope and layer work together", () => {
     const handler = vi.fn();
     hk.add("ctrl+k", handler, { scope: "editor", layer: "commandbar" });
 
     hk.pushLayer("commandbar");
 
-    // Wrong scope — should not fire
     fireKey(target, "k", { ctrlKey: true });
     expect(handler).not.toHaveBeenCalled();
 
-    // Correct scope — should fire
     hk.setScope("editor");
     fireKey(target, "k", { ctrlKey: true });
     expect(handler).toHaveBeenCalledOnce();
@@ -718,17 +671,14 @@ describe("Hotkeys — layers", () => {
     const handler = vi.fn();
     hk.add("ctrl+j", handler);
 
-    // Should fire even with another layer pushed (fall-through)
     hk.pushLayer("commandbar");
     fireKey(target, "j", { ctrlKey: true });
     expect(handler).toHaveBeenCalledOnce();
   });
 
-  // --- Destroy cleans up ---
-
   it("destroy resets layers to [\"global\"]", () => {
     hk.pushLayer("commandbar");
     hk.destroy();
-    expect([...hk.layers()]).toEqual(["global"]);
+    expect([...hk.getLayers()]).toEqual(["global"]);
   });
 });

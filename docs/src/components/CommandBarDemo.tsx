@@ -1,6 +1,6 @@
 import { createSignal, onCleanup, onMount, For, Show } from "solid-js";
 import { createHotkeys } from "hotter-keys";
-import type { HotkeysInstance } from "hotter-keys";
+import type { Hotkeys } from "hotter-keys";
 import "../styles/demo.css";
 import styles from "./CommandBarDemo.module.css";
 
@@ -51,13 +51,14 @@ const LOG_BADGE_CLASS: Record<string, string> = {
 let logId = 0;
 
 export default function CommandBarDemo() {
+  const [layers, setLayers] = createSignal<readonly string[]>(["global"]);
   const [commandBarOpen, setCommandBarOpen] = createSignal(false);
   const [firedGlobal, setFiredGlobal] = createSignal<Record<string, number>>({});
   const [firedCmd, setFiredCmd] = createSignal<Record<string, number>>({});
   const [eventLog, setEventLog] = createSignal<LogEntry[]>([]);
 
   let containerRef!: HTMLDivElement;
-  const hk = createHotkeys({ target: document });
+  let hk: Hotkeys;
 
   const now = () => {
     const d = new Date();
@@ -96,6 +97,9 @@ export default function CommandBarDemo() {
   };
 
   onMount(() => {
+    hk = createHotkeys({ target: document });
+    hk.onLayerChange((l) => setLayers(l));
+
     hk.add("mod+k", () => {
       flash(setFiredGlobal, "mod+k");
       openCommandBar();
@@ -202,9 +206,9 @@ export default function CommandBarDemo() {
       <div class="section">
         <h4 class="section-title">Layer Stack</h4>
         <div class="stack" style={{ "flex-direction": "column-reverse" }}>
-          <For each={[...hk.layers()]}>
+          <For each={[...layers()]}>
             {(layer) => {
-              const isActive = () => layer === hk.layers()[hk.layers().length - 1];
+              const isActive = () => layer === layers()[layers().length - 1];
               const layerShortcuts = () =>
                 layer === "commandbar"
                   ? COMMANDBAR_ACTIONS.map((a) => `${a.key}: ${a.label}`)

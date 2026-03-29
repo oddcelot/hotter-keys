@@ -1,9 +1,10 @@
-import { createSignal, createMemo, type Accessor } from "solid-js";
 import type {
   Binding,
   BindingOptions,
-  HotkeysInstance,
+  HeldKeysListener,
   HotkeysOptions,
+  KeyHoldListener,
+  LayerChangeListener,
   Shortcut,
   ShortcutHandler,
   ShortcutSequence,
@@ -29,144 +30,192 @@ const MOD_MAP = [
   { event: "altKey", held: "alt" },
 ] as const;
 
-/**
- * Create a keyboard shortcut manager.
- *
- * ```ts
- * const hk = createHotkeys();
- * hk.add("ctrl+k", () => console.log("command palette"));
- * hk.add("ctrl+k ctrl+c", () => console.log("comment block"));
- * ```
- */
-export function createHotkeys(options: HotkeysOptions = {}): HotkeysInstance {
-  const target = options.target ?? document;
-  const sequenceTimeout = options.sequenceTimeout ?? 1000;
+type KeyHoldEntry = { listener: KeyHoldListener; held: boolean };
 
-  // ---------------------------------------------------------------------------
-  // Reactive state
-  // ---------------------------------------------------------------------------
+export class Hotkeys {
+  private bindings: Binding[] = [];
+  private scope: string;
+  private target: EventTarget;
+  private listening = false;
+  private sequenceTimeout: number;
 
-  const [heldKeys, setHeldKeys] = createSignal<readonly string[]>([]);
-  const [layers, setLayers] = createSignal<readonly string[]>(["global"]);
-  const [scope, setScope] = createSignal<string>(options.scope ?? "*");
+  // --- Held-keys state ---
+  private _heldKeys: string[] = [];
+  private _heldKeysListeners = new Set<HeldKeysListener>();
+  private _keyHolds = new Map<string, Set<KeyHoldEntry>>();
 
-  // Internal mutable mirrors (mutated in-place, then published to signals)
-  let heldInternal: string[] = [];
-  let layersInternal: string[] = ["global"];
+  // --- Layer stack ---
+  private _layers: string[] = ["global"];
+  private _layerListeners = new Set<LayerChangeListener>();
 
-  function publishHeldKeys() {
-    setHeldKeys(Object.freeze([...heldInternal]));
-  }
+  // --- Deferred bindings (chord disambiguation) ---
+  private _deferred: { binding: Binding; event: KeyboardEvent }[] = [];
+  private _deferTimer: ReturnType<typeof setTimeout> | undefined;
 
-  function publishLayers() {
-    setLayers(Object.freeze([...layersInternal]));
-  }
+  // --- Bound handlers ---
+  private _onKeyDown = (e: Event) => this._handleKeyDown(e as KeyboardEvent);
+  private _onKeyUp = (e: Event) => this._handleKeyUp(e as KeyboardEvent);
+  private _onReset = () => this._resetHeldKeys();
+  private _onContextMenu = (e: Event) => {
+    if (!(e as MouseEvent).defaultPrevented) this._resetHeldKeys();
+  };
 
-  // ---------------------------------------------------------------------------
-  // Imperative state (binding state machine)
-  // ---------------------------------------------------------------------------
-
-  let bindings: Binding[] = [];
-  let deferred: { binding: Binding; event: KeyboardEvent }[] = [];
-  let deferTimer: ReturnType<typeof setTimeout> | undefined;
-  let listening = false;
-
-  // ---------------------------------------------------------------------------
-  // Key-hold factory
-  // ---------------------------------------------------------------------------
-
-  function createKeyHold(key: string): Accessor<boolean> {
-    const normalized = key.toLowerCase();
-    return createMemo(() => {
-      const keys = heldKeys();
-      return keys.length === 1 && keys[0] === normalized;
-    });
+  constructor(options: HotkeysOptions = {}) {
+    this.target = options.target ?? document;
+    this.scope = options.scope ?? "*";
+    this.sequenceTimeout = options.sequenceTimeout ?? 1000;
+    this.start();
   }
 
   // ---------------------------------------------------------------------------
-  // Layer management
+  // Lifecycle
   // ---------------------------------------------------------------------------
 
-  function pushLayer(name: string): void {
-    if (layersInternal.includes(name)) return;
-    layersInternal.push(name);
-    publishLayers();
+  start(): void {
+    if (this.listening) return;
+    this.target.addEventListener("keydown", this._onKeyDown);
+    this.target.addEventListener("keyup", this._onKeyUp);
+    this.target.addEventListener("blur", this._onReset);
+    this.target.addEventListener("contextmenu", this._onContextMenu);
+    this.listening = true;
   }
 
-  function popLayer(): string | undefined;
-  function popLayer(name: string): boolean;
-  function popLayer(name?: string): string | boolean | undefined {
+  stop(): void {
+    if (!this.listening) return;
+    this.target.removeEventListener("keydown", this._onKeyDown);
+    this.target.removeEventListener("keyup", this._onKeyUp);
+    this.target.removeEventListener("blur", this._onReset);
+    this.target.removeEventListener("contextmenu", this._onContextMenu);
+    this.listening = false;
+  }
+
+  destroy(): void {
+    this.stop();
+    this._cancelDeferred();
+    for (const b of this.bindings) {
+      if (b._seqTimer !== undefined) clearTimeout(b._seqTimer);
+    }
+    this.bindings = [];
+    this._heldKeys = [];
+    this._heldKeysListeners.clear();
+    this._keyHolds.clear();
+    this._layers = ["global"];
+    this._layerListeners.clear();
+  }
+
+  // ---------------------------------------------------------------------------
+  // Scope
+  // ---------------------------------------------------------------------------
+
+  getScope(): string {
+    return this.scope;
+  }
+
+  setScope(scope: string): void {
+    this.scope = scope;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Layers
+  // ---------------------------------------------------------------------------
+
+  getLayers(): ReadonlyArray<string> {
+    return [...this._layers];
+  }
+
+  pushLayer(name: string): void {
+    if (this._layers.includes(name)) return;
+    this._layers.push(name);
+    this._emitLayerChange();
+  }
+
+  popLayer(): string | undefined;
+  popLayer(name: string): boolean;
+  popLayer(name?: string): string | boolean | undefined {
     if (name !== undefined) {
       if (name === "global") return false;
-      const idx = layersInternal.indexOf(name);
+      const idx = this._layers.indexOf(name);
       if (idx === -1) return false;
-      layersInternal.splice(idx, 1);
-      publishLayers();
+      this._layers.splice(idx, 1);
+      this._emitLayerChange();
       return true;
     }
-    if (layersInternal.length <= 1) return undefined;
-    const popped = layersInternal.pop()!;
-    publishLayers();
+    if (this._layers.length <= 1) return undefined;
+    const popped = this._layers.pop()!;
+    this._emitLayerChange();
     return popped;
+  }
+
+  onLayerChange(listener: LayerChangeListener): () => void {
+    this._layerListeners.add(listener);
+    return () => { this._layerListeners.delete(listener); };
+  }
+
+  private _emitLayerChange(): void {
+    const snapshot = Object.freeze([...this._layers]);
+    for (const listener of this._layerListeners) listener(snapshot);
   }
 
   // ---------------------------------------------------------------------------
   // Held-keys tracking
   // ---------------------------------------------------------------------------
 
-  function trackKeyDown(event: KeyboardEvent): void {
-    const key = event.key.toLowerCase();
-    if (heldInternal.includes(key)) return;
-
-    const keys = [...heldInternal];
-
-    // Stale-modifier recovery: if held list is empty and the event shows
-    // modifiers are pressed, they were pressed before we started tracking.
-    if (keys.length === 0 && !isModifierKey(key)) {
-      if (event.metaKey) keys.push("meta");
-      if (event.ctrlKey) keys.push("control");
-      if (event.shiftKey) keys.push("shift");
-      if (event.altKey) keys.push("alt");
-    }
-
-    keys.push(key);
-    heldInternal = keys;
-    publishHeldKeys();
+  getHeldKeys(): ReadonlyArray<string> {
+    return this._heldKeys;
   }
 
-  function reconcileModifiers(event: KeyboardEvent): void {
-    let changed = false;
-    const keys = [...heldInternal];
+  onHeldKeysChange(listener: HeldKeysListener): () => void {
+    this._heldKeysListeners.add(listener);
+    return () => { this._heldKeysListeners.delete(listener); };
+  }
 
-    for (const { event: prop, held } of MOD_MAP) {
-      const idx = keys.indexOf(held);
-      if (!event[prop] && idx !== -1) {
-        keys.splice(idx, 1);
-        changed = true;
+  onKeyHold(key: string, listener: KeyHoldListener): () => void {
+    const normalized = key.toLowerCase();
+    const entry: KeyHoldEntry = { listener, held: false };
+    let entries = this._keyHolds.get(normalized);
+    if (!entries) {
+      entries = new Set();
+      this._keyHolds.set(normalized, entries);
+    }
+    entries.add(entry);
+    return () => {
+      entries!.delete(entry);
+      if (entries!.size === 0) this._keyHolds.delete(normalized);
+    };
+  }
+
+  private _emitHeldKeys(): void {
+    const frozen = Object.freeze([...this._heldKeys]);
+    for (const listener of this._heldKeysListeners) listener(frozen);
+
+    // Key-hold: check each watched key against the current single-key state
+    const single = frozen.length === 1 ? frozen[0]! : null;
+    for (const [key, entries] of this._keyHolds) {
+      const held = single === key;
+      for (const entry of entries) {
+        if (entry.held !== held) {
+          entry.held = held;
+          entry.listener(held);
+        }
       }
     }
-
-    if (changed) {
-      heldInternal = keys;
-      publishHeldKeys();
-    }
   }
 
-  function resetHeldKeys(): void {
-    if (heldInternal.length === 0) return;
-    heldInternal = [];
-    publishHeldKeys();
-    for (const b of bindings) b._awaitingReset = false;
+  private _resetHeldKeys(): void {
+    if (this._heldKeys.length === 0) return;
+    this._heldKeys = [];
+    this._emitHeldKeys();
+    for (const b of this.bindings) b._awaitingReset = false;
   }
 
   // ---------------------------------------------------------------------------
   // Binding API
   // ---------------------------------------------------------------------------
 
-  function add(
+  add(
     shortcut: string | Shortcut | ShortcutSequence,
     handler: ShortcutHandler,
-    opts: BindingOptions = {}
+    options: BindingOptions = {}
   ): () => void {
     let sequence: ShortcutSequence;
 
@@ -178,146 +227,113 @@ export function createHotkeys(options: HotkeysOptions = {}): HotkeysInstance {
       sequence = [shortcut];
     }
 
-    if (opts.crossPlatform !== false) {
+    if (options.crossPlatform !== false) {
       sequence = sequence.map((s) => translateForPlatform(s));
     }
 
     const binding: Binding = {
       sequence,
       handler,
-      preventDefault: opts.preventDefault ?? true,
-      stopPropagation: opts.stopPropagation ?? false,
-      enableInInput: opts.enableInInput ?? false,
-      requireReset: opts.requireReset ?? false,
-      scope: opts.scope,
-      layer: opts.layer,
+      preventDefault: options.preventDefault ?? true,
+      stopPropagation: options.stopPropagation ?? false,
+      enableInInput: options.enableInInput ?? false,
+      requireReset: options.requireReset ?? false,
+      scope: options.scope,
+      layer: options.layer,
       _seqIndex: 0,
       _awaitingReset: false,
       _seqTimer: undefined,
     };
 
-    bindings.push(binding);
+    this.bindings.push(binding);
 
     return () => {
-      const idx = bindings.indexOf(binding);
-      if (idx !== -1) bindings.splice(idx, 1);
+      const idx = this.bindings.indexOf(binding);
+      if (idx !== -1) this.bindings.splice(idx, 1);
       if (binding._seqTimer !== undefined) clearTimeout(binding._seqTimer);
     };
   }
 
-  function addMany(
+  addMany(
     map: Record<string, ShortcutHandler>,
-    opts: BindingOptions = {}
+    options: BindingOptions = {}
   ): () => void {
     const unsubs = Object.entries(map).map(([shortcut, handler]) =>
-      add(shortcut, handler, opts)
+      this.add(shortcut, handler, options)
     );
     return () => unsubs.forEach((u) => u());
   }
 
-  function remove(shortcut: string | Shortcut | ShortcutSequence): void {
-    let seq: ShortcutSequence;
+  remove(shortcut: string | Shortcut | ShortcutSequence): void {
+    let target: ShortcutSequence;
     if (typeof shortcut === "string") {
-      seq = parseSequence(shortcut);
+      target = parseSequence(shortcut);
     } else if (Array.isArray(shortcut)) {
-      seq = shortcut;
+      target = shortcut;
     } else {
-      seq = [shortcut];
+      target = [shortcut];
     }
 
-    bindings = bindings.filter((b) => {
-      if (b.sequence.length !== seq.length) return true;
-      return !b.sequence.every((chord, i) => shortcutEquals(chord, seq[i]!));
+    this.bindings = this.bindings.filter((b) => {
+      if (b.sequence.length !== target.length) return true;
+      return !b.sequence.every((chord, i) => shortcutEquals(chord, target[i]!));
     });
   }
 
-  function removeAll(): void {
-    for (const b of bindings) {
+  removeAll(): void {
+    for (const b of this.bindings) {
       if (b._seqTimer !== undefined) clearTimeout(b._seqTimer);
     }
-    bindings = [];
-  }
-
-  // ---------------------------------------------------------------------------
-  // Sequence helpers
-  // ---------------------------------------------------------------------------
-
-  function resetBindingSequence(binding: Binding): void {
-    binding._seqIndex = 0;
-    if (binding._seqTimer !== undefined) {
-      clearTimeout(binding._seqTimer);
-      binding._seqTimer = undefined;
-    }
-  }
-
-  function flushDeferred(): void {
-    if (deferTimer !== undefined) {
-      clearTimeout(deferTimer);
-      deferTimer = undefined;
-    }
-    for (const { binding, event } of deferred) {
-      if (binding.requireReset) binding._awaitingReset = true;
-      binding.handler(event);
-    }
-    deferred = [];
-  }
-
-  function cancelDeferred(): void {
-    if (deferTimer !== undefined) {
-      clearTimeout(deferTimer);
-      deferTimer = undefined;
-    }
-    deferred = [];
+    this.bindings = [];
   }
 
   // ---------------------------------------------------------------------------
   // Event handlers
   // ---------------------------------------------------------------------------
 
-  function handleKeyDown(event: KeyboardEvent): void {
+  private _handleKeyDown(event: KeyboardEvent): void {
     if (typeof event.key !== "string") return;
-    if (!event.repeat) trackKeyDown(event);
-    reconcileModifiers(event);
+    if (!event.repeat) this._trackKeyDown(event);
+    this._reconcileModifiers(event);
     if (event.altKey) return;
 
-    resolveDeferredBindings(event);
+    this._resolveDeferredBindings(event);
 
     const { consumed, consumedLayerIdx, completedBindings, hasSequenceAdvance } =
-      matchBindings(event);
+      this._matchBindings(event);
 
-    resolveCompletedBindings(completedBindings, hasSequenceAdvance);
+    this._resolveCompletedBindings(completedBindings, hasSequenceAdvance);
 
-    if (consumed) resetLowerLayerSequences(consumedLayerIdx);
+    if (consumed) this._resetLowerLayerSequences(consumedLayerIdx);
   }
 
-  function resolveDeferredBindings(event: KeyboardEvent): void {
-    if (deferred.length === 0) return;
+  private _resolveDeferredBindings(event: KeyboardEvent): void {
+    if (this._deferred.length === 0) return;
 
-    const continues = bindings.some(
+    const continues = this.bindings.some(
       (b) => b._seqIndex > 0 && eventMatchesShortcut(event, b.sequence[b._seqIndex]!)
     );
 
     if (continues) {
-      cancelDeferred();
+      this._cancelDeferred();
     } else {
-      flushDeferred();
+      this._flushDeferred();
     }
   }
 
-  function matchBindings(event: KeyboardEvent) {
+  private _matchBindings(event: KeyboardEvent) {
     let consumed = false;
     let consumedLayerIdx = -1;
     const completedBindings: { binding: Binding; event: KeyboardEvent }[] = [];
     let hasSequenceAdvance = false;
-    const currentScope = scope();
 
-    for (let li = layersInternal.length - 1; li >= 0 && !consumed; li--) {
-      const layerName = layersInternal[li]!;
+    for (let li = this._layers.length - 1; li >= 0 && !consumed; li--) {
+      const layerName = this._layers[li]!;
 
-      for (const binding of bindings) {
+      for (const binding of this.bindings) {
         const bindingLayer = binding.layer ?? "global";
         if (bindingLayer !== layerName) continue;
-        if (binding.scope && binding.scope !== "*" && binding.scope !== currentScope) continue;
+        if (binding.scope && binding.scope !== "*" && binding.scope !== this.scope) continue;
         if (!binding.enableInInput && isInputElement(event.target)) continue;
         if (binding._awaitingReset) continue;
 
@@ -338,12 +354,12 @@ export function createHotkeys(options: HotkeysOptions = {}): HotkeysInstance {
             hasSequenceAdvance = true;
             if (binding._seqTimer !== undefined) clearTimeout(binding._seqTimer);
             binding._seqTimer = setTimeout(() => {
-              resetBindingSequence(binding);
-              flushDeferred();
-            }, sequenceTimeout);
+              this._resetBindingSequence(binding);
+              this._flushDeferred();
+            }, this.sequenceTimeout);
           }
         } else if (binding._seqIndex > 0) {
-          resetBindingSequence(binding);
+          this._resetBindingSequence(binding);
         }
       }
     }
@@ -351,16 +367,16 @@ export function createHotkeys(options: HotkeysOptions = {}): HotkeysInstance {
     return { consumed, consumedLayerIdx, completedBindings, hasSequenceAdvance };
   }
 
-  function resolveCompletedBindings(
+  private _resolveCompletedBindings(
     completedBindings: { binding: Binding; event: KeyboardEvent }[],
     hasSequenceAdvance: boolean
   ): void {
     for (const { binding, event } of completedBindings) {
-      resetBindingSequence(binding);
+      this._resetBindingSequence(binding);
       if (hasSequenceAdvance) {
-        deferred.push({ binding, event });
-        if (deferTimer !== undefined) clearTimeout(deferTimer);
-        deferTimer = setTimeout(() => flushDeferred(), sequenceTimeout);
+        this._deferred.push({ binding, event });
+        if (this._deferTimer !== undefined) clearTimeout(this._deferTimer);
+        this._deferTimer = setTimeout(() => this._flushDeferred(), this.sequenceTimeout);
       } else {
         if (binding.requireReset) binding._awaitingReset = true;
         binding.handler(event);
@@ -368,102 +384,115 @@ export function createHotkeys(options: HotkeysOptions = {}): HotkeysInstance {
     }
   }
 
-  function resetLowerLayerSequences(consumedLayerIdx: number): void {
-    for (const binding of bindings) {
-      const idx = layersInternal.indexOf(binding.layer ?? "global");
+  private _resetLowerLayerSequences(consumedLayerIdx: number): void {
+    for (const binding of this.bindings) {
+      const idx = this._layers.indexOf(binding.layer ?? "global");
       if (idx < consumedLayerIdx && binding._seqIndex > 0) {
-        resetBindingSequence(binding);
+        this._resetBindingSequence(binding);
       }
     }
   }
 
-  function handleKeyUp(event: KeyboardEvent): void {
+  private _flushDeferred(): void {
+    if (this._deferTimer !== undefined) {
+      clearTimeout(this._deferTimer);
+      this._deferTimer = undefined;
+    }
+    for (const { binding, event } of this._deferred) {
+      if (binding.requireReset) binding._awaitingReset = true;
+      binding.handler(event);
+    }
+    this._deferred = [];
+  }
+
+  private _cancelDeferred(): void {
+    if (this._deferTimer !== undefined) {
+      clearTimeout(this._deferTimer);
+      this._deferTimer = undefined;
+    }
+    this._deferred = [];
+  }
+
+  private _handleKeyUp(event: KeyboardEvent): void {
     if (typeof event.key !== "string") return;
 
     const key = event.key.toLowerCase();
-    const idx = heldInternal.indexOf(key);
+    const idx = this._heldKeys.indexOf(key);
     if (idx !== -1) {
-      heldInternal = heldInternal.filter((k) => k !== key);
+      this._heldKeys = this._heldKeys.filter((k) => k !== key);
 
       // On macOS, releasing Meta/Cmd swallows pending keyup events for
       // non-modifier keys that were held alongside it. Flush them.
       if (key === "meta" || key === "control") {
-        heldInternal = heldInternal.filter((k) => isModifierKey(k));
+        this._heldKeys = this._heldKeys.filter((k) => isModifierKey(k));
       }
 
-      publishHeldKeys();
+      this._emitHeldKeys();
     }
 
-    reconcileModifiers(event);
+    this._reconcileModifiers(event);
 
-    if (heldInternal.length === 0) {
-      for (const b of bindings) b._awaitingReset = false;
+    if (this._heldKeys.length === 0) {
+      for (const b of this.bindings) b._awaitingReset = false;
     }
   }
 
-  // ---------------------------------------------------------------------------
-  // Bound event handlers
-  // ---------------------------------------------------------------------------
+  private _trackKeyDown(event: KeyboardEvent): void {
+    const key = event.key.toLowerCase();
+    if (this._heldKeys.includes(key)) return;
 
-  const onKeyDown = (e: Event) => handleKeyDown(e as KeyboardEvent);
-  const onKeyUp = (e: Event) => handleKeyUp(e as KeyboardEvent);
-  const onReset = () => resetHeldKeys();
-  const onContextMenu = (e: Event) => {
-    if (!(e as MouseEvent).defaultPrevented) resetHeldKeys();
-  };
+    const keys = [...this._heldKeys];
 
-  // ---------------------------------------------------------------------------
-  // Lifecycle
-  // ---------------------------------------------------------------------------
-
-  function start(): void {
-    if (listening) return;
-    target.addEventListener("keydown", onKeyDown);
-    target.addEventListener("keyup", onKeyUp);
-    target.addEventListener("blur", onReset);
-    target.addEventListener("contextmenu", onContextMenu);
-    listening = true;
-  }
-
-  function stop(): void {
-    if (!listening) return;
-    target.removeEventListener("keydown", onKeyDown);
-    target.removeEventListener("keyup", onKeyUp);
-    target.removeEventListener("blur", onReset);
-    target.removeEventListener("contextmenu", onContextMenu);
-    listening = false;
-  }
-
-  function destroy(): void {
-    stop();
-    cancelDeferred();
-    for (const b of bindings) {
-      if (b._seqTimer !== undefined) clearTimeout(b._seqTimer);
+    // Stale-modifier recovery: if held list is empty and the event shows
+    // modifiers are pressed, they were pressed before we started tracking.
+    if (keys.length === 0 && !isModifierKey(key)) {
+      if (event.metaKey) keys.push("meta");
+      if (event.ctrlKey) keys.push("control");
+      if (event.shiftKey) keys.push("shift");
+      if (event.altKey) keys.push("alt");
     }
-    bindings = [];
-    heldInternal = [];
-    layersInternal = ["global"];
-    setHeldKeys([]);
-    setLayers(["global"]);
+
+    keys.push(key);
+    this._heldKeys = keys;
+    this._emitHeldKeys();
   }
 
-  // Auto-start
-  start();
+  private _reconcileModifiers(event: KeyboardEvent): void {
+    let changed = false;
+    const keys = [...this._heldKeys];
 
-  return {
-    heldKeys,
-    layers,
-    scope,
-    createKeyHold,
-    setScope,
-    pushLayer,
-    popLayer,
-    add,
-    addMany,
-    remove,
-    removeAll,
-    start,
-    stop,
-    destroy,
-  };
+    for (const { event: prop, held } of MOD_MAP) {
+      const idx = keys.indexOf(held);
+      if (!event[prop] && idx !== -1) {
+        keys.splice(idx, 1);
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      this._heldKeys = keys;
+      this._emitHeldKeys();
+    }
+  }
+
+  private _resetBindingSequence(binding: Binding): void {
+    binding._seqIndex = 0;
+    if (binding._seqTimer !== undefined) {
+      clearTimeout(binding._seqTimer);
+      binding._seqTimer = undefined;
+    }
+  }
+}
+
+/**
+ * Create a new {@link Hotkeys} instance.
+ *
+ * ```ts
+ * const hk = createHotkeys();
+ * hk.add("ctrl+k", () => console.log("command palette"));
+ * hk.add("ctrl+k ctrl+c", () => console.log("comment block"));
+ * ```
+ */
+export function createHotkeys(options?: HotkeysOptions): Hotkeys {
+  return new Hotkeys(options);
 }
