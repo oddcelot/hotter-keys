@@ -246,6 +246,10 @@ footer span {
 
 /* ── General polish ── */
 
+html {
+    scrollbar-gutter: stable;
+}
+
 /* Remove all box shadows site-wide */
 * {
     box-shadow: none !important;
