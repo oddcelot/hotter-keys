@@ -50,8 +50,7 @@ nav.sidebar {
 /* ── Content headings ── */
 .sl-markdown-content h1,
 .sl-markdown-content h2 {
-    font-family: var(--hk-font-display);
-    font-weight: 400;
+    font-weight: 300;
     letter-spacing: 0.01em;
 }
 
@@ -68,8 +67,7 @@ nav.sidebar {
 
 /* Page title (outside markdown) */
 h1#_top {
-    font-family: var(--hk-font-display);
-    font-weight: 400;
+    font-weight: 300;
     letter-spacing: 0.01em;
 }
 
@@ -184,8 +182,7 @@ kbd {
 
 /* ── Hero section ── */
 .hero h1 {
-    font-family: var(--hk-font-display);
-    font-weight: 400;
+    font-weight: 300;
 }
 
 .hero .tagline {

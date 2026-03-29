@@ -14,6 +14,9 @@ export default defineConfig({
     starlight({
       pagefind: false,
       title: "Hotter Keys",
+      logo: {
+        src: "./public/logo.svg",
+      },
       plugins: [starlightThemeHotterKeys()],
       social: [
         {

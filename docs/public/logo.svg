@@ -8,27 +8,27 @@
         stroke-linejoin: round;
         stroke-miterlimit: 1.5;
     "
-    viewBox="0 0 369 441"
+    viewBox="0 0 512 512"
 >
     <path
         d="M562 0h512v512H562z"
         style="fill: none"
-        transform="translate(-633.689 -36.09)"
+        transform="translate(-562)"
     />
     <path
         d="m632.385 310.322 46.273-80.594 129.038 111.186-.192 126.833z"
         style="fill: #a9a9a9; stroke: #070707; stroke-width: 18.08px"
-        transform="matrix(1 0 0 .99059 -623.385 -32.337)"
+        transform="matrix(1 0 0 .99059 -551.696 3.752)"
     />
     <path
         d="m632.385 310.322 46.273-80.594 129.038 111.186-.192 126.833z"
         style="fill: #575757; stroke: #070707; stroke-width: 18.08px"
-        transform="matrix(-1 0 0 .99059 992.008 -32.337)"
+        transform="matrix(-1 0 0 .99059 1063.696 3.752)"
     />
     <path
         d="m695.677 232.587 129.038-111.186 129.039 111.186-129.039 110.138z"
         style="fill: #898989; stroke: #070707; stroke-width: 18px"
-        transform="translate(-640.404 -37.358)"
+        transform="translate(-568.715 -1.269)"
     />
     <path
         d="M208 144c0-72-80-165.891-80-165.891S48 72 48 144c0 43.887 36.113 80 80 80s80-36.113 80-80"
@@ -39,7 +39,7 @@
             stroke-width: 18.11px;
             stroke-miterlimit: 4;
         "
-        transform="matrix(1.04134 0 0 .90009 51.02 28.519)"
+        transform="matrix(1.04134 0 0 .90009 122.708 64.608)"
     />
     <path
         d="M88 184c0 21.943 18.057 40 40 40s40-18.057 40-40c0-40-40-82.946-40-82.946S88 144 88 184"
@@ -50,6 +50,6 @@
             stroke-width: 18.11px;
             stroke-miterlimit: 4;
         "
-        transform="matrix(1.04134 0 0 .90009 51.02 28.519)"
+        transform="matrix(1.04134 0 0 .90009 122.708 64.608)"
     />
 </svg>

@@ -16,7 +16,6 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@fontsource/instrument-serif": "^5.2.8",
     "@fontsource-variable/lilex": "^5.2.1"
   },
   "peerDependencies": {

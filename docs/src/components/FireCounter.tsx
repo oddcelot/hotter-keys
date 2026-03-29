@@ -21,8 +21,8 @@ const FireCounter: Component<{ count: number; label?: string }> = (props) => {
     >
       <span
         style={{
-          "font-family": "var(--hk-font-display)",
           "font-size": "1.75rem",
+          "font-weight": "300",
           "line-height": "1",
           color: "var(--hk-ink-inverse)",
         }}
