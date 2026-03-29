@@ -1,6 +1,6 @@
-import { createSignal, onCleanup, onMount, For, Show } from "solid-js";
+import { createSignal, createEffect, onCleanup, onMount, For, Show } from "solid-js";
 import { createHotkeys, recordShortcut, formatShortcut } from "hotter-keys";
-import type { Hotkeys, RecordedShortcut } from "hotter-keys";
+import type { HotkeysInstance, RecordedShortcut } from "hotter-keys";
 import Gauge from "./Gauge";
 import FireCounter from "./FireCounter";
 import "../styles/demo.css";
@@ -90,8 +90,6 @@ let logId = 0;
 export default function Playground() {
   const [shortcuts, setShortcuts] = createSignal<ShortcutRow[]>(INITIAL_SHORTCUTS);
   const [sequences, setSequences] = createSignal<ShortcutRow[]>(INITIAL_SEQUENCES);
-  const [heldKeys, setHeldKeys] = createSignal<readonly string[]>([]);
-  const [shiftHeld, setShiftHeld] = createSignal(false);
   const [firedShortcuts, setFiredShortcuts] = createSignal<Record<string, number>>({});
   const [firedSequences, setFiredSequences] = createSignal<Record<string, number>>({});
   const [eventLog, setEventLog] = createSignal<LogEntry[]>([]);
@@ -102,7 +100,9 @@ export default function Playground() {
   const [fireCount, setFireCount] = createSignal(0);
 
   let containerRef!: HTMLDivElement;
-  let hk: Hotkeys;
+  let hk: HotkeysInstance;
+  const [heldKeys, setHeldKeys] = createSignal<readonly string[]>([]);
+  const [shiftHeld, setShiftHeld] = createSignal(false);
   const unbindMap = new Map<number, () => void>();
 
   const now = () => {
@@ -201,8 +201,9 @@ export default function Playground() {
 
   onMount(() => {
     hk = createHotkeys({ target: containerRef });
-    hk.onHeldKeysChange((keys) => setHeldKeys(keys));
-    hk.onKeyHold("shift", (held) => setShiftHeld(held));
+    createEffect(() => setHeldKeys(heldKeys()));
+    const shiftMemo = hk.createKeyHold("shift");
+    createEffect(() => setShiftHeld(shiftMemo()));
     for (const s of shortcuts()) bindRow(s, "shortcut");
     for (const s of sequences()) bindRow(s, "sequence");
     containerRef.addEventListener("keydown", suppressWhileRecording, { capture: true });

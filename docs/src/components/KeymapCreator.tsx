@@ -1,7 +1,7 @@
 import { createSignal, createEffect, onMount, onCleanup, For, Show } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { createHotkeys, recordShortcut } from "hotter-keys";
-import type { Hotkeys, RecordedShortcut } from "hotter-keys";
+import type { HotkeysInstance, RecordedShortcut } from "hotter-keys";
 import { loadKeymap, saveKeymap, isOpfsAvailable } from "../lib/opfs";
 import type { KeymapEntry } from "../lib/opfs";
 import "../styles/demo.css";
@@ -52,7 +52,7 @@ export default function KeymapCreator() {
   const [firedId, setFiredId] = createSignal<string | null>(null);
 
   let containerRef!: HTMLDivElement;
-  let hk: Hotkeys;
+  let hk: HotkeysInstance;
   const unbindMap = new Map<string, () => void>();
 
   const flash = (id: string) => {

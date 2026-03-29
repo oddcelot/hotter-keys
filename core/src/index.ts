@@ -25,10 +25,8 @@ export type {
   ShortcutHandler,
   BindingOptions,
   Binding,
-  HeldKeysListener,
-  KeyHoldListener,
-  LayerChangeListener,
   HotkeysOptions,
+  HotkeysInstance,
   RecordedShortcut,
 } from "./types";
 
@@ -41,6 +39,6 @@ export {
   translateForPlatform,
 } from "./parse";
 
-export { Hotkeys, createHotkeys } from "./hotkeys";
+export { createHotkeys } from "./hotkeys";
 
 export { recordShortcut } from "./record";

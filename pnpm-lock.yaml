@@ -40,6 +40,9 @@ importers:
       jsdom:
         specifier: 'catalog:'
         version: 26.1.0
+      solid-js:
+        specifier: 'catalog:'
+        version: 1.9.12
       typescript:
         specifier: 'catalog:'
         version: 5.8.3
