@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig, fontProviders } from "astro/config";
+import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import solidJs from "@astrojs/solid-js";
 import starlightThemeHotterKeys from "starlight-theme-hotter-keys";
@@ -10,13 +10,6 @@ export default defineConfig({
     ? "https://oddcelot.github.io"
     : "http://localhost:4321",
   base: process.env.CI ? "/hotter-keys" : "/",
-  fonts: [
-    {
-      provider: fontProviders.fontsource(),
-      name: "Lilex",
-      cssVariable: "--font-lilex",
-    },
-  ],
   integrations: [
     starlight({
       pagefind: false,

@@ -14,7 +14,6 @@ export default function starlightThemeHotterKeys(): StarlightPlugin {
           ],
           components: {
             Head: "starlight-theme-hotter-keys/overrides/Head.astro",
-            Header: "starlight-theme-hotter-keys/overrides/Header.astro",
             Footer: "starlight-theme-hotter-keys/overrides/Footer.astro",
           },
         });

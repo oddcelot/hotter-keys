@@ -76,6 +76,9 @@ importers:
       '@astrojs/starlight':
         specifier: '>=0.34.0'
         version: 0.38.2(astro@6.1.1(@types/node@24.12.0)(rollup@4.60.0)(typescript@5.8.3))
+      '@fontsource-variable/lilex':
+        specifier: ^5.2.1
+        version: 5.2.1
 
 packages:
 
@@ -576,6 +579,9 @@ packages:
 
   '@expressive-code/plugin-text-markers@0.41.7':
     resolution: {integrity: sha512-Ewpwuc5t6eFdZmWlFyeuy3e1PTQC0jFvw2Q+2bpcWXbOZhPLsT7+h8lsSIJxb5mS7wZko7cKyQ2RLYDyK6Fpmw==}
+
+  '@fontsource-variable/lilex@5.2.1':
+    resolution: {integrity: sha512-l+cYywL7TTDffmiaZEPG98Er8eIJhqImV9ZSwOqxE3dC+oS8G/erBvIkQO6T87J+i7+9HJwr7gSVfcq7deMuAw==}
 
   '@img/colour@1.1.0':
     resolution: {integrity: sha512-Td76q7j57o/tLVdgS746cYARfSyxk8iEfRxewL9h4OMzYhbW4TAcppl0mT4eyqXddh6L/jwoM75mo7ixa/pCeQ==}
@@ -2976,6 +2982,8 @@ snapshots:
   '@expressive-code/plugin-text-markers@0.41.7':
     dependencies:
       '@expressive-code/core': 0.41.7
+
+  '@fontsource-variable/lilex@5.2.1': {}
 
   '@img/colour@1.1.0': {}
 

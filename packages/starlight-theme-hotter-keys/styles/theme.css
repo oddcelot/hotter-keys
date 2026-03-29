@@ -1,20 +1,39 @@
+@import "@fontsource-variable/lilex";
+
 /* ── Dark mode (Starlight default) ── */
 :root,
 ::backdrop {
-    /* Grayscale — warm, desaturated */
-    --sl-color-white: #d8d8cd;
-    --sl-color-gray-1: #b8b8ad;
-    --sl-color-gray-2: #8a8a80;
-    --sl-color-gray-3: #6a6a62;
-    --sl-color-gray-4: #4a4a43;
-    --sl-color-gray-5: #333330;
-    --sl-color-gray-6: #252521;
-    --sl-color-black: #1a1a17;
+    /* Base palette — oklch */
+    --hk-hue-warm: 95;
+    --hk-hue-accent: 240;
+    --hk-hue-orange: 70;
+    --hk-hue-green: 150;
+    --hk-hue-blue: 230;
+    --hk-hue-purple: 300;
+    --hk-hue-red: 25;
 
-    /* Accent — logo blue */
-    --sl-color-accent-low: #0a2a4a;
-    --sl-color-accent: #0091ff;
-    --sl-color-accent-high: #80c8ff;
+    --hk-base-white: oklch(0.87 0.015 var(--hk-hue-warm));
+    --hk-base-black: oklch(0.18 0.01 var(--hk-hue-warm));
+    --hk-base-accent: oklch(0.65 0.22 var(--hk-hue-accent));
+
+    /* Grayscale — warm, desaturated (derived from base hue) */
+    --sl-color-white: var(--hk-base-white);
+    --sl-color-gray-1: oklch(0.77 0.012 var(--hk-hue-warm));
+    --sl-color-gray-2: oklch(0.62 0.01 var(--hk-hue-warm));
+    --sl-color-gray-3: oklch(0.5 0.008 var(--hk-hue-warm));
+    --sl-color-gray-4: oklch(0.38 0.008 var(--hk-hue-warm));
+    --sl-color-gray-5: oklch(0.28 0.006 var(--hk-hue-warm));
+    --sl-color-gray-6: oklch(0.22 0.006 var(--hk-hue-warm));
+    --sl-color-black: var(--hk-base-black);
+
+    /* Accent — derived from base */
+    --sl-color-accent-low: oklch(
+        from var(--hk-base-accent) calc(l * 0.35) calc(c * 0.4) h
+    );
+    --sl-color-accent: var(--hk-base-accent);
+    --sl-color-accent-high: oklch(
+        from var(--hk-base-accent) calc(l * 1.3) calc(c * 0.5) h
+    );
 
     /* Semantic aliases */
     --sl-color-text: var(--sl-color-gray-1);
@@ -28,24 +47,24 @@
     --sl-color-hairline-light: var(--sl-color-gray-5);
     --sl-color-hairline: var(--sl-color-gray-6);
     --sl-color-hairline-shade: var(--sl-color-black);
-    --sl-color-backdrop-overlay: rgba(26, 26, 23, 0.66);
+    --sl-color-backdrop-overlay: oklch(from var(--hk-base-black) l c h / 0.66);
 
-    /* Status colors — muted to match the warm palette */
-    --sl-color-orange-low: #3a2a15;
-    --sl-color-orange: #c49040;
-    --sl-color-orange-high: #e8c89f;
-    --sl-color-green-low: #1a3a20;
-    --sl-color-green: #5a9a60;
-    --sl-color-green-high: #9fcea5;
-    --sl-color-blue-low: #1a2a3a;
-    --sl-color-blue: #5a8ab0;
-    --sl-color-blue-high: #9fc0e0;
-    --sl-color-purple-low: #2a1a3a;
-    --sl-color-purple: #8a5ab0;
-    --sl-color-purple-high: #bfa0d8;
-    --sl-color-red-low: #3a1a15;
-    --sl-color-red: #c45040;
-    --sl-color-red-high: #e8a89f;
+    /* Status colors — derived from hue tokens */
+    --sl-color-orange-low: oklch(0.28 0.04 var(--hk-hue-orange));
+    --sl-color-orange: oklch(0.68 0.12 var(--hk-hue-orange));
+    --sl-color-orange-high: oklch(0.84 0.07 var(--hk-hue-orange));
+    --sl-color-green-low: oklch(0.25 0.04 var(--hk-hue-green));
+    --sl-color-green: oklch(0.62 0.1 var(--hk-hue-green));
+    --sl-color-green-high: oklch(0.8 0.07 var(--hk-hue-green));
+    --sl-color-blue-low: oklch(0.25 0.04 var(--hk-hue-blue));
+    --sl-color-blue: oklch(0.62 0.1 var(--hk-hue-blue));
+    --sl-color-blue-high: oklch(0.8 0.07 var(--hk-hue-blue));
+    --sl-color-purple-low: oklch(0.25 0.04 var(--hk-hue-purple));
+    --sl-color-purple: oklch(0.58 0.12 var(--hk-hue-purple));
+    --sl-color-purple-high: oklch(0.78 0.08 var(--hk-hue-purple));
+    --sl-color-red-low: oklch(0.28 0.04 var(--hk-hue-red));
+    --sl-color-red: oklch(0.6 0.16 var(--hk-hue-red));
+    --sl-color-red-high: oklch(0.82 0.07 var(--hk-hue-red));
 
     /* No shadows — hierarchy from size/weight only */
     --sl-shadow-sm: none;
@@ -53,38 +72,42 @@
     --sl-shadow-lg: none;
 
     /* Typography */
-    --sl-font: var(--font-lilex), monospace;
-    --sl-font-mono: var(--font-lilex), monospace;
+    --sl-font: "Lilex Variable", monospace;
+    --sl-font-mono: "Lilex Variable", monospace;
 
     /* ── Hotter Keys tokens ── */
-    --hk-card-bg: #252521;
-    --hk-card-border: rgba(216, 216, 205, 0.10);
-    --hk-rule: rgba(216, 216, 205, 0.07);
-    --hk-danger: #c45040;
+    --hk-card-bg: var(--sl-color-gray-6);
+    --hk-card-border: oklch(from var(--hk-base-white) l c h / 0.1);
+    --hk-rule: oklch(from var(--hk-base-white) l c h / 0.07);
+    --hk-danger: oklch(0.6 0.16 var(--hk-hue-red));
     --hk-label-tracking: 0.16em;
     --hk-label-size: 0.5rem;
-    --hk-ink: #d8d8cd;
-    --hk-ink-inverse: #1a1a17;
+    --hk-ink: var(--hk-base-white);
+    --hk-ink-inverse: var(--hk-base-black);
 }
 
 /* ── Light mode ── */
 :root[data-theme="light"],
 [data-theme="light"] ::backdrop {
-    /* Grayscale — warm sage */
-    --sl-color-white: #1a1a17;
-    --sl-color-gray-1: #2a2a25;
-    --sl-color-gray-2: #4a4a43;
-    --sl-color-gray-3: #6a6a62;
-    --sl-color-gray-4: #8a8a80;
-    --sl-color-gray-5: #c0c0b6;
-    --sl-color-gray-6: #e4e4da;
-    --sl-color-gray-7: #ececdf;
-    --sl-color-black: #d8d8cd;
+    /* Grayscale — inverted lightness, same warm hue */
+    --sl-color-white: var(--hk-base-black);
+    --sl-color-gray-1: oklch(0.24 0.008 var(--hk-hue-warm));
+    --sl-color-gray-2: oklch(0.38 0.008 var(--hk-hue-warm));
+    --sl-color-gray-3: oklch(0.5 0.008 var(--hk-hue-warm));
+    --sl-color-gray-4: oklch(0.62 0.01 var(--hk-hue-warm));
+    --sl-color-gray-5: oklch(0.8 0.012 var(--hk-hue-warm));
+    --sl-color-gray-6: oklch(0.91 0.012 var(--hk-hue-warm));
+    --sl-color-gray-7: oklch(0.94 0.01 var(--hk-hue-warm));
+    --sl-color-black: var(--hk-base-white);
 
-    /* Accent — logo blue */
-    --sl-color-accent-high: #004a80;
-    --sl-color-accent: #0091ff;
-    --sl-color-accent-low: #d0e8ff;
+    /* Accent — adjusted for light bg */
+    --sl-color-accent-high: oklch(
+        from var(--hk-base-accent) calc(l * 0.55) calc(c * 0.7) h
+    );
+    --sl-color-accent: var(--hk-base-accent);
+    --sl-color-accent-low: oklch(
+        from var(--hk-base-accent) calc(l * 1.45) calc(c * 0.15) h
+    );
 
     /* Semantic aliases */
     --sl-color-text: var(--sl-color-gray-2);
@@ -96,24 +119,24 @@
     --sl-color-bg-accent: var(--sl-color-accent);
     --sl-color-hairline-light: var(--sl-color-gray-6);
     --sl-color-hairline-shade: var(--sl-color-gray-6);
-    --sl-color-backdrop-overlay: rgba(26, 26, 23, 0.33);
+    --sl-color-backdrop-overlay: oklch(from var(--hk-base-black) l c h / 0.33);
 
-    /* Status colors — muted warm */
-    --sl-color-orange-high: #5a3a10;
-    --sl-color-orange: #b08030;
-    --sl-color-orange-low: #f0e0c0;
-    --sl-color-green-high: #1a3a20;
-    --sl-color-green: #408040;
-    --sl-color-green-low: #d0e8d0;
-    --sl-color-blue-high: #1a2a3a;
-    --sl-color-blue: #3070a0;
-    --sl-color-blue-low: #d0e0f0;
-    --sl-color-purple-high: #2a1a3a;
-    --sl-color-purple: #7050a0;
-    --sl-color-purple-low: #e0d0f0;
-    --sl-color-red-high: #5a1810;
-    --sl-color-red: #c45040;
-    --sl-color-red-low: #f0d0ca;
+    /* Status colors — light mode (swapped low/high lightness) */
+    --sl-color-orange-high: oklch(0.35 0.06 var(--hk-hue-orange));
+    --sl-color-orange: oklch(0.62 0.1 var(--hk-hue-orange));
+    --sl-color-orange-low: oklch(0.92 0.04 var(--hk-hue-orange));
+    --sl-color-green-high: oklch(0.3 0.05 var(--hk-hue-green));
+    --sl-color-green: oklch(0.55 0.1 var(--hk-hue-green));
+    --sl-color-green-low: oklch(0.92 0.04 var(--hk-hue-green));
+    --sl-color-blue-high: oklch(0.28 0.04 var(--hk-hue-blue));
+    --sl-color-blue: oklch(0.52 0.1 var(--hk-hue-blue));
+    --sl-color-blue-low: oklch(0.92 0.04 var(--hk-hue-blue));
+    --sl-color-purple-high: oklch(0.28 0.04 var(--hk-hue-purple));
+    --sl-color-purple: oklch(0.52 0.1 var(--hk-hue-purple));
+    --sl-color-purple-low: oklch(0.92 0.04 var(--hk-hue-purple));
+    --sl-color-red-high: oklch(0.35 0.06 var(--hk-hue-red));
+    --sl-color-red: oklch(0.58 0.14 var(--hk-hue-red));
+    --sl-color-red-low: oklch(0.92 0.04 var(--hk-hue-red));
 
     /* No shadows */
     --sl-shadow-sm: none;
@@ -121,9 +144,9 @@
     --sl-shadow-lg: none;
 
     /* ── Hotter Keys tokens (light) ── */
-    --hk-card-bg: #e4e4da;
-    --hk-card-border: rgba(26, 26, 23, 0.10);
-    --hk-rule: rgba(26, 26, 23, 0.07);
-    --hk-ink: #1a1a17;
-    --hk-ink-inverse: #d8d8cd;
+    --hk-card-bg: var(--sl-color-gray-6);
+    --hk-card-border: oklch(from var(--hk-base-black) l c h / 0.7);
+    --hk-rule: oklch(from var(--hk-base-black) l c h / 0.7);
+    --hk-ink: var(--hk-base-black);
+    --hk-ink-inverse: var(--hk-base-white);
 }

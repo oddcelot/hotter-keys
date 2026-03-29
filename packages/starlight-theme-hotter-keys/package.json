@@ -15,6 +15,9 @@
     "./styles/demo": "./styles/demo.css",
     "./package.json": "./package.json"
   },
+  "dependencies": {
+    "@fontsource-variable/lilex": "^5.2.1"
+  },
   "peerDependencies": {
     "@astrojs/starlight": ">=0.34.0"
   }

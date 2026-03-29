@@ -1,8 +1,8 @@
 /* ── Base Starlight chrome overrides ── */
 
 /* ── Header ── */
-.header {
-    background: transparent;
+header.header {
+    background: var(--sl-color-bg);
     border-bottom: 1px solid var(--hk-rule);
     box-shadow: none;
     -webkit-backdrop-filter: none;
@@ -28,12 +28,18 @@ nav.sidebar {
     font-size: var(--sl-text-xs);
     text-transform: uppercase;
     letter-spacing: var(--hk-label-tracking);
-    font-weight: 500;
+    font-variation-settings: "wght" 400;
+    transition: font-variation-settings 0.2s;
+}
+
+.sidebar-content a:hover,
+.sidebar-content summary:hover {
+    font-variation-settings: "wght" 600;
 }
 
 .sidebar-content a[aria-current="page"] {
     color: var(--sl-color-white);
-    font-weight: 700;
+    font-variation-settings: "wght" 700;
     background: transparent;
     border-color: transparent;
 }
@@ -194,11 +200,6 @@ kbd {
     border-bottom: 1px solid var(--hk-rule);
 }
 
-/* ── Content panel ── */
-.content-panel {
-    border-top: 1px solid var(--hk-rule);
-}
-
 /* ── Right sidebar (TOC) ── */
 .right-sidebar {
     border-inline-start: 1px solid var(--hk-rule);
@@ -208,6 +209,16 @@ kbd {
     font-size: var(--sl-text-xs);
     text-transform: uppercase;
     letter-spacing: var(--hk-label-tracking);
+    font-variation-settings: "wght" 400;
+    transition: font-variation-settings 0.2s;
+}
+
+.right-sidebar a:hover {
+    font-variation-settings: "wght" 600;
+}
+
+.right-sidebar a[aria-current="true"] {
+    font-variation-settings: "wght" 700;
 }
 
 /* ── Hero section ── */
