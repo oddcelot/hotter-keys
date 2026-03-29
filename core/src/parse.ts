@@ -3,8 +3,6 @@ import type { Modifiers, Shortcut, ShortcutSequence } from "./types";
 export const ALPHA = /^[a-z]$/;
 export const DIGIT = /^[0-9]$/;
 
-const EMPTY_MODS: Modifiers = { ctrl: false, shift: false, meta: false };
-
 /**
  * Detect whether the current platform is macOS/iOS.
  * On macOS the primary modifier is Meta (Cmd); elsewhere it is Ctrl.
@@ -51,7 +49,7 @@ export function parseShortcut(raw: string, platform?: { mac: boolean }): Shortcu
     throw new Error(`Empty shortcut string`);
   }
 
-  const mods: Modifiers = { ...EMPTY_MODS };
+  const mods: Modifiers = { ctrl: false, shift: false, meta: false };
   let key: string | undefined;
 
   for (const part of parts) {

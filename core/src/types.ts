@@ -9,11 +9,8 @@ export interface Modifiers {
  * A single chord: one non-modifier key + zero or more modifiers.
  * `key` is always lowercase a-z or digit 0-9.
  */
-export interface Shortcut {
+export interface Shortcut extends Modifiers {
   key: string;
-  ctrl: boolean;
-  shift: boolean;
-  meta: boolean;
 }
 
 /**
@@ -87,13 +84,6 @@ export interface HotkeysOptions {
    * @default "*"
    */
   scope?: string;
-  /**
-   * If true, attempt to use the experimental Keyboard API (Chrome 69+) to
-   * build a layout map, enabling broader key support beyond a-z / 0-9.
-   * Falls back silently when unavailable.
-   * @default true
-   */
-  useKeyboardAPI?: boolean;
   /**
    * Time in ms to wait between chords in a sequence before resetting progress.
    * @default 1000
