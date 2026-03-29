@@ -49,6 +49,11 @@
   padding: 0.5rem;
   border-bottom: 1px solid var(--sl-color-gray-6);
   vertical-align: middle;
+  transition: background 0.15s;
+}
+
+:global(.row-fired-green) .td {
+  background: rgba(34, 197, 94, 0.15);
 }
 
 .shortcutCol {

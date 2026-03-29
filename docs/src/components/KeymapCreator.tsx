@@ -1,7 +1,7 @@
 import { createSignal, createEffect, onMount, onCleanup, For, Show } from "solid-js";
 import { createStore, produce } from "solid-js/store";
-import { recordShortcut } from "hotter-keys";
-import type { RecordedShortcut } from "hotter-keys";
+import { createHotkeys, recordShortcut } from "hotter-keys";
+import type { Hotkeys, RecordedShortcut } from "hotter-keys";
 import { loadKeymap, saveKeymap, isOpfsAvailable } from "../lib/opfs";
 import type { KeymapEntry } from "../lib/opfs";
 import "../styles/demo.css";
@@ -47,8 +47,34 @@ export default function KeymapCreator() {
   const [recordingId, setRecordingId] = createSignal<string | null>(null);
   const [pendingChords, setPendingChords] = createSignal<string[]>([]);
   const [opfsOk, setOpfsOk] = createSignal(false);
+  const [fileHandle, setFileHandle] = createSignal<FileSystemFileHandle | null>(null);
+  const [fileName, setFileName] = createSignal<string | null>(null);
+  const [firedId, setFiredId] = createSignal<string | null>(null);
 
   let containerRef!: HTMLDivElement;
+  let hk: Hotkeys;
+  const unbindMap = new Map<string, () => void>();
+
+  const flash = (id: string) => {
+    setFiredId(id);
+    setTimeout(() => setFiredId((cur) => (cur === id ? null : cur)), 600);
+  };
+
+  const rebindAll = () => {
+    for (const unsub of unbindMap.values()) unsub();
+    unbindMap.clear();
+    for (const entry of entries) {
+      if (!entry.shortcut) continue;
+      try {
+        const unsub = hk.add(entry.shortcut, () => flash(entry.id), {
+          preventDefault: false,
+        });
+        unbindMap.set(entry.id, unsub);
+      } catch {
+        // invalid shortcut string — skip
+      }
+    }
+  };
 
   const suppressWhileRecording = (e: KeyboardEvent) => {
     if (recordingId() !== null) {
@@ -57,6 +83,7 @@ export default function KeymapCreator() {
   };
 
   onMount(async () => {
+    hk = createHotkeys({ target: containerRef });
     containerRef.addEventListener("keydown", suppressWhileRecording, { capture: true });
     const available = isOpfsAvailable();
     setOpfsOk(available);
@@ -65,55 +92,112 @@ export default function KeymapCreator() {
       setEntries(data);
     }
     setLoaded(true);
+    rebindAll();
 
     onCleanup(() => {
+      hk.destroy();
       containerRef.removeEventListener("keydown", suppressWhileRecording, { capture: true });
     });
   });
 
-  // Auto-save to OPFS (debounced)
-  let saveTimer: ReturnType<typeof setTimeout>;
+  // Re-bind shortcuts whenever entries change
   createEffect(() => {
-    // Deep-read every field so the effect re-runs on any property change
-    const data = entries.map((e) => ({ ...e }));
-    if (!loaded() || !opfsOk()) return;
-    clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => {
-      console.log("[keymap] saving to OPFS", data.length, "entries");
-      saveKeymap(data)
-        .then(() => console.log("[keymap] saved"))
-        .catch((err) => console.error("[keymap] save failed", err));
-    }, 500);
+    entries.forEach((e) => e.shortcut); // track all shortcut fields
+    if (!loaded()) return;
+    rebindAll();
   });
 
   const getExportJson = () =>
     JSON.stringify(entries.map(({ id: _, ...rest }) => rest), null, 2);
 
-  const saveToFile = async () => {
-    const json = getExportJson();
-    // Try File System Access API (Chrome/Edge)
+  // Write to a FileSystemFileHandle
+  const writeToHandle = async (handle: FileSystemFileHandle, json: string) => {
+    const writable = await handle.createWritable();
+    await writable.write(json);
+    await writable.close();
+  };
+
+  // Debounced auto-save: writes to file handle if set, otherwise OPFS
+  let saveTimer: ReturnType<typeof setTimeout>;
+  createEffect(() => {
+    const data = entries.map((e) => ({ ...e }));
+    if (!loaded()) return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      const json = JSON.stringify(data, null, 2);
+      const handle = fileHandle();
+      if (handle) {
+        console.log("[keymap] saving to file", handle.name);
+        writeToHandle(handle, json)
+          .then(() => console.log("[keymap] saved to file"))
+          .catch((err) => console.error("[keymap] file save failed", err));
+      } else if (opfsOk()) {
+        console.log("[keymap] saving to OPFS", data.length, "entries");
+        saveKeymap(data)
+          .then(() => console.log("[keymap] saved to OPFS"))
+          .catch((err) => console.error("[keymap] OPFS save failed", err));
+      }
+    }, 500);
+  });
+
+  // Pick a file location — all future auto-saves go there
+  const saveAs = async () => {
     if ("showSaveFilePicker" in window) {
       try {
-        const handle = await (window as any).showSaveFilePicker({
+        const handle: FileSystemFileHandle = await (window as any).showSaveFilePicker({
           suggestedName: "keymap.json",
           types: [{ description: "JSON", accept: { "application/json": [".json"] } }],
         });
-        const writable = await handle.createWritable();
-        await writable.write(json);
-        await writable.close();
+        await writeToHandle(handle, getExportJson());
+        setFileHandle(handle);
+        setFileName(handle.name);
         return;
       } catch (e: any) {
-        if (e?.name === "AbortError") return; // user cancelled
+        if (e?.name === "AbortError") return;
       }
     }
-    // Fallback: download via blob link
-    const blob = new Blob([json], { type: "application/json" });
+    // Fallback: one-time download
+    const blob = new Blob([getExportJson()], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = "keymap.json";
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  // Open a file — loads data and sets handle for future saves
+  const openFile = async () => {
+    if ("showOpenFilePicker" in window) {
+      try {
+        const [handle]: FileSystemFileHandle[] = await (window as any).showOpenFilePicker({
+          types: [{ description: "JSON", accept: { "application/json": [".json"] } }],
+        });
+        const file = await handle.getFile();
+        const text = await file.text();
+        const data = JSON.parse(text) as Omit<KeymapEntry, "id">[];
+        // Assign IDs to loaded entries
+        setEntries(data.map((e) => ({ ...e, id: crypto.randomUUID() })) as KeymapEntry[]);
+        setFileHandle(handle);
+        setFileName(handle.name);
+      } catch (e: any) {
+        if (e?.name === "AbortError") return;
+      }
+    } else {
+      // Fallback: file input
+      const input = document.createElement("input");
+      input.type = "file";
+      input.accept = ".json";
+      input.onchange = async () => {
+        const file = input.files?.[0];
+        if (!file) return;
+        const text = await file.text();
+        const data = JSON.parse(text) as Omit<KeymapEntry, "id">[];
+        setEntries(data.map((e) => ({ ...e, id: crypto.randomUUID() })) as KeymapEntry[]);
+        setFileName(file.name);
+      };
+      input.click();
+    }
   };
 
   const addEntry = () => {
@@ -179,12 +263,20 @@ export default function KeymapCreator() {
       <div class={styles.statusBar}>
         <div class={styles.statusActions}>
           <button onClick={addEntry} class="btn">+ Add Entry</button>
+          <button onClick={openFile} class="btn-sm">Open</button>
           <Show when={entries.length > 0}>
-            <button onClick={saveToFile} class="btn-sm">Save as file</button>
+            <button onClick={saveAs} class="btn-sm">Save as</button>
           </Show>
         </div>
-        <Show when={!opfsOk()}>
-          <span class="badge badge-yellow">OPFS unavailable — changes won't persist</span>
+        <Show
+          when={fileName()}
+          fallback={
+            <Show when={!opfsOk() && !fileHandle()}>
+              <span class="badge badge-yellow">No file — changes won't persist</span>
+            </Show>
+          }
+        >
+          <span class={styles.storageHint}>{fileName()}</span>
         </Show>
       </div>
 
@@ -211,8 +303,9 @@ export default function KeymapCreator() {
               <For each={entries}>
                 {(entry) => {
                   const isThisRecording = () => recordingId() === entry.id;
+                  const isFired = () => firedId() === entry.id;
                   return (
-                    <tr>
+                    <tr class={isFired() ? "row-fired-green" : ""}>
                       <td class={styles.td}>
                         <input
                           type="text"
@@ -240,6 +333,9 @@ export default function KeymapCreator() {
                           </Show>
                           <Show when={!isThisRecording() && entry.shortcut}>
                             <kbd class="kbd">{comboToLabel(entry.shortcut)}</kbd>
+                          </Show>
+                          <Show when={isFired()}>
+                            <span class="badge badge-green">FIRED</span>
                           </Show>
                           <button
                             onClick={() => recordForRow(entry.id)}

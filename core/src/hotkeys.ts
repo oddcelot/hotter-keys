@@ -56,6 +56,10 @@ export class Hotkeys {
   private _layers: string[] = ["global"];
   private _layerListeners = new Set<LayerChangeListener>();
 
+  // --- Deferred bindings (chord disambiguation) ---
+  private _deferred: { binding: Binding; event: KeyboardEvent }[] = [];
+  private _deferTimer: ReturnType<typeof setTimeout> | undefined;
+
   // --- Bound handlers ---
   private _onKeyDown = (e: Event) => this._handleKeyDown(e as KeyboardEvent);
   private _onKeyUp = (e: Event) => this._handleKeyUp(e as KeyboardEvent);
@@ -105,6 +109,7 @@ export class Hotkeys {
   /** Remove all bindings, listeners, and stop listening. */
   destroy(): void {
     this.stop();
+    this._cancelDeferred();
     for (const b of this.bindings) {
       if (b._seqTimer !== undefined) clearTimeout(b._seqTimer);
     }
@@ -409,40 +414,56 @@ export class Hotkeys {
     // e.key may be undefined in some edge cases (e.g. <datalist>)
     if (typeof event.key !== "string") return;
 
-    // Rule 5: Ignore any keydown where Alt is held.
-    if (event.altKey) return;
-
-    // Skip repeats for held-keys tracking
+    // Track held keys before any early returns so Alt still shows
     if (!event.repeat) {
       this._trackKeyDown(event);
     }
 
-    // Match bindings — iterate layers top-to-bottom, first match wins
+    // Reconcile modifier state
+    this._reconcileModifiers(event);
+
+    // Rule 5: Ignore any keydown where Alt is held (for shortcut matching only).
+    if (event.altKey) return;
+
+    // If we have deferred bindings from a previous chord, check if this
+    // keydown continues a sequence or should flush the deferred ones.
+    if (this._deferred.length > 0) {
+      // Check if any in-progress sequence matches this chord
+      let sequenceAdvanced = false;
+      for (const binding of this.bindings) {
+        if (binding._seqIndex > 0) {
+          const target = binding.sequence[binding._seqIndex]!;
+          if (eventMatchesShortcut(event, target)) {
+            sequenceAdvanced = true;
+            break;
+          }
+        }
+      }
+      if (!sequenceAdvanced) {
+        // No sequence matched — flush deferred bindings, then process normally
+        this._flushDeferred();
+      } else {
+        // A sequence is advancing — cancel the deferred single-chord bindings
+        this._cancelDeferred();
+      }
+    }
+
+    // Match bindings — iterate layers top-to-bottom.
     let consumed = false;
     let consumedLayerIdx = -1;
+    const completedBindings: { binding: Binding; event: KeyboardEvent }[] = [];
+    let hasSequenceAdvance = false;
 
     for (let li = this._layers.length - 1; li >= 0 && !consumed; li--) {
       const layerName = this._layers[li]!;
 
       for (const binding of this.bindings) {
-        // Layer check
         const bindingLayer = binding.layer ?? "global";
         if (bindingLayer !== layerName) continue;
 
-        // Scope check
-        if (binding.scope && binding.scope !== "*" && binding.scope !== this.scope) {
-          continue;
-        }
-
-        // Input check
-        if (!binding.enableInInput && isInputElement(event.target)) {
-          continue;
-        }
-
-        // requireReset: already fired, waiting for full release
-        if (binding._awaitingReset) {
-          continue;
-        }
+        if (binding.scope && binding.scope !== "*" && binding.scope !== this.scope) continue;
+        if (!binding.enableInInput && isInputElement(event.target)) continue;
+        if (binding._awaitingReset) continue;
 
         const target = binding.sequence[binding._seqIndex]!;
 
@@ -450,7 +471,6 @@ export class Hotkeys {
           consumed = true;
           consumedLayerIdx = li;
 
-          // Optimistically preventDefault even on intermediate chords
           if (binding.preventDefault !== false) {
             event.preventDefault();
           }
@@ -461,30 +481,47 @@ export class Hotkeys {
           binding._seqIndex++;
 
           if (binding._seqIndex >= binding.sequence.length) {
-            // Full sequence matched — fire!
-            this._resetBindingSequence(binding);
-            if (binding.requireReset) {
-              binding._awaitingReset = true;
-            }
-            binding.handler(event);
+            // Full match — collect it (might be deferred)
+            completedBindings.push({ binding, event });
           } else {
-            // Waiting for next chord in sequence — start timeout
+            // Intermediate chord in a sequence
+            hasSequenceAdvance = true;
             if (binding._seqTimer !== undefined) clearTimeout(binding._seqTimer);
             binding._seqTimer = setTimeout(() => {
               this._resetBindingSequence(binding);
+              // Also flush any deferred bindings when the sequence times out
+              this._flushDeferred();
             }, this.sequenceTimeout);
           }
-
-          break; // This layer consumed the event
         } else if (binding._seqIndex > 0) {
-          // Wrong key during a sequence — reset progress
           this._resetBindingSequence(binding);
         }
       }
     }
 
-    // If a higher layer consumed the event, reset in-progress sequences
-    // in lower layers to prevent stale sequence state
+    // Chord disambiguation: if a single-chord binding completed but a
+    // sequence also advanced on the same chord, defer the completed
+    // binding until we know whether the sequence continues.
+    for (const { binding, event: evt } of completedBindings) {
+      if (hasSequenceAdvance) {
+        // Defer — fire later if the sequence doesn't complete
+        this._resetBindingSequence(binding);
+        this._deferred.push({ binding, event: evt });
+        if (this._deferTimer !== undefined) clearTimeout(this._deferTimer);
+        this._deferTimer = setTimeout(() => {
+          this._flushDeferred();
+        }, this.sequenceTimeout);
+      } else {
+        // No conflict — fire immediately
+        this._resetBindingSequence(binding);
+        if (binding.requireReset) {
+          binding._awaitingReset = true;
+        }
+        binding.handler(evt);
+      }
+    }
+
+    // Reset in-progress sequences in lower layers
     if (consumed) {
       for (const binding of this.bindings) {
         const bindingLayer = binding.layer ?? "global";
@@ -496,6 +533,28 @@ export class Hotkeys {
     }
   }
 
+  private _flushDeferred(): void {
+    if (this._deferTimer !== undefined) {
+      clearTimeout(this._deferTimer);
+      this._deferTimer = undefined;
+    }
+    for (const { binding, event } of this._deferred) {
+      if (binding.requireReset) {
+        binding._awaitingReset = true;
+      }
+      binding.handler(event);
+    }
+    this._deferred = [];
+  }
+
+  private _cancelDeferred(): void {
+    if (this._deferTimer !== undefined) {
+      clearTimeout(this._deferTimer);
+      this._deferTimer = undefined;
+    }
+    this._deferred = [];
+  }
+
   private _handleKeyUp(event: KeyboardEvent): void {
     if (typeof event.key !== "string") return;
 
@@ -503,8 +562,18 @@ export class Hotkeys {
     const idx = this._heldKeys.indexOf(key);
     if (idx !== -1) {
       this._heldKeys = this._heldKeys.filter((k) => k !== key);
+
+      // On macOS, releasing Meta/Cmd swallows pending keyup events for
+      // non-modifier keys that were held alongside it. Flush them.
+      if (key === "meta" || key === "control") {
+        this._heldKeys = this._heldKeys.filter((k) => isModifierKey(k));
+      }
+
       this._emitHeldKeys();
     }
+
+    // Reconcile modifiers on keyup too
+    this._reconcileModifiers(event);
 
     // When all keys are released, reset requireReset bindings
     if (this._heldKeys.length === 0) {
@@ -532,12 +601,44 @@ export class Hotkeys {
       if (event.metaKey) keys.push("meta");
       if (event.ctrlKey) keys.push("control");
       if (event.shiftKey) keys.push("shift");
-      // Intentionally skip altKey — rule 5
+      if (event.altKey) keys.push("alt");
     }
 
     keys.push(key);
     this._heldKeys = keys;
     this._emitHeldKeys();
+  }
+
+  /**
+   * Reconcile held modifier keys with the actual event state.
+   * On macOS, keyup events for modifiers are often missed when
+   * preventDefault was called on a shortcut. This cleans up stale entries.
+   */
+  private _reconcileModifiers(event: KeyboardEvent): void {
+    let changed = false;
+    const keys = [...this._heldKeys];
+
+    if (!event.metaKey && keys.includes("meta")) {
+      keys.splice(keys.indexOf("meta"), 1);
+      changed = true;
+    }
+    if (!event.ctrlKey && keys.includes("control")) {
+      keys.splice(keys.indexOf("control"), 1);
+      changed = true;
+    }
+    if (!event.shiftKey && keys.includes("shift")) {
+      keys.splice(keys.indexOf("shift"), 1);
+      changed = true;
+    }
+    if (!event.altKey && keys.includes("alt")) {
+      keys.splice(keys.indexOf("alt"), 1);
+      changed = true;
+    }
+
+    if (changed) {
+      this._heldKeys = keys;
+      this._emitHeldKeys();
+    }
   }
 
   private _resetBindingSequence(binding: Binding): void {

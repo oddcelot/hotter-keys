@@ -434,9 +434,11 @@ describe("Hotkeys — held-keys tracking", () => {
     expect(keys).toContain("k");
   });
 
-  it("does NOT recover stale alt (rule 5)", () => {
+  it("tracks alt in held keys for display even though shortcuts don't match", () => {
     fireKey(target, "k", { altKey: true });
-    expect(hk.getHeldKeys().length).toBe(0);
+    const keys = [...hk.getHeldKeys()];
+    expect(keys).toContain("alt");
+    expect(keys).toContain("k");
   });
 });
 
