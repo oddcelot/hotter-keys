@@ -299,6 +299,76 @@ describe("Hotkeys — sequences", () => {
     const event = fireKey(target, "k", { ctrlKey: true });
     expect(event.defaultPrevented).toBe(true);
   });
+
+  it("completing a sequence suppresses single-chord bindings on the same chord", () => {
+    const seqHandler = vi.fn();
+    const singleHandler = vi.fn();
+    hk.add("shift+h shift+j", seqHandler);
+    hk.add("shift+j", singleHandler);
+
+    fireKey(target, "h", { shiftKey: true });
+    expect(seqHandler).not.toHaveBeenCalled();
+    expect(singleHandler).not.toHaveBeenCalled();
+
+    fireKey(target, "j", { shiftKey: true });
+    expect(seqHandler).toHaveBeenCalledOnce();
+    expect(singleHandler).not.toHaveBeenCalled();
+  });
+
+  it("completing a sequence suppresses single-chord even with key releases between chords", () => {
+    const seqHandler = vi.fn();
+    const singleHandler = vi.fn();
+    hk.add("shift+h shift+j", seqHandler);
+    hk.add("shift+j", singleHandler);
+
+    // Press Shift+H
+    fireKey(target, "Shift", { shiftKey: true });
+    fireKey(target, "h", { shiftKey: true });
+    // Release H, then Shift
+    fireKeyUp(target, "h", { shiftKey: true });
+    fireKeyUp(target, "Shift");
+
+    expect(seqHandler).not.toHaveBeenCalled();
+    expect(singleHandler).not.toHaveBeenCalled();
+
+    // Press Shift+J (second chord)
+    fireKey(target, "Shift", { shiftKey: true });
+    fireKey(target, "j", { shiftKey: true });
+
+    expect(seqHandler).toHaveBeenCalledOnce();
+    expect(singleHandler).not.toHaveBeenCalled();
+  });
+
+  it("chord mode suppresses ctrl+c single binding during ctrl+k ctrl+c sequence", () => {
+    const seqHandler = vi.fn();
+    const singleHandler = vi.fn();
+    hk.add("ctrl+k ctrl+c", seqHandler);
+    hk.add("ctrl+c", singleHandler);
+
+    // Press Ctrl+K (first chord)
+    fireKey(target, "k", { ctrlKey: true });
+    expect(seqHandler).not.toHaveBeenCalled();
+    expect(singleHandler).not.toHaveBeenCalled();
+
+    // Press Ctrl+C (second chord)
+    fireKey(target, "c", { ctrlKey: true });
+    expect(seqHandler).toHaveBeenCalledOnce();
+    expect(singleHandler).not.toHaveBeenCalled();
+  });
+
+  it("single-chord still works after a sequence times out", async () => {
+    const seqHandler = vi.fn();
+    const singleHandler = vi.fn();
+    hk.add("shift+h shift+j", seqHandler);
+    hk.add("shift+j", singleHandler);
+
+    fireKey(target, "h", { shiftKey: true });
+    await new Promise((r) => setTimeout(r, 600));
+
+    fireKey(target, "j", { shiftKey: true });
+    expect(seqHandler).not.toHaveBeenCalled();
+    expect(singleHandler).toHaveBeenCalledOnce();
+  });
 });
 
 describe("Hotkeys — requireReset", () => {

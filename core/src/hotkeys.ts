@@ -295,7 +295,9 @@ export class Hotkeys {
     if (typeof event.key !== "string") return;
     if (!event.repeat) this._trackKeyDown(event);
     this._reconcileModifiers(event);
-    if (event.altKey) return;
+
+    // Modifier-only and Alt keypresses never match shortcuts
+    if (event.altKey || isModifierKey(event.key)) return;
 
     this._resolveDeferredBindings(event);
 
@@ -327,6 +329,17 @@ export class Hotkeys {
     const completedBindings: { binding: Binding; event: KeyboardEvent }[] = [];
     let hasSequenceAdvance = false;
 
+    // Chord mode: find the highest layer index with an in-progress sequence.
+    // Bindings at or below that layer are suppressed unless already in progress.
+    // Higher layers can still match freely (e.g. commandbar overriding global).
+    let chordLayerIdx = -1;
+    for (const b of this.bindings) {
+      if (b._seqIndex > 0) {
+        const idx = this._layers.indexOf(b.layer ?? "global");
+        if (idx > chordLayerIdx) chordLayerIdx = idx;
+      }
+    }
+
     for (let li = this._layers.length - 1; li >= 0 && !consumed; li--) {
       const layerName = this._layers[li]!;
 
@@ -336,6 +349,9 @@ export class Hotkeys {
         if (binding.scope && binding.scope !== "*" && binding.scope !== this.scope) continue;
         if (!binding.enableInInput && isInputElement(event.target)) continue;
         if (binding._awaitingReset) continue;
+
+        // In chord mode, suppress fresh bindings at or below the in-progress layer
+        if (binding._seqIndex === 0 && li <= chordLayerIdx) continue;
 
         const target = binding.sequence[binding._seqIndex]!;
 
