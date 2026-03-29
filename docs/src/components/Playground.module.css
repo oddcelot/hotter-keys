@@ -1,0 +1,65 @@
+.container {
+  outline: none;
+  cursor: default;
+}
+
+.heldKeysRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  min-height: 2rem;
+}
+
+.shiftBadge {
+  margin-left: auto;
+}
+
+.seqHint {
+  font-size: 0.75rem;
+  color: var(--sl-color-gray-3);
+  margin: 0 0 0.5rem;
+}
+
+.recordArea {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.recordBtn {
+  padding: 0.4rem 0.75rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--sl-color-gray-5);
+  background: var(--sl-color-bg-nav);
+  color: var(--sl-color-white);
+  font-family: inherit;
+  font-size: 0.8rem;
+}
+
+.recordBtn:disabled {
+  cursor: default;
+}
+
+.recordBtnActive {
+  background: var(--sl-color-accent);
+  color: var(--sl-color-accent-high);
+}
+
+.unsafeResult {
+  color: #ef4444;
+}
+
+/* --- Alt key warning in inspector --- */
+
+.altWarning {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.altNote {
+  color: #ef4444;
+  font-size: 0.7rem;
+  margin-left: 0.3rem;
+}

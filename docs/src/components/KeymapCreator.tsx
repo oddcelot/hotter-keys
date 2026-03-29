@@ -1,9 +1,11 @@
 import { createSignal, createEffect, onMount, onCleanup, For, Show } from "solid-js";
 import { createStore, produce } from "solid-js/store";
-import { recordShortcut, formatShortcut } from "hotter-keys";
+import { recordShortcut } from "hotter-keys";
 import type { RecordedShortcut } from "hotter-keys";
 import { loadKeymap, saveKeymap, isOpfsAvailable } from "../lib/opfs";
 import type { KeymapEntry } from "../lib/opfs";
+import "../styles/demo.css";
+import styles from "./KeymapCreator.module.css";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -36,72 +38,6 @@ function comboToLabel(combo: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Styles
-// ---------------------------------------------------------------------------
-
-const MONO: Record<string, string> = {
-  "font-family": "var(--sl-font-mono, monospace)",
-  "font-size": "0.8125rem",
-};
-
-const KBD: Record<string, string> = {
-  display: "inline-block",
-  padding: "0.15rem 0.4rem",
-  background: "var(--sl-color-gray-6)",
-  "border-radius": "0.2rem",
-  "font-family": "var(--sl-font-mono, monospace)",
-  "font-size": "0.8rem",
-  "line-height": "1.4",
-  "white-space": "nowrap",
-};
-
-const BADGE_BASE: Record<string, string> = {
-  display: "inline-block",
-  padding: "0.1rem 0.4rem",
-  "border-radius": "0.2rem",
-  "font-size": "0.7rem",
-  "font-weight": "700",
-  "text-transform": "uppercase",
-  "letter-spacing": "0.04em",
-};
-
-const BTN: Record<string, string> = {
-  padding: "0.3rem 0.6rem",
-  "border-radius": "0.25rem",
-  border: "1px solid var(--sl-color-gray-5)",
-  background: "var(--sl-color-bg-nav)",
-  color: "var(--sl-color-white)",
-  cursor: "pointer",
-  "font-family": "var(--sl-font-mono, monospace)",
-  "font-size": "0.8rem",
-};
-
-const SMALL_BTN: Record<string, string> = {
-  ...BTN,
-  padding: "0.15rem 0.4rem",
-  "font-size": "0.7rem",
-  color: "var(--sl-color-gray-3)",
-};
-
-const INPUT: Record<string, string> = {
-  padding: "0.3rem 0.5rem",
-  "border-radius": "0.25rem",
-  border: "1px solid var(--sl-color-gray-5)",
-  background: "var(--sl-color-gray-7, var(--sl-color-gray-6))",
-  color: "var(--sl-color-white)",
-  "font-family": "var(--sl-font-mono, monospace)",
-  "font-size": "0.8rem",
-  width: "100%",
-  "box-sizing": "border-box",
-};
-
-const CELL: Record<string, string> = {
-  padding: "0.5rem",
-  "border-bottom": "1px solid var(--sl-color-gray-6)",
-  "vertical-align": "middle",
-};
-
-// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -115,8 +51,6 @@ export default function KeymapCreator() {
 
   let containerRef!: HTMLDivElement;
 
-  // Suppress browser shortcuts during recording, but don't stop propagation
-  // so recordShortcut's listener still receives the event
   const suppressWhileRecording = (e: KeyboardEvent) => {
     if (recordingId() !== null) {
       e.preventDefault();
@@ -138,7 +72,6 @@ export default function KeymapCreator() {
     });
   });
 
-  // Auto-save on change (debounced)
   let saveTimer: ReturnType<typeof setTimeout>;
   createEffect(() => {
     const data = [...entries];
@@ -191,14 +124,12 @@ export default function KeymapCreator() {
         const result = await recordShortcut(containerRef, ac.signal);
         containerRef.removeEventListener("keydown", onEscape, { capture: true });
         if (!result.safe) {
-          // Unsafe chord ends recording — keep what we have
           done = true;
         } else {
           chords.push(recordedToCombo(result));
           setPendingChords([...chords]);
         }
       } catch {
-        // Escape pressed — finish with collected chords
         containerRef.removeEventListener("keydown", onEscape, { capture: true });
         done = true;
       }
@@ -215,30 +146,20 @@ export default function KeymapCreator() {
   };
 
   return (
-    <div ref={containerRef} tabIndex={0} style={{ ...MONO, outline: "none" }}>
+    <div ref={containerRef} tabIndex={0} class="demo" style={{ outline: "none" }}>
       {/* Status bar */}
-      <div style={{ display: "flex", "align-items": "center", "justify-content": "space-between", "margin-bottom": "1rem", gap: "0.5rem" }}>
-        <div style={{ display: "flex", "align-items": "center", gap: "0.5rem" }}>
-          <button onClick={addEntry} style={BTN}>
-            + Add Entry
-          </button>
+      <div class={styles.statusBar}>
+        <div class={styles.statusActions}>
+          <button onClick={addEntry} class="btn">+ Add Entry</button>
           <Show when={saveStatus()}>
-            <span style={{ ...BADGE_BASE, background: "#22c55e", color: "#000" }}>
-              {saveStatus()}
-            </span>
+            <span class="badge badge-green">{saveStatus()}</span>
           </Show>
         </div>
         <Show
           when={opfsOk()}
-          fallback={
-            <span style={{ ...BADGE_BASE, background: "#f59e0b", color: "#000" }}>
-              OPFS unavailable — changes won't persist
-            </span>
-          }
+          fallback={<span class="badge badge-yellow">OPFS unavailable — changes won't persist</span>}
         >
-          <span style={{ color: "var(--sl-color-gray-4)", "font-size": "0.7rem" }}>
-            Stored in Origin Private File System
-          </span>
+          <span class={styles.storageHint}>Stored in Origin Private File System</span>
         </Show>
       </div>
 
@@ -246,25 +167,19 @@ export default function KeymapCreator() {
       <Show
         when={entries.length > 0}
         fallback={
-          <div style={{
-            border: "1px dashed var(--sl-color-gray-5)",
-            "border-radius": "0.5rem",
-            padding: "2rem",
-            "text-align": "center",
-            color: "var(--sl-color-gray-4)",
-          }}>
+          <div class={styles.emptyState}>
             No entries yet. Click <strong>+ Add Entry</strong> to get started.
           </div>
         }
       >
         <div style={{ "overflow-x": "auto" }}>
-          <table style={{ width: "100%", "border-collapse": "collapse", "border-spacing": "0" }}>
+          <table class={styles.table}>
             <thead>
-              <tr style={{ "border-bottom": "2px solid var(--sl-color-gray-5)" }}>
-                <th style={{ ...CELL, "text-align": "left", "font-size": "0.75rem", color: "var(--sl-color-gray-3)", "font-weight": "600" }}>Name</th>
-                <th style={{ ...CELL, "text-align": "left", "font-size": "0.75rem", color: "var(--sl-color-gray-3)", "font-weight": "600" }}>Description</th>
-                <th style={{ ...CELL, "text-align": "left", "font-size": "0.75rem", color: "var(--sl-color-gray-3)", "font-weight": "600", "min-width": "10rem" }}>Shortcut</th>
-                <th style={{ ...CELL, width: "3rem" }}></th>
+              <tr class={styles.thead}>
+                <th class={styles.th}>Name</th>
+                <th class={styles.th}>Description</th>
+                <th class={`${styles.th} ${styles.shortcutCol}`}>Shortcut</th>
+                <th class={`${styles.th} ${styles.deleteCol}`}></th>
               </tr>
             </thead>
             <tbody>
@@ -273,43 +188,38 @@ export default function KeymapCreator() {
                   const isThisRecording = () => recordingId() === entry.id;
                   return (
                     <tr>
-                      <td style={CELL}>
+                      <td class={styles.td}>
                         <input
                           type="text"
                           value={entry.name}
                           onInput={(e) => updateField(entry.id, "name", e.currentTarget.value)}
                           placeholder="e.g. save"
-                          style={INPUT}
+                          class="input"
                         />
                       </td>
-                      <td style={CELL}>
+                      <td class={styles.td}>
                         <input
                           type="text"
                           value={entry.description}
                           onInput={(e) => updateField(entry.id, "description", e.currentTarget.value)}
                           placeholder="e.g. Save current file"
-                          style={INPUT}
+                          class="input"
                         />
                       </td>
-                      <td style={CELL}>
-                        <div style={{ display: "flex", "align-items": "center", gap: "0.4rem", "flex-wrap": "wrap" }}>
+                      <td class={styles.td}>
+                        <div class={styles.shortcutCell}>
                           <Show when={isThisRecording() && pendingChords().length > 0}>
                             <For each={pendingChords()}>
-                              {(chord) => <kbd style={{ ...KBD, background: "var(--sl-color-accent)", color: "var(--sl-color-accent-high)" }}>{comboToLabel(chord)}</kbd>}
+                              {(chord) => <kbd class="kbd kbd-accent">{comboToLabel(chord)}</kbd>}
                             </For>
                           </Show>
                           <Show when={!isThisRecording() && entry.shortcut}>
-                            <kbd style={KBD}>{comboToLabel(entry.shortcut)}</kbd>
+                            <kbd class="kbd">{comboToLabel(entry.shortcut)}</kbd>
                           </Show>
                           <button
                             onClick={() => recordForRow(entry.id)}
                             disabled={recordingId() !== null}
-                            style={{
-                              ...SMALL_BTN,
-                              ...(isThisRecording()
-                                ? { background: "var(--sl-color-accent)", color: "var(--sl-color-accent-high)", border: "1px solid var(--sl-color-accent)" }
-                                : {}),
-                            }}
+                            class={`btn-sm ${isThisRecording() ? "btn-recording" : ""}`}
                           >
                             {isThisRecording()
                               ? pendingChords().length > 0
@@ -319,10 +229,10 @@ export default function KeymapCreator() {
                           </button>
                         </div>
                       </td>
-                      <td style={{ ...CELL, "text-align": "center" }}>
+                      <td class={`${styles.td} ${styles.deleteCol}`}>
                         <button
                           onClick={() => deleteEntry(entry.id)}
-                          style={{ ...SMALL_BTN, color: "#ef4444", border: "1px solid transparent" }}
+                          class="btn-sm btn-danger"
                           title="Delete entry"
                         >
                           &times;
@@ -339,18 +249,9 @@ export default function KeymapCreator() {
 
       {/* JSON preview */}
       <Show when={entries.length > 0}>
-        <details style={{ "margin-top": "1.5rem" }}>
-          <summary style={{ cursor: "pointer", color: "var(--sl-color-gray-3)", "font-size": "0.8rem" }}>
-            JSON output
-          </summary>
-          <pre style={{
-            "margin-top": "0.5rem",
-            padding: "0.75rem",
-            background: "var(--sl-color-gray-6)",
-            "border-radius": "0.25rem",
-            "overflow-x": "auto",
-            "font-size": "0.75rem",
-          }}>
+        <details class={styles.jsonOutput}>
+          <summary class={styles.jsonSummary}>JSON output</summary>
+          <pre class={styles.jsonPre}>
             {JSON.stringify(
               entries.map(({ id: _, ...rest }) => rest),
               null,
