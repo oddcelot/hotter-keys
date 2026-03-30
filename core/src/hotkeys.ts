@@ -32,6 +32,12 @@ const MOD_MAP = [
 
 type KeyHoldEntry = { listener: KeyHoldListener; held: boolean };
 
+function toSequence(shortcut: string | Shortcut | ShortcutSequence): ShortcutSequence {
+  if (typeof shortcut === "string") return parseSequence(shortcut);
+  if (Array.isArray(shortcut)) return shortcut;
+  return [shortcut];
+}
+
 /** Internal runtime state wrapping a public Binding. */
 interface BindingState {
   readonly binding: Binding;
@@ -231,15 +237,7 @@ export class Hotkeys {
     handler: ShortcutHandler,
     options: BindingOptions = {}
   ): () => void {
-    let sequence: ShortcutSequence;
-
-    if (typeof shortcut === "string") {
-      sequence = parseSequence(shortcut);
-    } else if (Array.isArray(shortcut)) {
-      sequence = shortcut;
-    } else {
-      sequence = [shortcut];
-    }
+    let sequence = toSequence(shortcut);
 
     if (options.crossPlatform !== false) {
       sequence = sequence.map((s) => translateForPlatform(s));
@@ -283,14 +281,7 @@ export class Hotkeys {
   }
 
   remove(shortcut: string | Shortcut | ShortcutSequence): void {
-    let target: ShortcutSequence;
-    if (typeof shortcut === "string") {
-      target = parseSequence(shortcut);
-    } else if (Array.isArray(shortcut)) {
-      target = shortcut;
-    } else {
-      target = [shortcut];
-    }
+    const target = toSequence(shortcut);
 
     this.states = this.states.filter((s) => {
       if (s.binding.sequence.length !== target.length) return true;
