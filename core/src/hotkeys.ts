@@ -53,11 +53,17 @@ export class Hotkeys {
   private _deferTimer: ReturnType<typeof setTimeout> | undefined;
 
   // --- Bound handlers ---
-  private _onKeyDown = (e: Event) => this._handleKeyDown(e as KeyboardEvent);
-  private _onKeyUp = (e: Event) => this._handleKeyUp(e as KeyboardEvent);
-  private _onReset = () => this._resetHeldKeys();
-  private _onContextMenu = (e: Event) => {
-    if (!(e as MouseEvent).defaultPrevented) this._resetHeldKeys();
+  private _onKeyDown = (e: Event): void => {
+    if (!(e instanceof KeyboardEvent)) return;
+    this._handleKeyDown(e);
+  };
+  private _onKeyUp = (e: Event): void => {
+    if (!(e instanceof KeyboardEvent)) return;
+    this._handleKeyUp(e);
+  };
+  private _onReset = (): void => this._resetHeldKeys();
+  private _onContextMenu = (e: Event): void => {
+    if (!e.defaultPrevented) this._resetHeldKeys();
   };
 
   constructor(options: HotkeysOptions = {}) {

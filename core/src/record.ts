@@ -19,19 +19,19 @@ export function recordShortcut(
     }
 
     const handler = (e: Event) => {
-      const event = e as KeyboardEvent;
+      if (!(e instanceof KeyboardEvent)) return;
 
       // Ignore lone modifier presses
-      if (["Control", "Shift", "Meta", "Alt"].includes(event.key)) return;
+      if (["Control", "Shift", "Meta", "Alt"].includes(e.key)) return;
 
-      event.preventDefault();
-      event.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
       cleanup();
 
-      const key = event.key.toLowerCase();
-      const ctrl = event.ctrlKey;
-      const shift = event.shiftKey;
-      const meta = event.metaKey;
+      const key = e.key.toLowerCase();
+      const ctrl = e.ctrlKey;
+      const shift = e.shiftKey;
+      const meta = e.metaKey;
 
       // Platform primary modifier: Cmd on macOS, Ctrl elsewhere.
       // Only set when exclusively the primary modifier is used (not both ctrl+meta).
@@ -42,7 +42,7 @@ export function recordShortcut(
       let safe = true;
       let unsafeReason: string | undefined;
 
-      if (event.altKey) {
+      if (e.altKey) {
         safe = false;
         unsafeReason = "Alt/Option modifies the key value on macOS";
       } else if (!ALPHA.test(key) && !DIGIT.test(key)) {
