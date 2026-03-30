@@ -62,14 +62,8 @@ export interface BindingOptions {
 }
 
 export interface Binding extends BindingOptions {
-  sequence: ShortcutSequence;
-  handler: ShortcutHandler;
-  /** Internal: tracks progress through multi-chord sequences. */
-  _seqIndex: number;
-  /** Internal: tracks the reset state for requireReset bindings. */
-  _awaitingReset: boolean;
-  /** Internal: timeout handle for sequence expiry. */
-  _seqTimer: ReturnType<typeof setTimeout> | undefined;
+  readonly sequence: ShortcutSequence;
+  readonly handler: ShortcutHandler;
 }
 
 /** Subscribe to held-keys changes. */

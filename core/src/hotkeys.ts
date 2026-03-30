@@ -32,8 +32,16 @@ const MOD_MAP = [
 
 type KeyHoldEntry = { listener: KeyHoldListener; held: boolean };
 
+/** Internal runtime state wrapping a public Binding. */
+interface BindingState {
+  readonly binding: Binding;
+  seqIndex: number;
+  awaitingReset: boolean;
+  seqTimer: ReturnType<typeof setTimeout> | undefined;
+}
+
 export class Hotkeys {
-  private bindings: Binding[] = [];
+  private states: BindingState[] = [];
   private scope: string;
   private target: EventTarget;
   private listening = false;
@@ -49,7 +57,7 @@ export class Hotkeys {
   private _layerListeners = new Set<LayerChangeListener>();
 
   // --- Deferred bindings (chord disambiguation) ---
-  private _deferred: { binding: Binding; event: KeyboardEvent }[] = [];
+  private _deferred: { state: BindingState; event: KeyboardEvent }[] = [];
   private _deferTimer: ReturnType<typeof setTimeout> | undefined;
 
   // --- Bound handlers ---
@@ -98,10 +106,10 @@ export class Hotkeys {
   destroy(): void {
     this.stop();
     this._cancelDeferred();
-    for (const b of this.bindings) {
-      if (b._seqTimer !== undefined) clearTimeout(b._seqTimer);
+    for (const s of this.states) {
+      if (s.seqTimer !== undefined) clearTimeout(s.seqTimer);
     }
-    this.bindings = [];
+    this.states = [];
     this._heldKeys = [];
     this._heldKeysListeners.clear();
     this._keyHolds.clear();
@@ -211,7 +219,7 @@ export class Hotkeys {
     if (this._heldKeys.length === 0) return;
     this._heldKeys = [];
     this._emitHeldKeys();
-    for (const b of this.bindings) b._awaitingReset = false;
+    for (const s of this.states) s.awaitingReset = false;
   }
 
   // ---------------------------------------------------------------------------
@@ -246,17 +254,21 @@ export class Hotkeys {
       requireReset: options.requireReset ?? false,
       scope: options.scope,
       layer: options.layer,
-      _seqIndex: 0,
-      _awaitingReset: false,
-      _seqTimer: undefined,
     };
 
-    this.bindings.push(binding);
+    const state: BindingState = {
+      binding,
+      seqIndex: 0,
+      awaitingReset: false,
+      seqTimer: undefined,
+    };
+
+    this.states.push(state);
 
     return () => {
-      const idx = this.bindings.indexOf(binding);
-      if (idx !== -1) this.bindings.splice(idx, 1);
-      if (binding._seqTimer !== undefined) clearTimeout(binding._seqTimer);
+      const idx = this.states.indexOf(state);
+      if (idx !== -1) this.states.splice(idx, 1);
+      if (state.seqTimer !== undefined) clearTimeout(state.seqTimer);
     };
   }
 
@@ -280,17 +292,17 @@ export class Hotkeys {
       target = [shortcut];
     }
 
-    this.bindings = this.bindings.filter((b) => {
-      if (b.sequence.length !== target.length) return true;
-      return !b.sequence.every((chord, i) => shortcutEquals(chord, target[i]!));
+    this.states = this.states.filter((s) => {
+      if (s.binding.sequence.length !== target.length) return true;
+      return !s.binding.sequence.every((chord, i) => shortcutEquals(chord, target[i]!));
     });
   }
 
   removeAll(): void {
-    for (const b of this.bindings) {
-      if (b._seqTimer !== undefined) clearTimeout(b._seqTimer);
+    for (const s of this.states) {
+      if (s.seqTimer !== undefined) clearTimeout(s.seqTimer);
     }
-    this.bindings = [];
+    this.states = [];
   }
 
   // ---------------------------------------------------------------------------
@@ -307,10 +319,10 @@ export class Hotkeys {
 
     this._resolveDeferredBindings(event);
 
-    const { consumed, consumedLayerIdx, completedBindings, hasSequenceAdvance } =
+    const { consumed, consumedLayerIdx, completedStates, hasSequenceAdvance } =
       this._matchBindings(event);
 
-    this._resolveCompletedBindings(completedBindings, hasSequenceAdvance);
+    this._resolveCompletedBindings(completedStates, hasSequenceAdvance);
 
     if (consumed) this._resetLowerLayerSequences(consumedLayerIdx);
   }
@@ -318,8 +330,8 @@ export class Hotkeys {
   private _resolveDeferredBindings(event: KeyboardEvent): void {
     if (this._deferred.length === 0) return;
 
-    const continues = this.bindings.some(
-      (b) => b._seqIndex > 0 && eventMatchesShortcut(event, b.sequence[b._seqIndex]!)
+    const continues = this.states.some(
+      (s) => s.seqIndex > 0 && eventMatchesShortcut(event, s.binding.sequence[s.seqIndex]!)
     );
 
     if (continues) {
@@ -329,19 +341,19 @@ export class Hotkeys {
     }
   }
 
-  private _matchBindings(event: KeyboardEvent) {
+  private _matchBindings(event: KeyboardEvent): MatchResult {
     let consumed = false;
     let consumedLayerIdx = -1;
-    const completedBindings: { binding: Binding; event: KeyboardEvent }[] = [];
+    const completedStates: { state: BindingState; event: KeyboardEvent }[] = [];
     let hasSequenceAdvance = false;
 
     // Chord mode: find the highest layer index with an in-progress sequence.
     // Bindings at or below that layer are suppressed unless already in progress.
     // Higher layers can still match freely (e.g. commandbar overriding global).
     let chordLayerIdx = -1;
-    for (const b of this.bindings) {
-      if (b._seqIndex > 0) {
-        const idx = this._layers.indexOf(b.layer ?? "global");
+    for (const s of this.states) {
+      if (s.seqIndex > 0) {
+        const idx = this._layers.indexOf(s.binding.layer ?? "global");
         if (idx > chordLayerIdx) chordLayerIdx = idx;
       }
     }
@@ -349,17 +361,18 @@ export class Hotkeys {
     for (let li = this._layers.length - 1; li >= 0 && !consumed; li--) {
       const layerName = this._layers[li]!;
 
-      for (const binding of this.bindings) {
+      for (const state of this.states) {
+        const { binding } = state;
         const bindingLayer = binding.layer ?? "global";
         if (bindingLayer !== layerName) continue;
         if (binding.scope && binding.scope !== "*" && binding.scope !== this.scope) continue;
         if (!binding.enableInInput && isInputElement(event.target)) continue;
-        if (binding._awaitingReset) continue;
+        if (state.awaitingReset) continue;
 
         // In chord mode, suppress fresh bindings at or below the in-progress layer
-        if (binding._seqIndex === 0 && li <= chordLayerIdx) continue;
+        if (state.seqIndex === 0 && li <= chordLayerIdx) continue;
 
-        const target = binding.sequence[binding._seqIndex]!;
+        const target = binding.sequence[state.seqIndex]!;
 
         if (eventMatchesShortcut(event, target)) {
           consumed = true;
@@ -368,49 +381,49 @@ export class Hotkeys {
           if (binding.preventDefault !== false) event.preventDefault();
           if (binding.stopPropagation) event.stopPropagation();
 
-          binding._seqIndex++;
+          state.seqIndex++;
 
-          if (binding._seqIndex >= binding.sequence.length) {
-            completedBindings.push({ binding, event });
+          if (state.seqIndex >= binding.sequence.length) {
+            completedStates.push({ state, event });
           } else {
             hasSequenceAdvance = true;
-            if (binding._seqTimer !== undefined) clearTimeout(binding._seqTimer);
-            binding._seqTimer = setTimeout(() => {
-              this._resetBindingSequence(binding);
+            if (state.seqTimer !== undefined) clearTimeout(state.seqTimer);
+            state.seqTimer = setTimeout(() => {
+              this._resetBindingState(state);
               this._flushDeferred();
             }, this.sequenceTimeout);
           }
-        } else if (binding._seqIndex > 0) {
-          this._resetBindingSequence(binding);
+        } else if (state.seqIndex > 0) {
+          this._resetBindingState(state);
         }
       }
     }
 
-    return { consumed, consumedLayerIdx, completedBindings, hasSequenceAdvance };
+    return { consumed, consumedLayerIdx, completedStates, hasSequenceAdvance };
   }
 
   private _resolveCompletedBindings(
-    completedBindings: { binding: Binding; event: KeyboardEvent }[],
+    completedStates: ReadonlyArray<{ state: BindingState; event: KeyboardEvent }>,
     hasSequenceAdvance: boolean
   ): void {
-    for (const { binding, event } of completedBindings) {
-      this._resetBindingSequence(binding);
+    for (const { state, event } of completedStates) {
+      this._resetBindingState(state);
       if (hasSequenceAdvance) {
-        this._deferred.push({ binding, event });
+        this._deferred.push({ state, event });
         if (this._deferTimer !== undefined) clearTimeout(this._deferTimer);
         this._deferTimer = setTimeout(() => this._flushDeferred(), this.sequenceTimeout);
       } else {
-        if (binding.requireReset) binding._awaitingReset = true;
-        binding.handler(event);
+        if (state.binding.requireReset) state.awaitingReset = true;
+        state.binding.handler(event);
       }
     }
   }
 
   private _resetLowerLayerSequences(consumedLayerIdx: number): void {
-    for (const binding of this.bindings) {
-      const idx = this._layers.indexOf(binding.layer ?? "global");
-      if (idx < consumedLayerIdx && binding._seqIndex > 0) {
-        this._resetBindingSequence(binding);
+    for (const state of this.states) {
+      const idx = this._layers.indexOf(state.binding.layer ?? "global");
+      if (idx < consumedLayerIdx && state.seqIndex > 0) {
+        this._resetBindingState(state);
       }
     }
   }
@@ -420,9 +433,9 @@ export class Hotkeys {
       clearTimeout(this._deferTimer);
       this._deferTimer = undefined;
     }
-    for (const { binding, event } of this._deferred) {
-      if (binding.requireReset) binding._awaitingReset = true;
-      binding.handler(event);
+    for (const { state, event } of this._deferred) {
+      if (state.binding.requireReset) state.awaitingReset = true;
+      state.binding.handler(event);
     }
     this._deferred = [];
   }
@@ -455,7 +468,7 @@ export class Hotkeys {
     this._reconcileModifiers(event);
 
     if (this._heldKeys.length === 0) {
-      for (const b of this.bindings) b._awaitingReset = false;
+      for (const s of this.states) s.awaitingReset = false;
     }
   }
 
@@ -497,13 +510,20 @@ export class Hotkeys {
     }
   }
 
-  private _resetBindingSequence(binding: Binding): void {
-    binding._seqIndex = 0;
-    if (binding._seqTimer !== undefined) {
-      clearTimeout(binding._seqTimer);
-      binding._seqTimer = undefined;
+  private _resetBindingState(state: BindingState): void {
+    state.seqIndex = 0;
+    if (state.seqTimer !== undefined) {
+      clearTimeout(state.seqTimer);
+      state.seqTimer = undefined;
     }
   }
+}
+
+interface MatchResult {
+  readonly consumed: boolean;
+  readonly consumedLayerIdx: number;
+  readonly completedStates: ReadonlyArray<{ state: BindingState; event: KeyboardEvent }>;
+  readonly hasSequenceAdvance: boolean;
 }
 
 /**
