@@ -1,4 +1,4 @@
-import type { Modifiers, Shortcut, ShortcutSequence } from "./types";
+import type { Modifiers, SafeKey, Shortcut, ShortcutSequence } from "./types";
 
 export const ALPHA = /^[a-z]$/;
 export const DIGIT = /^[0-9]$/;
@@ -88,7 +88,7 @@ export function parseShortcut(raw: string, platform?: { mac: boolean }): Shortcu
     );
   }
 
-  return { key, ...mods };
+  return { key: key as SafeKey, ...mods };
 }
 
 /**

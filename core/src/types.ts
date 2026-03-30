@@ -5,12 +5,20 @@ export interface Modifiers {
   meta: boolean;
 }
 
+type AlphaKey =
+  | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m"
+  | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z";
+type DigitKey = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+
+/** The set of keys that are safe to use across keyboard layouts. */
+export type SafeKey = AlphaKey | DigitKey;
+
 /**
  * A single chord: one non-modifier key + zero or more modifiers.
  * `key` is always lowercase a-z or digit 0-9.
  */
 export interface Shortcut extends Modifiers {
-  key: string;
+  key: SafeKey;
 }
 
 /**

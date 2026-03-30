@@ -20,6 +20,7 @@
 
 export type {
   Modifiers,
+  SafeKey,
   Shortcut,
   ShortcutSequence,
   ShortcutHandler,
