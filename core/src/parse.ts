@@ -12,7 +12,7 @@ export function isMac(): boolean {
   return /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 }
 
-const MODIFIER_NAMES: Record<string, keyof Modifiers> = {
+const MODIFIER_NAMES = {
   ctrl: "ctrl",
   control: "ctrl",
   meta: "meta",
@@ -21,7 +21,7 @@ const MODIFIER_NAMES: Record<string, keyof Modifiers> = {
   win: "meta",
   super: "meta",
   shift: "shift",
-};
+} as const satisfies Record<string, keyof Modifiers>;
 
 /**
  * Parse a single chord like `"ctrl+shift+k"` into a {@link Shortcut}.
@@ -58,9 +58,8 @@ export function parseShortcut(raw: string, platform?: { mac: boolean }): Shortcu
       mods[mac ? "meta" : "ctrl"] = true;
       continue;
     }
-    const mod = MODIFIER_NAMES[part];
-    if (mod) {
-      mods[mod] = true;
+    if (part in MODIFIER_NAMES) {
+      mods[MODIFIER_NAMES[part as keyof typeof MODIFIER_NAMES]] = true;
       continue;
     }
     if (key !== undefined) {
