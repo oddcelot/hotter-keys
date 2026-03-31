@@ -1,5 +1,5 @@
 import { createSignal, onCleanup, onMount, For, Show } from "solid-js";
-import { createHotkeys } from "hotter-keys";
+import { createHotkeys, formatSequence, parseSequence, isMac } from "hotter-keys";
 import type { Hotkeys } from "hotter-keys";
 import "../styles/demo.css";
 import styles from "./CommandBarDemo.module.css";
@@ -37,6 +37,11 @@ const COMMANDBAR_ACTIONS: ActionRow[] = [
   { key: "4", label: "Open Settings" },
   { key: "5", label: "Run Task" },
 ];
+
+function comboLabel(combo: string): string {
+  const mac = isMac();
+  return formatSequence(parseSequence(combo, { mac }), mac);
+}
 
 const LOG_BADGE_CLASS: Record<string, string> = {
   global: "badge badge-green",
@@ -103,15 +108,15 @@ export default function CommandBarDemo() {
     hk.add("mod+k", () => {
       flash(setFiredGlobal, "mod+k");
       openCommandBar();
-      pushLog("Mod+K — Open Command Bar", "global");
+      pushLog(`${comboLabel("mod+k")} — Open Command Bar`, "global");
     });
     hk.add("mod+s", () => {
       flash(setFiredGlobal, "mod+s");
-      pushLog("Mod+S — Save", "global");
+      pushLog(`${comboLabel("mod+s")} — Save`, "global");
     });
     hk.add("mod+p", () => {
       flash(setFiredGlobal, "mod+p");
-      pushLog("Mod+P — Quick Open", "global");
+      pushLog(`${comboLabel("mod+p")} — Quick Open`, "global");
     });
 
     for (const action of COMMANDBAR_ACTIONS) {
@@ -147,8 +152,8 @@ export default function CommandBarDemo() {
   return (
     <div ref={containerRef} class="demo" style={{ position: "relative" }}>
       <p class="demo-hint">
-        Press <kbd class="kbd">Mod+K</kbd> to open the command bar.
-        Try <kbd class="kbd">Mod+S</kbd> and <kbd class="kbd">Mod+P</kbd> as global shortcuts.
+        Press <kbd class="kbd">{comboLabel("mod+k")}</kbd> to open the command bar.
+        Try <kbd class="kbd">{comboLabel("mod+s")}</kbd> and <kbd class="kbd">{comboLabel("mod+p")}</kbd> as global shortcuts.
       </p>
 
       {/* ---- GLOBAL SHORTCUTS ---- */}
@@ -161,7 +166,7 @@ export default function CommandBarDemo() {
               return (
                 <div class={`row ${fired() ? "row-fired-green" : ""}`}>
                   <span>
-                    <kbd class="kbd">{s.key.replace("mod+", "Mod+").toUpperCase()}</kbd>{" "}
+                    <kbd class="kbd">{comboLabel(s.key)}</kbd>{" "}
                     <span class="row-desc">{s.label}</span>
                   </span>
                   <Show when={fired()}>
@@ -212,7 +217,7 @@ export default function CommandBarDemo() {
               const layerShortcuts = () =>
                 layer === "commandbar"
                   ? COMMANDBAR_ACTIONS.map((a) => `${a.key}: ${a.label}`)
-                  : GLOBAL_SHORTCUTS.map((s) => `${s.key.replace("mod+", "Mod+").toUpperCase()}: ${s.label}`);
+                  : GLOBAL_SHORTCUTS.map((s) => `${comboLabel(s.key)}: ${s.label}`);
               return (
                 <div class={`${styles.layerBlock} ${isActive() ? styles.layerBlockActive : ""}`}>
                   <div style={{ display: "flex", "align-items": "center", gap: "0.5rem", "margin-bottom": "0.3rem" }}>

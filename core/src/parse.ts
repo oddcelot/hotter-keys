@@ -1,4 +1,4 @@
-import type { Modifiers, Shortcut, ShortcutSequence } from "./types";
+import type { Modifiers, SafeKey, Shortcut, ShortcutSequence } from "./types";
 
 export const ALPHA = /^[a-z]$/;
 export const DIGIT = /^[0-9]$/;
@@ -6,13 +6,23 @@ export const DIGIT = /^[0-9]$/;
 /**
  * Detect whether the current platform is macOS/iOS.
  * On macOS the primary modifier is Meta (Cmd); elsewhere it is Ctrl.
+ *
+ * Checks `navigator.userAgent` first (respected by DevTools UA emulation),
+ * then `navigator.userAgentData.platform` (Chromium — NOT updated by
+ * DevTools UA override), then the deprecated `navigator.platform`.
  */
 export function isMac(): boolean {
   if (typeof navigator === "undefined") return false;
+  // userAgent is updated by DevTools UA emulation
+  if (navigator.userAgent) return /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
+  // Chromium: NavigatorUAData (not changed by DevTools UA override)
+  const uaPlatform = (navigator as any).userAgentData?.platform as string | undefined;
+  if (uaPlatform) return /mac/i.test(uaPlatform);
+  // Last resort: deprecated but still widely available
   return /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 }
 
-const MODIFIER_NAMES: Record<string, keyof Modifiers> = {
+const MODIFIER_NAMES = {
   ctrl: "ctrl",
   control: "ctrl",
   meta: "meta",
@@ -21,15 +31,20 @@ const MODIFIER_NAMES: Record<string, keyof Modifiers> = {
   win: "meta",
   super: "meta",
   shift: "shift",
-};
+  alt: "alt",
+  option: "alt",
+} as const satisfies Record<string, keyof Modifiers>;
 
 /**
  * Parse a single chord like `"ctrl+shift+k"` into a {@link Shortcut}.
  *
- * Modifiers: `ctrl` | `control` | `meta` | `cmd` | `command` | `win` | `super` | `shift` | `mod`
+ * Modifiers: `ctrl` | `control` | `meta` | `cmd` | `command` | `win` | `super` | `shift` | `alt` | `option` | `mod` | `mod2`
  *
  * The `mod` modifier resolves to `meta` on macOS and `ctrl` on Windows/Linux,
  * making shortcuts portable across platforms.
+ *
+ * The `mod2` modifier resolves to `ctrl` on macOS and `alt` on Windows/Linux,
+ * providing a cross-platform secondary modifier.
  *
  * Key: a single letter a-z (case-insensitive) or digit 0-9
  *
@@ -49,7 +64,7 @@ export function parseShortcut(raw: string, platform?: { mac: boolean }): Shortcu
     throw new Error(`Empty shortcut string`);
   }
 
-  const mods: Modifiers = { ctrl: false, shift: false, meta: false };
+  const mods: Modifiers = { ctrl: false, shift: false, meta: false, alt: false };
   let key: string | undefined;
 
   for (const part of parts) {
@@ -58,9 +73,13 @@ export function parseShortcut(raw: string, platform?: { mac: boolean }): Shortcu
       mods[mac ? "meta" : "ctrl"] = true;
       continue;
     }
-    const mod = MODIFIER_NAMES[part];
-    if (mod) {
-      mods[mod] = true;
+    // `mod2` resolves to the platform secondary modifier
+    if (part === "mod2") {
+      mods[mac ? "ctrl" : "alt"] = true;
+      continue;
+    }
+    if (part in MODIFIER_NAMES) {
+      mods[MODIFIER_NAMES[part as keyof typeof MODIFIER_NAMES]] = true;
       continue;
     }
     if (key !== undefined) {
@@ -88,7 +107,7 @@ export function parseShortcut(raw: string, platform?: { mac: boolean }): Shortcu
     );
   }
 
-  return { key, ...mods };
+  return { key: key as SafeKey, ...mods };
 }
 
 /**
@@ -115,6 +134,7 @@ export function formatShortcut(s: Shortcut, mac = false): string {
   if (s.ctrl) parts.push(mac ? "⌃" : "Ctrl");
   if (s.shift) parts.push(mac ? "⇧" : "Shift");
   if (s.meta) parts.push(mac ? "⌘" : "Meta");
+  if (s.alt) parts.push(mac ? "⌥" : "Alt");
   parts.push(s.key.toUpperCase());
   return parts.join(mac ? "" : "+");
 }
@@ -135,17 +155,17 @@ export function isInputElement(el: EventTarget | null): boolean {
 }
 
 export function eventMatchesShortcut(e: KeyboardEvent, s: Shortcut): boolean {
-  if (e.altKey) return false;
   return (
     e.key.toLowerCase() === s.key &&
     e.ctrlKey === s.ctrl &&
     e.shiftKey === s.shift &&
-    e.metaKey === s.meta
+    e.metaKey === s.meta &&
+    e.altKey === s.alt
   );
 }
 
 export function shortcutEquals(a: Shortcut, b: Shortcut): boolean {
-  return a.key === b.key && a.ctrl === b.ctrl && a.shift === b.shift && a.meta === b.meta;
+  return a.key === b.key && a.ctrl === b.ctrl && a.shift === b.shift && a.meta === b.meta && a.alt === b.alt;
 }
 
 /**

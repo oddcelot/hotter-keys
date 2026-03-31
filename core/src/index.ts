@@ -6,7 +6,10 @@
  *   2. Only a-z and 0-9 are safe non-modifier keys across layouts
  *   3. Normalize case via toLowerCase()
  *   4. Shift is only allowed with a-z (Shift+2 produces locale-dependent symbols)
- *   5. Alt/Option is forbidden (macOS transforms the character, e.g. Alt+c → ç)
+ *   5. Alt/Option is allowed as an explicit modifier (`alt`, `option`, or `mod2`).
+ *      On macOS, Alt/Option transforms the character (e.g. Alt+c → ç), so the
+ *      `mod2` virtual keyword resolves to Ctrl on macOS and Alt on Windows/Linux,
+ *      giving a safe cross-platform secondary modifier.
  *   6. Progressive enhancement: use the Keyboard API (Chrome) when available
  *      to support `code`-based matching for broader key coverage
  *
@@ -20,6 +23,7 @@
 
 export type {
   Modifiers,
+  SafeKey,
   Shortcut,
   ShortcutSequence,
   ShortcutHandler,

@@ -1,16 +1,25 @@
-/** The modifier flags we track. Alt is intentionally excluded. */
+/** The modifier flags we track. */
 export interface Modifiers {
   ctrl: boolean;
   shift: boolean;
   meta: boolean;
+  alt: boolean;
 }
+
+type AlphaKey =
+  | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m"
+  | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z";
+type DigitKey = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+
+/** The set of keys that are safe to use across keyboard layouts. */
+export type SafeKey = AlphaKey | DigitKey;
 
 /**
  * A single chord: one non-modifier key + zero or more modifiers.
  * `key` is always lowercase a-z or digit 0-9.
  */
 export interface Shortcut extends Modifiers {
-  key: string;
+  key: SafeKey;
 }
 
 /**
@@ -53,21 +62,21 @@ export interface BindingOptions {
   layer?: string;
 }
 
-export interface Binding extends BindingOptions {
-  sequence: ShortcutSequence;
-  handler: ShortcutHandler;
-  /** Internal: tracks progress through multi-chord sequences. */
-  _seqIndex: number;
-  /** Internal: tracks the reset state for requireReset bindings. */
-  _awaitingReset: boolean;
-  /** Internal: timeout handle for sequence expiry. */
-  _seqTimer: ReturnType<typeof setTimeout> | undefined;
+export interface Binding extends Omit<BindingOptions, "crossPlatform"> {
+  readonly sequence: ShortcutSequence;
+  readonly handler: ShortcutHandler;
 }
 
 /** Subscribe to held-keys changes. */
 export type HeldKeysListener = (keys: ReadonlyArray<string>) => void;
 
-/** Subscribe to key-hold state changes. */
+/**
+ * Subscribe to key-hold state changes.
+ * The listener fires with `true` only when the watched key is the **sole**
+ * key held down, and `false` when any other key is pressed alongside it
+ * or when the key is released. This is designed for "hold to reveal" UIs
+ * (e.g. hold Shift to show shortcuts).
+ */
 export type KeyHoldListener = (held: boolean) => void;
 
 /** Subscribe to layer stack changes. */
@@ -97,12 +106,19 @@ export interface RecordedShortcut {
   ctrl: boolean;
   shift: boolean;
   meta: boolean;
+  alt: boolean;
   /**
    * Whether the platform primary modifier was used
    * (Cmd on macOS, Ctrl on Windows/Linux). Use this to store
    * shortcuts as `mod+key` for cross-platform portability.
    */
   mod: boolean;
+  /**
+   * Whether the platform secondary modifier was used
+   * (Ctrl on macOS, Alt on Windows/Linux). Use this to store
+   * shortcuts as `mod2+key` for cross-platform portability.
+   */
+  mod2: boolean;
   /** Whether the recorded key is safe to use cross-layout. */
   safe: boolean;
   /** If unsafe, a human-readable reason. */

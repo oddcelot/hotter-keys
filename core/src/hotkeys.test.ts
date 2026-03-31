@@ -29,11 +29,41 @@ describe("Hotkeys — basic matching", () => {
     expect(handler).not.toHaveBeenCalled();
   });
 
-  it("rejects events with altKey", () => {
+  it("does not match when altKey is pressed but shortcut has no alt", () => {
     const handler = vi.fn();
     hk.add("ctrl+k", handler);
     fireKey(target, "k", { ctrlKey: true, altKey: true });
     expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("fires handler when alt modifier matches", () => {
+    const handler = vi.fn();
+    hk.add("alt+k", handler);
+    fireKey(target, "k", { altKey: true });
+    expect(handler).toHaveBeenCalledOnce();
+  });
+
+  it("does not fire alt+k when alt is not pressed", () => {
+    const handler = vi.fn();
+    hk.add("alt+k", handler);
+    fireKey(target, "k");
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("mod2 resolves and matches correctly", () => {
+    // In jsdom, navigator.platform is empty, so isMac() returns false.
+    // mod2 on non-mac = alt.
+    const handler = vi.fn();
+    hk.add("mod2+k", handler);
+    fireKey(target, "k", { altKey: true });
+    expect(handler).toHaveBeenCalledOnce();
+  });
+
+  it("ctrl+alt+k matches when both modifiers specified", () => {
+    const handler = vi.fn();
+    hk.add("ctrl+alt+k", handler);
+    fireKey(target, "k", { ctrlKey: true, altKey: true });
+    expect(handler).toHaveBeenCalledOnce();
   });
 
   it("matches case-insensitively at runtime", () => {
@@ -92,14 +122,14 @@ describe("Hotkeys — basic matching", () => {
 
   it("accepts pre-parsed Shortcut object", () => {
     const handler = vi.fn();
-    hk.add({ key: "k", ctrl: true, shift: false, meta: false }, handler);
+    hk.add({ key: "k", ctrl: true, shift: false, meta: false, alt: false }, handler);
     fireKey(target, "k", { ctrlKey: true });
     expect(handler).toHaveBeenCalledOnce();
   });
 
   it("accepts pre-parsed ShortcutSequence array", () => {
     const handler = vi.fn();
-    hk.add([{ key: "k", ctrl: true, shift: false, meta: false }], handler);
+    hk.add([{ key: "k", ctrl: true, shift: false, meta: false, alt: false }], handler);
     fireKey(target, "k", { ctrlKey: true });
     expect(handler).toHaveBeenCalledOnce();
   });
@@ -110,6 +140,61 @@ describe("Hotkeys — basic matching", () => {
     const event = new KeyboardEvent("keydown", { bubbles: true, cancelable: true });
     Object.defineProperty(event, "key", { value: undefined });
     target.dispatchEvent(event);
+    expect(handler).not.toHaveBeenCalled();
+  });
+});
+
+describe("Hotkeys — remove()", () => {
+  let target: HTMLDivElement;
+  let hk: Hotkeys;
+
+  beforeEach(() => {
+    target = document.createElement("div");
+    hk = createHotkeys({ target });
+  });
+
+  afterEach(() => {
+    hk.destroy();
+  });
+
+  it("remove() applies crossPlatform translation by default", () => {
+    // In jsdom isMac() is false, so ctrl stays ctrl — no translation.
+    // Use an explicit pre-translated shortcut to verify the lookup works.
+    const handler = vi.fn();
+    hk.add({ key: "k", ctrl: true, shift: false, meta: false, alt: false }, handler, { crossPlatform: false });
+    hk.remove("ctrl+k");
+    fireKey(target, "k", { ctrlKey: true });
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("remove() with pre-parsed Shortcut object", () => {
+    const handler = vi.fn();
+    hk.add("ctrl+k", handler);
+    hk.remove({ key: "k", ctrl: true, shift: false, meta: false, alt: false });
+    fireKey(target, "k", { ctrlKey: true });
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("remove() with pre-parsed ShortcutSequence", () => {
+    const handler = vi.fn();
+    hk.add("ctrl+k ctrl+c", handler);
+    hk.remove([
+      { key: "k", ctrl: true, shift: false, meta: false, alt: false },
+      { key: "c", ctrl: true, shift: false, meta: false, alt: false },
+    ]);
+    fireKey(target, "k", { ctrlKey: true });
+    fireKey(target, "c", { ctrlKey: true });
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("remove() cleans up sequence timers", () => {
+    const handler = vi.fn();
+    hk.add("ctrl+k ctrl+c", handler);
+    // Start a sequence to create a timer
+    fireKey(target, "k", { ctrlKey: true });
+    // Remove while in-progress
+    hk.remove("ctrl+k ctrl+c");
+    fireKey(target, "c", { ctrlKey: true });
     expect(handler).not.toHaveBeenCalled();
   });
 });
@@ -206,6 +291,16 @@ describe("Hotkeys — lifecycle", () => {
 
   afterEach(() => {
     hk.destroy();
+  });
+
+  it("destroy() cancels in-progress sequence timers", () => {
+    const handler = vi.fn();
+    hk.add("ctrl+k ctrl+c", handler);
+    fireKey(target, "k", { ctrlKey: true });
+    hk.destroy();
+    // After destroy, the timer should not fire or cause errors
+    fireKey(target, "c", { ctrlKey: true });
+    expect(handler).not.toHaveBeenCalled();
   });
 
   it("stop() pauses and start() resumes", () => {

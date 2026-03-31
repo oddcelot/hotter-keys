@@ -19,41 +19,48 @@ export function recordShortcut(
     }
 
     const handler = (e: Event) => {
-      const event = e as KeyboardEvent;
+      if (!(e instanceof KeyboardEvent)) return;
 
       // Ignore lone modifier presses
-      if (["Control", "Shift", "Meta", "Alt"].includes(event.key)) return;
+      if (["Control", "Shift", "Meta", "Alt"].includes(e.key)) return;
 
-      event.preventDefault();
-      event.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
       cleanup();
 
-      const key = event.key.toLowerCase();
-      const ctrl = event.ctrlKey;
-      const shift = event.shiftKey;
-      const meta = event.metaKey;
+      const key = e.key.toLowerCase();
+      const ctrl = e.ctrlKey;
+      const shift = e.shiftKey;
+      const meta = e.metaKey;
+      const alt = e.altKey;
+      const mac = isMac();
 
       // Platform primary modifier: Cmd on macOS, Ctrl elsewhere.
       // Only set when exclusively the primary modifier is used (not both ctrl+meta).
-      const mod = isMac()
+      const mod = mac
         ? (meta && !ctrl)
         : (ctrl && !meta);
+
+      // Platform secondary modifier: Ctrl on macOS, Alt elsewhere.
+      // Only set when exclusively the secondary modifier is used.
+      const mod2 = mac
+        ? (ctrl && !meta)
+        : (alt && !ctrl && !meta);
 
       let safe = true;
       let unsafeReason: string | undefined;
 
-      if (event.altKey) {
+      if (!ALPHA.test(key) && !DIGIT.test(key)) {
         safe = false;
-        unsafeReason = "Alt/Option modifies the key value on macOS";
-      } else if (!ALPHA.test(key) && !DIGIT.test(key)) {
-        safe = false;
-        unsafeReason = `"${key}" is not a safe cross-layout key (only a-z and 0-9)`;
+        unsafeReason = alt && mac
+          ? "Alt/Option modifies the key value on macOS"
+          : `"${key}" is not a safe cross-layout key (only a-z and 0-9)`;
       } else if (shift && !ALPHA.test(key)) {
         safe = false;
         unsafeReason = `Shift+${key} produces locale-dependent symbols`;
       }
 
-      resolve({ key, ctrl, shift, meta, mod, safe, unsafeReason });
+      resolve({ key, ctrl, shift, meta, alt, mod, mod2, safe, unsafeReason });
     };
 
     const onAbort = () => {
