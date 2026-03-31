@@ -6,9 +6,19 @@ export const DIGIT = /^[0-9]$/;
 /**
  * Detect whether the current platform is macOS/iOS.
  * On macOS the primary modifier is Meta (Cmd); elsewhere it is Ctrl.
+ *
+ * Checks `navigator.userAgent` first (respected by DevTools UA emulation),
+ * then `navigator.userAgentData.platform` (Chromium — NOT updated by
+ * DevTools UA override), then the deprecated `navigator.platform`.
  */
 export function isMac(): boolean {
   if (typeof navigator === "undefined") return false;
+  // userAgent is updated by DevTools UA emulation
+  if (navigator.userAgent) return /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
+  // Chromium: NavigatorUAData (not changed by DevTools UA override)
+  const uaPlatform = (navigator as any).userAgentData?.platform as string | undefined;
+  if (uaPlatform) return /mac/i.test(uaPlatform);
+  // Last resort: deprecated but still widely available
   return /Mac|iPod|iPhone|iPad/.test(navigator.platform);
 }
 

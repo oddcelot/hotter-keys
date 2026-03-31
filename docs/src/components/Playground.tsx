@@ -1,5 +1,5 @@
 import { createSignal, onCleanup, onMount, For, Show } from "solid-js";
-import { createHotkeys, recordShortcut, formatShortcut } from "hotter-keys";
+import { createHotkeys, recordShortcut, formatShortcut, formatSequence, parseSequence, isMac } from "hotter-keys";
 import type { Hotkeys, RecordedShortcut } from "hotter-keys";
 import Gauge from "./Gauge";
 import FireCounter from "./FireCounter";
@@ -19,7 +19,6 @@ interface LogEntry {
 
 interface ShortcutRow {
   id: number;
-  label: string;
   combo: string;
   description: string;
 }
@@ -44,18 +43,18 @@ let nextId = 0;
 const mkId = () => ++nextId;
 
 const INITIAL_SHORTCUTS: ShortcutRow[] = [
-  { id: mkId(), label: "Ctrl+K", combo: "ctrl+k", description: "Command palette" },
-  { id: mkId(), label: "Ctrl+S", combo: "ctrl+s", description: "Save" },
-  { id: mkId(), label: "Ctrl+Shift+P", combo: "ctrl+shift+p", description: "Quick open" },
-  { id: mkId(), label: "Meta+B", combo: "meta+b", description: "Toggle sidebar" },
-  { id: mkId(), label: "Ctrl+J", combo: "ctrl+j", description: "Toggle panel" },
-  { id: mkId(), label: "Ctrl+D", combo: "ctrl+d", description: "Select word" },
+  { id: mkId(), combo: "mod+k", description: "Command palette" },
+  { id: mkId(), combo: "mod+s", description: "Save" },
+  { id: mkId(), combo: "mod+shift+p", description: "Quick open" },
+  { id: mkId(), combo: "mod+b", description: "Toggle sidebar" },
+  { id: mkId(), combo: "mod+j", description: "Toggle panel" },
+  { id: mkId(), combo: "mod+d", description: "Select word" },
 ];
 
 const INITIAL_SEQUENCES: ShortcutRow[] = [
-  { id: mkId(), label: "Ctrl+K Ctrl+C", combo: "ctrl+k ctrl+c", description: "Comment block" },
-  { id: mkId(), label: "Ctrl+K Ctrl+U", combo: "ctrl+k ctrl+u", description: "Uncomment block" },
-  { id: mkId(), label: "Ctrl+K Ctrl+S", combo: "ctrl+k ctrl+s", description: "Save all" },
+  { id: mkId(), combo: "mod+k mod+c", description: "Comment block" },
+  { id: mkId(), combo: "mod+k mod+u", description: "Uncomment block" },
+  { id: mkId(), combo: "mod+k mod+s", description: "Save all" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -78,6 +77,11 @@ function recordedToCombo(r: RecordedShortcut): string {
   if (r.shift) parts.push("shift");
   parts.push(r.key);
   return parts.join("+");
+}
+
+function comboLabel(combo: string): string {
+  const mac = isMac();
+  return formatSequence(parseSequence(combo, { mac }), mac);
 }
 
 const LOG_BADGE_CLASS: Record<string, string> = {
@@ -137,7 +141,7 @@ export default function Playground() {
     const setter = type === "shortcut" ? setFiredShortcuts : setFiredSequences;
     const unsub = hk.add(row.combo, () => {
       flash(setter, row.combo);
-      pushLog(`${row.label} — ${row.description}`, type);
+      pushLog(`${comboLabel(row.combo)} — ${row.description}`, type);
     });
     unbindMap.set(row.id, unsub);
   };
@@ -170,17 +174,16 @@ export default function Playground() {
         return;
       }
       const comboStr = recordedToCombo(result);
-      const label = formatShortcut(result);
 
       unbindMap.get(rowId)?.();
       setter((rows) =>
-        rows.map((r) => (r.id === rowId ? { ...r, combo: comboStr, label } : r))
+        rows.map((r) => (r.id === rowId ? { ...r, combo: comboStr } : r))
       );
-      const row = { id: rowId, combo: comboStr, label, description: setter === setShortcuts
+      const row = { id: rowId, combo: comboStr, description: setter === setShortcuts
         ? shortcuts().find((r) => r.id === rowId)!.description
         : sequences().find((r) => r.id === rowId)!.description };
       bindRow(row, type);
-      pushLog(`Rebound to ${label}`, "record");
+      pushLog(`Rebound to ${comboLabel(comboStr)}`, "record");
     } catch {
       // aborted via Escape
     } finally {
@@ -290,7 +293,7 @@ export default function Playground() {
               return (
                 <div class={rowClass(isThisRec(), fired(), "green")}>
                   <span class="row-label">
-                    <kbd class="kbd">{s.label}</kbd> <span class="row-desc">{s.description}</span>
+                    <kbd class="kbd">{comboLabel(s.combo)}</kbd> <span class="row-desc">{s.description}</span>
                   </span>
                   <Show when={fired()}>
                     <span class="badge badge-green">FIRED</span>
@@ -323,7 +326,7 @@ export default function Playground() {
               return (
                 <div class={rowClass(isThisRec(), fired(), "blue")}>
                   <span class="row-label">
-                    <kbd class="kbd">{s.label}</kbd> <span class="row-desc">{s.description}</span>
+                    <kbd class="kbd">{comboLabel(s.combo)}</kbd> <span class="row-desc">{s.description}</span>
                   </span>
                   <Show when={fired()}>
                     <span class="badge badge-blue">FIRED</span>
