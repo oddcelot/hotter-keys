@@ -1,4 +1,5 @@
 {
   "name": "hotter-keys",
-  "private": true
+  "private": true,
+  "packageManager": "pnpm@10.25.0"
 }
