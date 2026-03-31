@@ -32,6 +32,8 @@ jobs:
       - run: pnpm --filter hotter-keys build
 
       - run: pnpm --filter @hotter-keys/docs build
+        env:
+          CI: true
 
       - uses: actions/upload-pages-artifact@v3
         with:
