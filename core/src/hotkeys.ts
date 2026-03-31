@@ -305,8 +305,8 @@ export class Hotkeys {
     if (!event.repeat) this._trackKeyDown(event);
     this._reconcileModifiers(event);
 
-    // Modifier-only and Alt keypresses never match shortcuts
-    if (event.altKey || isModifierKey(event.key)) return;
+    // Modifier-only keypresses never match shortcuts
+    if (isModifierKey(event.key)) return;
 
     this._resolveDeferredBindings(event);
 

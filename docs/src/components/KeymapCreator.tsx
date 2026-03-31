@@ -19,6 +19,11 @@ function recordedToCombo(r: RecordedShortcut): string {
     if (r.ctrl) parts.push("ctrl");
     if (r.meta) parts.push("meta");
   }
+  if (r.mod2) {
+    parts.push("mod2");
+  } else if (r.alt) {
+    parts.push("alt");
+  }
   if (r.shift) parts.push("shift");
   parts.push(r.key);
   return parts.join("+");

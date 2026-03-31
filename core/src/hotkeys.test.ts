@@ -29,11 +29,41 @@ describe("Hotkeys — basic matching", () => {
     expect(handler).not.toHaveBeenCalled();
   });
 
-  it("rejects events with altKey", () => {
+  it("does not match when altKey is pressed but shortcut has no alt", () => {
     const handler = vi.fn();
     hk.add("ctrl+k", handler);
     fireKey(target, "k", { ctrlKey: true, altKey: true });
     expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("fires handler when alt modifier matches", () => {
+    const handler = vi.fn();
+    hk.add("alt+k", handler);
+    fireKey(target, "k", { altKey: true });
+    expect(handler).toHaveBeenCalledOnce();
+  });
+
+  it("does not fire alt+k when alt is not pressed", () => {
+    const handler = vi.fn();
+    hk.add("alt+k", handler);
+    fireKey(target, "k");
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("mod2 resolves and matches correctly", () => {
+    // In jsdom, navigator.platform is empty, so isMac() returns false.
+    // mod2 on non-mac = alt.
+    const handler = vi.fn();
+    hk.add("mod2+k", handler);
+    fireKey(target, "k", { altKey: true });
+    expect(handler).toHaveBeenCalledOnce();
+  });
+
+  it("ctrl+alt+k matches when both modifiers specified", () => {
+    const handler = vi.fn();
+    hk.add("ctrl+alt+k", handler);
+    fireKey(target, "k", { ctrlKey: true, altKey: true });
+    expect(handler).toHaveBeenCalledOnce();
   });
 
   it("matches case-insensitively at runtime", () => {
@@ -92,14 +122,14 @@ describe("Hotkeys — basic matching", () => {
 
   it("accepts pre-parsed Shortcut object", () => {
     const handler = vi.fn();
-    hk.add({ key: "k", ctrl: true, shift: false, meta: false }, handler);
+    hk.add({ key: "k", ctrl: true, shift: false, meta: false, alt: false }, handler);
     fireKey(target, "k", { ctrlKey: true });
     expect(handler).toHaveBeenCalledOnce();
   });
 
   it("accepts pre-parsed ShortcutSequence array", () => {
     const handler = vi.fn();
-    hk.add([{ key: "k", ctrl: true, shift: false, meta: false }], handler);
+    hk.add([{ key: "k", ctrl: true, shift: false, meta: false, alt: false }], handler);
     fireKey(target, "k", { ctrlKey: true });
     expect(handler).toHaveBeenCalledOnce();
   });

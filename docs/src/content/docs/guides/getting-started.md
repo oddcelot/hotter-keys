@@ -67,5 +67,27 @@ Based on [this analysis](https://blog.duvallj.pw/posts/2025-01-10-all-javascript
 1. **Match on `key`, never `code`/`keyCode`/`which`** — these are layout-dependent and unreliable.
 2. **Only a-z and 0-9 are safe** — symbol keys change across keyboard layouts.
 3. **Shift is only allowed with a-z** — `Shift+2` produces different symbols per locale.
-4. **Alt/Option is forbidden** — macOS transforms the character (e.g. `Alt+c` → `ç`).
+4. **Alt/Option is allowed as an explicit modifier** — macOS transforms the character when Alt/Option is pressed (e.g. `Alt+c` → `ç`), so the `mod2` virtual keyword resolves to Ctrl on macOS and Alt on Windows/Linux, providing a safe cross-platform secondary modifier.
 5. **Progressive enhancement** — uses the Keyboard API (Chrome) when available for broader support.
+
+## Cross-platform modifiers
+
+hotter-keys provides two virtual modifier keywords that resolve differently per platform:
+
+| Keyword | macOS | Windows/Linux | Role |
+|---------|-------|---------------|------|
+| `mod` | Cmd (⌘) | Ctrl | Primary modifier |
+| `mod2` | Ctrl (⌃) | Alt | Secondary modifier |
+
+```ts
+// Primary modifier — Cmd on macOS, Ctrl elsewhere
+hk.add("mod+s", () => save());
+
+// Secondary modifier — Ctrl on macOS, Alt elsewhere
+hk.add("mod2+k", () => togglePanel());
+
+// Both together — Cmd+Ctrl on macOS, Ctrl+Alt elsewhere
+hk.add("mod+mod2+p", () => openSettings());
+```
+
+You can also use `alt` or `option` directly for explicit Alt bindings, but note that on macOS these will only work if the browser reports the untransformed key value.

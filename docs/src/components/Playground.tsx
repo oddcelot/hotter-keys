@@ -70,6 +70,11 @@ function recordedToCombo(r: RecordedShortcut): string {
     if (r.ctrl) parts.push("ctrl");
     if (r.meta) parts.push("meta");
   }
+  if (r.mod2) {
+    parts.push("mod2");
+  } else if (r.alt) {
+    parts.push("alt");
+  }
   if (r.shift) parts.push("shift");
   parts.push(r.key);
   return parts.join("+");
@@ -441,8 +446,8 @@ export default function Playground() {
                 <kbd class="kbd">{String(ev().altKey)}</kbd>
                 <Show when={ev().altKey}>
                   {" "}
-                  <span class="badge badge-red">BLOCKED</span>
-                  <span class={styles.altNote}>Alt transforms key values on macOS</span>
+                  <span class="badge badge-yellow">CAUTION</span>
+                  <span class={styles.altNote}>Alt transforms key values on macOS — use <code>mod2</code> for cross-platform</span>
                 </Show>
               </span>
 

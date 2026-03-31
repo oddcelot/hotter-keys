@@ -21,15 +21,20 @@ const MODIFIER_NAMES = {
   win: "meta",
   super: "meta",
   shift: "shift",
+  alt: "alt",
+  option: "alt",
 } as const satisfies Record<string, keyof Modifiers>;
 
 /**
  * Parse a single chord like `"ctrl+shift+k"` into a {@link Shortcut}.
  *
- * Modifiers: `ctrl` | `control` | `meta` | `cmd` | `command` | `win` | `super` | `shift` | `mod`
+ * Modifiers: `ctrl` | `control` | `meta` | `cmd` | `command` | `win` | `super` | `shift` | `alt` | `option` | `mod` | `mod2`
  *
  * The `mod` modifier resolves to `meta` on macOS and `ctrl` on Windows/Linux,
  * making shortcuts portable across platforms.
+ *
+ * The `mod2` modifier resolves to `ctrl` on macOS and `alt` on Windows/Linux,
+ * providing a cross-platform secondary modifier.
  *
  * Key: a single letter a-z (case-insensitive) or digit 0-9
  *
@@ -49,13 +54,18 @@ export function parseShortcut(raw: string, platform?: { mac: boolean }): Shortcu
     throw new Error(`Empty shortcut string`);
   }
 
-  const mods: Modifiers = { ctrl: false, shift: false, meta: false };
+  const mods: Modifiers = { ctrl: false, shift: false, meta: false, alt: false };
   let key: string | undefined;
 
   for (const part of parts) {
     // `mod` resolves to the platform primary modifier
     if (part === "mod") {
       mods[mac ? "meta" : "ctrl"] = true;
+      continue;
+    }
+    // `mod2` resolves to the platform secondary modifier
+    if (part === "mod2") {
+      mods[mac ? "ctrl" : "alt"] = true;
       continue;
     }
     if (part in MODIFIER_NAMES) {
@@ -114,6 +124,7 @@ export function formatShortcut(s: Shortcut, mac = false): string {
   if (s.ctrl) parts.push(mac ? "⌃" : "Ctrl");
   if (s.shift) parts.push(mac ? "⇧" : "Shift");
   if (s.meta) parts.push(mac ? "⌘" : "Meta");
+  if (s.alt) parts.push(mac ? "⌥" : "Alt");
   parts.push(s.key.toUpperCase());
   return parts.join(mac ? "" : "+");
 }
@@ -134,17 +145,17 @@ export function isInputElement(el: EventTarget | null): boolean {
 }
 
 export function eventMatchesShortcut(e: KeyboardEvent, s: Shortcut): boolean {
-  if (e.altKey) return false;
   return (
     e.key.toLowerCase() === s.key &&
     e.ctrlKey === s.ctrl &&
     e.shiftKey === s.shift &&
-    e.metaKey === s.meta
+    e.metaKey === s.meta &&
+    e.altKey === s.alt
   );
 }
 
 export function shortcutEquals(a: Shortcut, b: Shortcut): boolean {
-  return a.key === b.key && a.ctrl === b.ctrl && a.shift === b.shift && a.meta === b.meta;
+  return a.key === b.key && a.ctrl === b.ctrl && a.shift === b.shift && a.meta === b.meta && a.alt === b.alt;
 }
 
 /**

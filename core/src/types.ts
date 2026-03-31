@@ -1,8 +1,9 @@
-/** The modifier flags we track. Alt is intentionally excluded. */
+/** The modifier flags we track. */
 export interface Modifiers {
   ctrl: boolean;
   shift: boolean;
   meta: boolean;
+  alt: boolean;
 }
 
 type AlphaKey =
@@ -99,12 +100,19 @@ export interface RecordedShortcut {
   ctrl: boolean;
   shift: boolean;
   meta: boolean;
+  alt: boolean;
   /**
    * Whether the platform primary modifier was used
    * (Cmd on macOS, Ctrl on Windows/Linux). Use this to store
    * shortcuts as `mod+key` for cross-platform portability.
    */
   mod: boolean;
+  /**
+   * Whether the platform secondary modifier was used
+   * (Ctrl on macOS, Alt on Windows/Linux). Use this to store
+   * shortcuts as `mod2+key` for cross-platform portability.
+   */
+  mod2: boolean;
   /** Whether the recorded key is safe to use cross-layout. */
   safe: boolean;
   /** If unsafe, a human-readable reason. */

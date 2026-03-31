@@ -27,10 +27,10 @@ import Playground from '../../components/Playground.tsx';
 
 <CardGrid>
   <Card title="Safe by default" icon="approve-check">
-    Matches on `key`, not `code` — only a-z and 0-9 are allowed as non-modifier keys. Shift+digit and Alt are rejected to avoid locale-dependent behavior.
+    Matches on `key`, not `code` — only a-z and 0-9 are allowed as non-modifier keys. Shift+digit is rejected to avoid locale-dependent behavior. The `mod2` keyword provides a safe cross-platform secondary modifier (Ctrl on macOS, Alt on Windows/Linux).
   </Card>
   <Card title="Key sequences" icon="list-format">
-    Multi-chord shortcuts like `Ctrl+K Ctrl+C` with configurable timeouts between chords.
+    Multi-chord shortcuts like `⌘K ⌘C` / `Ctrl+K Ctrl+C` with configurable timeouts between chords.
   </Card>
   <Card title="Held-keys tracking" icon="puzzle">
     Real-time tracking of pressed keys with stale-modifier recovery, blur reset, and single-key hold detection.
