@@ -62,7 +62,7 @@ export interface BindingOptions {
   layer?: string;
 }
 
-export interface Binding extends BindingOptions {
+export interface Binding extends Omit<BindingOptions, "crossPlatform"> {
   readonly sequence: ShortcutSequence;
   readonly handler: ShortcutHandler;
 }
@@ -70,7 +70,13 @@ export interface Binding extends BindingOptions {
 /** Subscribe to held-keys changes. */
 export type HeldKeysListener = (keys: ReadonlyArray<string>) => void;
 
-/** Subscribe to key-hold state changes. */
+/**
+ * Subscribe to key-hold state changes.
+ * The listener fires with `true` only when the watched key is the **sole**
+ * key held down, and `false` when any other key is pressed alongside it
+ * or when the key is released. This is designed for "hold to reveal" UIs
+ * (e.g. hold Shift to show shortcuts).
+ */
 export type KeyHoldListener = (held: boolean) => void;
 
 /** Subscribe to layer stack changes. */

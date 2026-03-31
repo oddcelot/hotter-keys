@@ -10,6 +10,7 @@ import type {
   ShortcutSequence,
 } from "./types";
 import {
+  isMac,
   parseSequence,
   eventMatchesShortcut,
   isInputElement,
@@ -280,12 +281,17 @@ export class Hotkeys {
     return () => unsubs.forEach((u) => u());
   }
 
-  remove(shortcut: string | Shortcut | ShortcutSequence): void {
-    const target = toSequence(shortcut);
+  remove(shortcut: string | Shortcut | ShortcutSequence, options?: { crossPlatform?: boolean }): void {
+    let target = toSequence(shortcut);
+    if (options?.crossPlatform !== false) {
+      target = target.map((s) => translateForPlatform(s));
+    }
 
     this.states = this.states.filter((s) => {
       if (s.binding.sequence.length !== target.length) return true;
-      return !s.binding.sequence.every((chord, i) => shortcutEquals(chord, target[i]!));
+      const matches = s.binding.sequence.every((chord, i) => shortcutEquals(chord, target[i]!));
+      if (matches && s.seqTimer !== undefined) clearTimeout(s.seqTimer);
+      return !matches;
     });
   }
 
@@ -449,7 +455,8 @@ export class Hotkeys {
 
       // On macOS, releasing Meta/Cmd swallows pending keyup events for
       // non-modifier keys that were held alongside it. Flush them.
-      if (key === "meta" || key === "control") {
+      // This only applies to Meta on macOS — other platforms fire keyup normally.
+      if (key === "meta" && isMac()) {
         this._heldKeys = this._heldKeys.filter((k) => isModifierKey(k));
       }
 

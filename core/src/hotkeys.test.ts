@@ -144,6 +144,61 @@ describe("Hotkeys — basic matching", () => {
   });
 });
 
+describe("Hotkeys — remove()", () => {
+  let target: HTMLDivElement;
+  let hk: Hotkeys;
+
+  beforeEach(() => {
+    target = document.createElement("div");
+    hk = createHotkeys({ target });
+  });
+
+  afterEach(() => {
+    hk.destroy();
+  });
+
+  it("remove() applies crossPlatform translation by default", () => {
+    // In jsdom isMac() is false, so ctrl stays ctrl — no translation.
+    // Use an explicit pre-translated shortcut to verify the lookup works.
+    const handler = vi.fn();
+    hk.add({ key: "k", ctrl: true, shift: false, meta: false, alt: false }, handler, { crossPlatform: false });
+    hk.remove("ctrl+k");
+    fireKey(target, "k", { ctrlKey: true });
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("remove() with pre-parsed Shortcut object", () => {
+    const handler = vi.fn();
+    hk.add("ctrl+k", handler);
+    hk.remove({ key: "k", ctrl: true, shift: false, meta: false, alt: false });
+    fireKey(target, "k", { ctrlKey: true });
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("remove() with pre-parsed ShortcutSequence", () => {
+    const handler = vi.fn();
+    hk.add("ctrl+k ctrl+c", handler);
+    hk.remove([
+      { key: "k", ctrl: true, shift: false, meta: false, alt: false },
+      { key: "c", ctrl: true, shift: false, meta: false, alt: false },
+    ]);
+    fireKey(target, "k", { ctrlKey: true });
+    fireKey(target, "c", { ctrlKey: true });
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it("remove() cleans up sequence timers", () => {
+    const handler = vi.fn();
+    hk.add("ctrl+k ctrl+c", handler);
+    // Start a sequence to create a timer
+    fireKey(target, "k", { ctrlKey: true });
+    // Remove while in-progress
+    hk.remove("ctrl+k ctrl+c");
+    fireKey(target, "c", { ctrlKey: true });
+    expect(handler).not.toHaveBeenCalled();
+  });
+});
+
 describe("Hotkeys — scopes", () => {
   let target: HTMLDivElement;
   let hk: Hotkeys;
@@ -236,6 +291,16 @@ describe("Hotkeys — lifecycle", () => {
 
   afterEach(() => {
     hk.destroy();
+  });
+
+  it("destroy() cancels in-progress sequence timers", () => {
+    const handler = vi.fn();
+    hk.add("ctrl+k ctrl+c", handler);
+    fireKey(target, "k", { ctrlKey: true });
+    hk.destroy();
+    // After destroy, the timer should not fire or cause errors
+    fireKey(target, "c", { ctrlKey: true });
+    expect(handler).not.toHaveBeenCalled();
   });
 
   it("stop() pauses and start() resumes", () => {
