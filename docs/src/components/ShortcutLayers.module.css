@@ -1,0 +1,278 @@
+/* 3D shortcut layers visualisation */
+
+.stage {
+  perspective: 900px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 540px;
+  overflow: hidden;
+}
+
+.rig {
+  transform-style: preserve-3d;
+  width: 360px;
+  height: 360px;
+  position: relative;
+  margin-top: 60px;
+}
+
+/* --- Layers ------------------------------------------------------------ */
+
+.layer {
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50% 0;
+  border: 0.5px solid;
+  border-radius: 8px;
+  opacity: 0;
+  transform: scale(0.85) translateZ(0px);
+  transition:
+    transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity 0.5s;
+  pointer-events: none;
+}
+
+.layer svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.visible {
+  pointer-events: auto;
+}
+
+.active {
+  opacity: 1;
+}
+
+.dimmed {
+  opacity: 0.25;
+}
+
+/* Layer colour variants (light) */
+.l0 { border-color: #afa9ec; background: rgba(174, 169, 236, 0.05); }
+.l1 { border-color: #5dcaa5; background: rgba(93, 202, 165, 0.05); }
+.l2 { border-color: #f0997b; background: rgba(240, 153, 123, 0.05); }
+.l3 { border-color: #85b7eb; background: rgba(133, 183, 235, 0.05); }
+
+/* --- Controls ---------------------------------------------------------- */
+
+.ctrls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: -8px;
+  position: relative;
+  z-index: 2;
+}
+
+/* --- Step track -------------------------------------------------------- */
+
+.stepTrack {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  gap: 0;
+  height: 52px;
+  position: relative;
+}
+
+.stepSlot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 64px;
+  position: relative;
+}
+
+/* Command labels */
+.stepCmd {
+  font-family: var(--sl-font-mono, monospace);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.3s, transform 0.3s;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.stepCmdShow {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.cmd0 { color: #7f77dd; background: #afa9ec22; border: 0.5px solid #afa9ec; }
+.cmd1 { color: #0f6e56; background: #5dcaa522; border: 0.5px solid #5dcaa5; }
+.cmd2 { color: #993c1d; background: #f0997b22; border: 0.5px solid #f0997b; }
+.cmd3 { color: #185fa5; background: #85b7eb22; border: 0.5px solid #85b7eb; }
+
+/* Dots */
+.stepDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transition: background 0.3s, transform 0.3s, opacity 0.3s;
+}
+
+.dotOff {
+  background: var(--sl-color-gray-5);
+  transform: scale(1);
+}
+
+.dotOn {
+  transform: scale(1.3);
+}
+
+.dotDim {
+  transform: scale(1);
+  opacity: 0.4;
+}
+
+.dot0 { background: #afa9ec; }
+.dot1 { background: #5dcaa5; }
+.dot2 { background: #f0997b; }
+.dot3 { background: #85b7eb; }
+
+/* Lines */
+.stepLine {
+  width: 40px;
+  height: 2px;
+  margin-bottom: 4px;
+  transition: background 0.3s, opacity 0.3s;
+}
+
+.lineOff {
+  background: var(--sl-color-gray-5);
+  opacity: 0.3;
+}
+
+.lineOn {
+  opacity: 0.6;
+}
+
+.line0 { background: #afa9ec; }
+.line1 { background: #5dcaa5; }
+.line2 { background: #f0997b; }
+
+/* Title */
+.layerTitle {
+  font-size: 12px;
+  color: var(--sl-color-gray-3);
+  text-align: center;
+  min-height: 16px;
+  transition: opacity 0.3s;
+}
+
+/* Buttons */
+.btnRow {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.btnRow button {
+  min-width: 36px;
+}
+
+/* --- Available shortcuts ------------------------------------------------ */
+
+.shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  min-height: 32px;
+}
+
+.shortcutPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  border: 1px solid;
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.3s;
+}
+
+.pillKey {
+  font-family: var(--sl-font-mono, monospace);
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.pillDesc {
+  opacity: 0.7;
+  font-size: 11px;
+}
+
+.pillAdvances {
+  font-weight: 500;
+}
+
+.pillAdvances .pillDesc::after {
+  content: " →";
+  opacity: 0.5;
+}
+
+/* Fired flash */
+.pillFired {
+  transform: scale(1.08);
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* Pill colour per layer */
+.pill0 { color: #7f77dd; border-color: #afa9ec; background: #afa9ec18; }
+.pill1 { color: #0f6e56; border-color: #5dcaa5; background: #5dcaa518; }
+.pill2 { color: #993c1d; border-color: #f0997b; background: #f0997b18; }
+.pill3 { color: #185fa5; border-color: #85b7eb; background: #85b7eb18; }
+
+.pillEsc {
+  color: var(--sl-color-gray-3);
+  border-color: var(--sl-color-gray-5);
+  background: var(--sl-color-gray-6);
+}
+
+/* Action feedback */
+.actionFeedback {
+  font-family: var(--sl-font-mono, monospace);
+  font-size: 12px;
+  text-align: center;
+  color: var(--sl-color-accent);
+  min-height: 18px;
+  transition: opacity 0.3s;
+}
+
+/* --- Dark mode --------------------------------------------------------- */
+
+:global([data-theme="dark"]) .l0 { border-color: #7f77dd; background: rgba(127, 119, 221, 0.08); }
+:global([data-theme="dark"]) .l1 { border-color: #1d9e75; background: rgba(29, 158, 117, 0.08); }
+:global([data-theme="dark"]) .l2 { border-color: #d85a30; background: rgba(216, 90, 48, 0.08); }
+:global([data-theme="dark"]) .l3 { border-color: #378add; background: rgba(55, 138, 221, 0.08); }
+
+:global([data-theme="dark"]) .dot0 { background: #7f77dd; }
+:global([data-theme="dark"]) .dot1 { background: #1d9e75; }
+:global([data-theme="dark"]) .dot2 { background: #d85a30; }
+:global([data-theme="dark"]) .dot3 { background: #378add; }
+
+:global([data-theme="dark"]) .line0 { background: #7f77dd; }
+:global([data-theme="dark"]) .line1 { background: #1d9e75; }
+:global([data-theme="dark"]) .line2 { background: #d85a30; }
+
+:global([data-theme="dark"]) .cmd0 { color: #cecbf6; background: #7f77dd33; border-color: #7f77dd; }
+:global([data-theme="dark"]) .cmd1 { color: #9fe1cb; background: #1d9e7533; border-color: #1d9e75; }
+:global([data-theme="dark"]) .cmd2 { color: #f5c4b3; background: #d85a3033; border-color: #d85a30; }
+:global([data-theme="dark"]) .cmd3 { color: #b5d4f4; background: #378add33; border-color: #378add; }
+
+:global([data-theme="dark"]) .pill0 { color: #cecbf6; border-color: #7f77dd; background: #7f77dd22; }
+:global([data-theme="dark"]) .pill1 { color: #9fe1cb; border-color: #1d9e75; background: #1d9e7522; }
+:global([data-theme="dark"]) .pill2 { color: #f5c4b3; border-color: #d85a30; background: #d85a3022; }
+:global([data-theme="dark"]) .pill3 { color: #b5d4f4; border-color: #378add; background: #378add22; }
