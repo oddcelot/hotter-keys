@@ -460,37 +460,41 @@ export default function ShortcutLayers() {
           </For>
         </div>
 
-        <div class={`not-content ${styles.shortcuts}`}>
-          <For each={currentActions()}>
-            {(a) => {
-              const layerIdx = step() - 1;
-              const cfg = LAYERS[layerIdx];
-              return (
-                <button
-                  class={`${styles.shortcutPill} ${(styles as Record<string, string>)[`pill${layerIdx}`]} ${a.advances ? styles.pillAdvances : ""} ${firedKey() === a.label ? styles.pillFired : ""}`}
-                  onClick={() => fireAction(a, layerIdx, cfg)}
-                >
-                  <span class={styles.pillKey}>{a.label}</span>
-                  <span class={styles.pillDesc}>{a.desc}</span>
-                </button>
-              );
-            }}
-          </For>
-          <Show when={step() > 1}>
-            <button
-              class={`${styles.shortcutPill} ${styles.pillEsc} ${firedKey() === "Esc" ? styles.pillFired : ""}`}
-              onClick={() => {
-                clearTimeout(resetTimer);
-                goTo(step() - 1);
-                setLastAction("Esc → back");
-                flash("Esc");
-              }}
-            >
-              <span class={styles.pillKey}>Esc</span>
-              <span class={styles.pillDesc}>back</span>
-            </button>
-          </Show>
-        </div>
+        <For each={LAYERS}>
+          {(cfg, li) => {
+            const active = () => li() === step() - 1;
+            return (
+              <div class={`not-content ${styles.shortcuts}`}>
+                <For each={cfg.actions}>
+                  {(a) => (
+                    <button
+                      class={`${styles.shortcutPill} ${(styles as Record<string, string>)[`pill${li()}`]} ${a.advances ? styles.pillAdvances : ""} ${li() > 0 && active() && firedKey() === a.label ? styles.pillFired : ""}`}
+                      disabled={!active()}
+                      onClick={() => fireAction(a, li(), cfg)}
+                    >
+                      <span class={styles.pillKey}>{a.label || a.cardLabel}</span>
+                      <span class={styles.pillDesc}>{a.desc}</span>
+                    </button>
+                  )}
+                </For>
+                <Show when={active() && step() > 1}>
+                  <button
+                    class={`${styles.shortcutPill} ${styles.pillEsc} ${firedKey() === "Esc" ? styles.pillFired : ""}`}
+                    onClick={() => {
+                      clearTimeout(resetTimer);
+                      goTo(step() - 1);
+                      setLastAction("Esc → back");
+                      flash("Esc");
+                    }}
+                  >
+                    <span class={styles.pillKey}>Esc</span>
+                    <span class={styles.pillDesc}>back</span>
+                  </button>
+                </Show>
+              </div>
+            );
+          }}
+        </For>
 
         <div
           class={styles.actionFeedback}

@@ -11,6 +11,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    padding-block: 2rem;
+    padding-inline: 10rem;
 
     overflow: hidden;
     flex: 0 0 auto;
@@ -118,7 +120,6 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-top: -8px;
     position: relative;
     z-index: 2;
 }
@@ -130,7 +131,7 @@
     align-items: end;
     justify-content: center;
     gap: 0;
-    height: 52px;
+    height: 68px;
     position: relative;
 }
 
@@ -277,19 +278,22 @@
 .shortcuts {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 10px;
     justify-content: center;
     min-height: 32px;
 }
 
 .shortcutPill {
+    all: unset;
     display: inline-flex;
     align-items: center;
+    box-sizing: border-box;
     gap: 4px;
     padding: 3px 10px;
     border-radius: 6px;
     font-size: 12px;
     font-family: inherit;
+    line-height: 1.4;
     border: 1px solid;
     cursor: pointer;
     transition:
@@ -316,6 +320,13 @@
 .pillAdvances .pillDesc::after {
     content: " →";
     opacity: 0.5;
+}
+
+/* Disabled state */
+.shortcutPill:disabled {
+    opacity: 0.3;
+    cursor: default;
+    pointer-events: none;
 }
 
 /* Fired flash */
