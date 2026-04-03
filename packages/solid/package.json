@@ -1,0 +1,30 @@
+{
+  "name": "@hotter-keys/solid",
+  "version": "0.0.1",
+  "description": "Solid.js primitives for hotter-keys — reactive keyboard shortcut management.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "peerDependencies": {
+    "hotter-keys": "workspace:*",
+    "solid-js": ">=1.8.0"
+  },
+  "devDependencies": {
+    "hotter-keys": "workspace:*",
+    "solid-js": "catalog:default",
+    "typescript": "catalog:default"
+  },
+  "license": "MIT"
+}
