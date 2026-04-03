@@ -105,7 +105,7 @@ export interface HotkeysOptions {
 // ---------------------------------------------------------------------------
 
 export type DevtoolsEvent =
-  | { type: 'binding:fired'; shortcut: ShortcutSequence; layer: string; event: KeyboardEvent; timestamp: number }
+  | { type: 'binding:fired'; shortcut: ShortcutSequence; layer: string; scope: string | undefined; event: KeyboardEvent; timestamp: number }
   | { type: 'binding:added'; shortcut: ShortcutSequence; options: BindingOptions; timestamp: number }
   | { type: 'binding:removed'; shortcut: ShortcutSequence; timestamp: number }
   | { type: 'layer:change'; layers: readonly string[]; timestamp: number }

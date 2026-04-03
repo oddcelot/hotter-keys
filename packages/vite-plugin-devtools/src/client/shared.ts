@@ -62,8 +62,11 @@ export function fmtSequence(
 
 export function formatDetail(event: any): string {
   switch (event.type) {
-    case 'binding:fired':
-      return `${fmtSequence(event.shortcut)} [${event.layer ?? 'global'}]`;
+    case 'binding:fired': {
+      const parts = [fmtSequence(event.shortcut), `[${event.layer ?? 'global'}]`];
+      if (event.scope) parts.push(`(${event.scope})`);
+      return parts.join(' ');
+    }
     case 'binding:added':
     case 'binding:removed':
       return fmtSequence(event.shortcut);

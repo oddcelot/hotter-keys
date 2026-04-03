@@ -12,7 +12,7 @@ async function init() {
 
   const registry = new Map<string, BindingData>();
   let activeLayers: string[] = ['global'];
-  const firedLog: Array<{ shortcut: string; layer: string; timestamp: number }> = [];
+  const firedLog: Array<{ shortcut: string; layer: string; scope: string; timestamp: number }> = [];
 
   function pushState() {
     (client.call as any)('hotter-keys:update-state', {
@@ -37,6 +37,7 @@ async function init() {
       firedLog.push({
         shortcut: fmtSequence(event.shortcut),
         layer: event.layer ?? 'global',
+        scope: event.scope ?? '\u2014',
         timestamp: event.timestamp,
       });
       pushState();
@@ -44,17 +45,20 @@ async function init() {
 
     switch (event.type) {
       case 'binding:added': {
-        const key = fmtSequence(event.shortcut);
-        registry.set(key, {
-          formatted: key,
-          layer: event.options?.layer ?? 'global',
-          scope: event.options?.scope,
-        });
+        const formatted = fmtSequence(event.shortcut);
+        const layer = event.options?.layer ?? 'global';
+        const scope = event.options?.scope;
+        const key = `${formatted}|${layer}|${scope ?? ''}`;
+        registry.set(key, { formatted, layer, scope });
         pushState();
         break;
       }
       case 'binding:removed': {
-        registry.delete(fmtSequence(event.shortcut));
+        // Remove all entries matching this shortcut (any layer/scope)
+        const formatted = fmtSequence(event.shortcut);
+        for (const [k] of registry) {
+          if (k.startsWith(`${formatted}|`)) registry.delete(k);
+        }
         pushState();
         break;
       }

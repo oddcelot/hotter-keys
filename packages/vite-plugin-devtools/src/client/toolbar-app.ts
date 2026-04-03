@@ -239,19 +239,24 @@ export default {
     function handleRawEvent(event: any) {
       switch (event.type) {
         case 'binding:added': {
-          const key = fmtSequence(event.shortcut);
+          const formatted = fmtSequence(event.shortcut);
+          const layer = event.options?.layer ?? 'global';
+          const scope = event.options?.scope;
+          const key = `${formatted}|${layer}|${scope ?? ''}`;
           registry.set(key, {
             shortcut: event.shortcut,
-            layer: event.options?.layer ?? 'global',
-            scope: event.options?.scope,
-            formatted: key,
+            layer,
+            scope,
+            formatted,
           });
           renderBindingsPanel();
           break;
         }
         case 'binding:removed': {
-          const key = fmtSequence(event.shortcut);
-          registry.delete(key);
+          const formatted = fmtSequence(event.shortcut);
+          for (const [k] of registry) {
+            if (k.startsWith(`${formatted}|`)) registry.delete(k);
+          }
           renderBindingsPanel();
           break;
         }

@@ -446,7 +446,7 @@ export class Hotkeys {
         this._deferTimer = setTimeout(() => this._flushDeferred(), this.sequenceTimeout);
       } else {
         if (state.binding.requireReset) state.awaitingReset = true;
-        this.__devtools?.({ type: 'binding:fired', shortcut: state.binding.sequence, layer: state.binding.layer ?? 'global', event, timestamp: Date.now() });
+        this.__devtools?.({ type: 'binding:fired', shortcut: state.binding.sequence, layer: state.binding.layer ?? 'global', scope: state.binding.scope, event, timestamp: Date.now() });
         state.binding.handler(event);
       }
     }
@@ -468,7 +468,7 @@ export class Hotkeys {
     }
     for (const { state, event } of this._deferred) {
       if (state.binding.requireReset) state.awaitingReset = true;
-      this.__devtools?.({ type: 'binding:fired', shortcut: state.binding.sequence, layer: state.binding.layer ?? 'global', event, timestamp: Date.now() });
+      this.__devtools?.({ type: 'binding:fired', shortcut: state.binding.sequence, layer: state.binding.layer ?? 'global', scope: state.binding.scope, event, timestamp: Date.now() });
       state.binding.handler(event);
     }
     this._deferred = [];
