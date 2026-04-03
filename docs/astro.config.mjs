@@ -46,6 +46,6 @@ export default defineConfig({
       ],
     }),
     solidJs(),
-    hotterKeysDevtoolsIntegration(),
+    hotterKeysDevtoolsIntegration({ debug: true }),
   ],
 });

@@ -90,9 +90,17 @@ export class Hotkeys {
     this.scope = options.scope ?? "*";
     this.sequenceTimeout = options.sequenceTimeout ?? 1000;
 
-    // Auto-register with devtools if the sentinel is present.
-    if (typeof globalThis !== 'undefined' && (globalThis as any).__HOTTER_KEYS_DEVTOOLS__) {
-      (globalThis as any).__HOTTER_KEYS_DEVTOOLS__.__register(this);
+    // Devtools discovery: register eagerly if sentinel exists, or
+    // stash on a global list so the sentinel can find us when it loads.
+    if (typeof globalThis !== 'undefined') {
+      const g = globalThis as any;
+      if (g.__HOTTER_KEYS_DEVTOOLS__) {
+        if (g.__HOTTER_KEYS_DEBUG__) console.log('[hk-core] sentinel found, registering eagerly');
+        g.__HOTTER_KEYS_DEVTOOLS__.__register(this);
+      } else {
+        if (g.__HOTTER_KEYS_DEBUG__) console.log('[hk-core] no sentinel, stashing on __HOTTER_KEYS_INSTANCES__');
+        (g.__HOTTER_KEYS_INSTANCES__ ??= []).push(this);
+      }
     }
 
     this.start();
