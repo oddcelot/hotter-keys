@@ -2,9 +2,36 @@ import type { JsonRenderer, JsonRenderElement, JsonRenderSpec, PluginWithDevTool
 import { defineRpcFunction } from '@vitejs/devtools-kit';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, normalize } from 'node:path';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const clientScript = resolve(__dirname, 'client', 'devtools-action.js');
+
+// ── Settings persistence ─────────────────────────────────────────────────────
+
+interface PersistedSettings {
+  notifyOnFired: boolean;
+}
+
+const DEFAULTS: PersistedSettings = { notifyOnFired: true };
+
+function settingsPath(cwd: string): string {
+  const dir = resolve(cwd, 'node_modules', '.cache', 'hotter-keys-devtools');
+  mkdirSync(dir, { recursive: true });
+  return resolve(dir, 'settings.json');
+}
+
+function loadSettings(cwd: string): PersistedSettings {
+  try {
+    return { ...DEFAULTS, ...JSON.parse(readFileSync(settingsPath(cwd), 'utf-8')) };
+  } catch {
+    return { ...DEFAULTS };
+  }
+}
+
+function saveSettings(cwd: string, settings: PersistedSettings): void {
+  writeFileSync(settingsPath(cwd), JSON.stringify(settings, null, 2));
+}
 
 // ── Spec builder ─────────────────────────────────────────────────────────────
 
@@ -18,6 +45,7 @@ interface PanelState {
   bindings: BindingData[];
   activeLayers: string[];
   firedLog: Array<{ shortcut: string; layer: string; timestamp: number }>;
+  notifyOnFired: boolean;
 }
 
 function buildSpec(state: PanelState): JsonRenderSpec {
@@ -239,6 +267,38 @@ function buildSpec(state: PanelState): JsonRenderSpec {
     };
   }
 
+  // ── Settings ──
+  rootChildren.push('divider-settings', 'settings-card');
+  elements['divider-settings'] = { type: 'Divider', props: {} };
+  elements['settings-card'] = {
+    type: 'Card',
+    props: { title: 'Settings', collapsible: true },
+    children: ['settings-content'],
+  };
+  elements['settings-content'] = {
+    type: 'Stack',
+    props: { direction: 'vertical', gap: 8 },
+    children: ['notify-row'],
+  };
+  elements['notify-row'] = {
+    type: 'Stack',
+    props: { direction: 'horizontal', gap: 8, align: 'center', justify: 'space-between' },
+    children: ['notify-label', 'notify-toggle'],
+  };
+  elements['notify-label'] = {
+    type: 'Text',
+    props: { content: 'Show notifications on fired shortcuts', variant: 'body' },
+  };
+  elements['notify-toggle'] = {
+    type: 'Button',
+    props: {
+      label: state.notifyOnFired ? 'On' : 'Off',
+      variant: state.notifyOnFired ? 'primary' : 'ghost',
+      icon: state.notifyOnFired ? 'ph:bell-ringing' : 'ph:bell-slash',
+    },
+    on: { press: { action: 'hotter-keys:toggle-notify' } },
+  };
+
   elements['root'] = {
     type: 'Stack',
     props: { direction: 'vertical', gap: 12, padding: 4 },
@@ -269,7 +329,9 @@ export function hotterKeysViteDevtools(): PluginWithDevTools {
 
     devtools: {
       setup(context) {
-        let panelState: PanelState = { bindings: [], activeLayers: ['global'], firedLog: [] };
+        const settings = loadSettings(context.cwd);
+        let notifyOnFired = settings.notifyOnFired;
+        let panelState: PanelState = { bindings: [], activeLayers: ['global'], firedLog: [], notifyOnFired };
         const ui = context.createJsonRenderer(buildSpec(panelState));
 
         function refresh() {
@@ -299,8 +361,8 @@ export function hotterKeysViteDevtools(): PluginWithDevTools {
           name: 'hotter-keys:update-state',
           type: 'action',
           setup: () => ({
-            handler: async (data: PanelState) => {
-              panelState = data;
+            handler: async (data: Partial<PanelState>) => {
+              panelState = { ...panelState, bindings: data.bindings ?? panelState.bindings, activeLayers: data.activeLayers ?? panelState.activeLayers, firedLog: data.firedLog ?? panelState.firedLog, notifyOnFired };
               refresh();
             },
           }),
@@ -329,10 +391,23 @@ export function hotterKeysViteDevtools(): PluginWithDevTools {
                 message: `${data.tag}: ${data.detail}`,
                 level: 'success',
                 category: 'hotter-keys',
-                notify: true,
-                autoDismiss: 3000,
+                notify: notifyOnFired,
+                autoDismiss: notifyOnFired ? 3000 : undefined,
                 autoDelete: 30000,
               });
+            },
+          }),
+        }));
+
+        context.rpc.register(defineRpcFunction({
+          name: 'hotter-keys:toggle-notify',
+          type: 'action',
+          setup: () => ({
+            handler: async () => {
+              notifyOnFired = !notifyOnFired;
+              panelState.notifyOnFired = notifyOnFired;
+              saveSettings(context.cwd, { notifyOnFired });
+              refresh();
             },
           }),
         }));
