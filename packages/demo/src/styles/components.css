@@ -25,6 +25,19 @@ html {
   padding: 0 1.25rem;
 }
 
+/* ── Sticky layer bar ── */
+
+.layer-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: oklch(from var(--hk-bg) l c h / 0.85);
+  backdrop-filter: blur(10px);
+  margin: 0 -1.25rem;
+  padding: 0.5rem 1.25rem;
+  border-bottom: 1px solid var(--hk-rule);
+}
+
 /* ── Typography ── */
 
 h1 {
@@ -258,6 +271,36 @@ kbd.fired {
   font-size: 0.65rem;
   min-width: auto;
   padding: 0.05rem 0.35rem;
+}
+
+/* ── Modal dialog ── */
+
+.modal-dialog {
+  background: transparent;
+  border: none;
+  padding: 0;
+  max-width: 420px;
+  width: 90%;
+  overflow: visible;
+  margin: auto;
+}
+
+.modal-dialog::backdrop {
+  background: oklch(from var(--hk-base-black) l c h / 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: var(--hk-bg);
+  border: 1px solid var(--hk-card-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  font-family: var(--hk-font);
+  color: var(--hk-ink);
+}
+
+.modal-content p {
+  font-size: 0.75rem;
 }
 
 /* ── Scrollable log ── */

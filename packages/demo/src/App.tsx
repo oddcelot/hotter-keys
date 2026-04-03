@@ -1,4 +1,4 @@
-import { createSignal, onMount, onCleanup, For } from 'solid-js';
+import { createSignal, onMount, onCleanup, For, Show } from 'solid-js';
 import { createHotkeys, isMac } from 'hotter-keys';
 
 interface LogEntry {
@@ -17,16 +17,17 @@ interface ShortcutInfo {
 const mod = isMac() ? '\u2318' : 'Ctrl';
 
 const SHORTCUTS: ShortcutInfo[] = [
-  { keys: `${mod}+K`,           action: 'Command palette', layer: 'global',  layerColor: 'purple' },
+  { keys: `${mod}+P`,           action: 'Open modal',      layer: 'global',  layerColor: 'purple' },
   { keys: `${mod}+S`,           action: 'Save',            layer: 'global',  layerColor: 'purple' },
-  { keys: `${mod}+Shift+P`,     action: 'Quick actions',   layer: 'global',  layerColor: 'purple' },
+  { keys: `${mod}+Shift+P`,     action: 'Quick search',    layer: 'global',  layerColor: 'purple' },
   { keys: `${mod}+K ${mod}+C`,  action: 'Toggle comment',  layer: 'global',  layerColor: 'purple' },
   { keys: `${mod}+Z`,           action: 'Undo',            layer: 'editor',  layerColor: 'green' },
   { keys: `${mod}+Shift+Z`,     action: 'Redo',            layer: 'editor',  layerColor: 'green' },
   { keys: `${mod}+D`,           action: 'Duplicate',       layer: 'canvas',  layerColor: 'blue' },
   { keys: `${mod}+G`,           action: 'Group',           layer: 'canvas',  layerColor: 'blue' },
-  { keys: `${mod}+1`,           action: 'Modal action 1',  layer: 'modal',   layerColor: 'orange' },
-  { keys: `${mod}+2`,           action: 'Modal action 2',  layer: 'modal',   layerColor: 'orange' },
+  { keys: `${mod}+1`,           action: 'Copy link',       layer: 'modal',   layerColor: 'orange' },
+  { keys: `${mod}+2`,           action: 'Export',          layer: 'modal',   layerColor: 'orange' },
+  { keys: `${mod}+3`,           action: 'Delete',          layer: 'modal',   layerColor: 'orange' },
 ];
 
 let nextId = 0;
@@ -35,7 +36,9 @@ export default function App() {
   const [log, setLog] = createSignal<LogEntry[]>([]);
   const [layers, setLayers] = createSignal<string[]>(['global']);
   const [focusedPanel, setFocusedPanel] = createSignal<string | null>(null);
+  const [modalOpen, setModalOpen] = createSignal(false);
   let hk: ReturnType<typeof createHotkeys>;
+  let dialogRef: HTMLDialogElement | undefined;
 
   function addLog(shortcut: string, action: string) {
     setLog((prev) => [{ id: nextId++, shortcut, action }, ...prev].slice(0, 30));
@@ -45,9 +48,9 @@ export default function App() {
     hk = createHotkeys();
 
     // Global shortcuts (always active)
-    hk.add('mod+k', () => addLog(`${mod}+K`, 'Command palette'));
+    hk.add('mod+p', () => { addLog(`${mod}+P`, 'Open modal'); openModal(); });
     hk.add('mod+s', () => addLog(`${mod}+S`, 'Save'));
-    hk.add('mod+shift+p', () => addLog(`${mod}+Shift+P`, 'Quick actions'));
+    hk.add('mod+shift+p', () => addLog(`${mod}+Shift+P`, 'Quick search'));
     hk.add('mod+k mod+c', () => addLog(`${mod}+K ${mod}+C`, 'Toggle comment'));
 
     // Editor layer shortcuts
@@ -58,15 +61,30 @@ export default function App() {
     hk.add('mod+d', () => addLog(`${mod}+D`, 'Duplicate'), { layer: 'canvas' });
     hk.add('mod+g', () => addLog(`${mod}+G`, 'Group'), { layer: 'canvas' });
 
-    // Modal layer shortcuts
-    hk.add('mod+1', () => addLog(`${mod}+1`, 'Modal action 1'), { layer: 'modal' });
-    hk.add('mod+2', () => addLog(`${mod}+2`, 'Modal action 2'), { layer: 'modal' });
+    // Modal layer shortcuts (only active when modal is open)
+    hk.add('mod+1', () => addLog(`${mod}+1`, 'Action: Copy link'), { layer: 'modal' });
+    hk.add('mod+2', () => addLog(`${mod}+2`, 'Action: Export'), { layer: 'modal' });
+    hk.add('mod+3', () => addLog(`${mod}+3`, 'Action: Delete'), { layer: 'modal' });
 
     hk.onLayerChange((l) => setLayers([...l]));
 
     (window as any).__hk = hk;
     onCleanup(() => hk.destroy());
   });
+
+  function openModal() {
+    if (modalOpen()) return;
+    setModalOpen(true);
+    hk.pushLayer('modal');
+    dialogRef?.showModal();
+  }
+
+  function closeModal() {
+    if (!modalOpen()) return;
+    setModalOpen(false);
+    hk.popLayer('modal');
+    dialogRef?.close();
+  }
 
   function focusLayer(panel: string, layer: string) {
     setFocusedPanel(panel);
@@ -103,23 +121,19 @@ export default function App() {
         </div>
       </div>
 
-      {/* Layer controls */}
-      <div class="section">
-        <h2>Active Layers</h2>
+      {/* Sticky layer bar */}
+      <div class="layer-bar">
         <div class="flex gap-sm items-center flex-wrap">
+          <h2 style={{ margin: '0' }}>Layers</h2>
           <For each={layers()}>
-            {(l) => {
-              const active = () => layers().includes(l);
-              return (
-                <span class={`layer-pill ${active() ? 'layer-pill-active' : 'layer-pill-inactive'}`}>
-                  {l}
-                </span>
-              );
-            }}
+            {(l) => (
+              <span class="layer-pill layer-pill-active">{l}</span>
+            )}
           </For>
-          <span style={{ width: '0.5rem' }} />
-          <button class="btn btn-sm" onClick={() => (window as any).__hk?.pushLayer('modal')}>+ modal</button>
-          <button class="btn btn-sm" onClick={() => (window as any).__hk?.popLayer('modal')}>- modal</button>
+          <span class="flex-1" />
+          <button class="btn btn-sm" onClick={openModal}>
+            Open Modal <kbd style={{ 'font-size': '0.55rem', 'min-width': 'auto', padding: '0 0.3rem', 'margin-left': '0.3rem' }}>{mod}+P</kbd>
+          </button>
         </div>
       </div>
 
@@ -188,6 +202,43 @@ export default function App() {
           )}
         </div>
       </div>
+
+      {/* Modal dialog — pushes "modal" layer when open */}
+      <dialog
+        ref={dialogRef}
+        class="modal-dialog"
+        onClose={closeModal}
+        onClick={(e) => { if (e.target === dialogRef) closeModal(); }}
+      >
+        <div class="modal-content">
+          <div class="flex items-center justify-between mb-sm">
+            <h2 style={{ margin: '0', color: 'var(--hk-ink)' }}>Command Palette</h2>
+            <span class="badge badge-orange">modal layer</span>
+          </div>
+          <p class="mb-sm">
+            The <strong style={{ color: 'var(--hk-ink)' }}>modal</strong> layer is now active. These shortcuts only work while this dialog is open.
+          </p>
+          <div class="card">
+            <div class="row">
+              <kbd>{mod}+1</kbd>
+              <span class="flex-1 text-sm">Copy link</span>
+            </div>
+            <div class="row">
+              <kbd>{mod}+2</kbd>
+              <span class="flex-1 text-sm">Export</span>
+            </div>
+            <div class="row">
+              <kbd>{mod}+3</kbd>
+              <span class="flex-1 text-sm">Delete</span>
+            </div>
+          </div>
+          <div style={{ 'margin-top': '0.75rem', 'text-align': 'right' }}>
+            <button class="btn" onClick={closeModal}>
+              Close <kbd style={{ 'font-size': '0.55rem', 'min-width': 'auto', padding: '0 0.3rem', 'margin-left': '0.3rem' }}>Esc</kbd>
+            </button>
+          </div>
+        </div>
+      </dialog>
     </div>
   );
 }

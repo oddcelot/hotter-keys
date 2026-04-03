@@ -17,7 +17,7 @@ interface BindingData {
 interface PanelState {
   bindings: BindingData[];
   activeLayers: string[];
-  firedLog: Array<{ shortcut: string; timestamp: number }>;
+  firedLog: Array<{ shortcut: string; layer: string; timestamp: number }>;
 }
 
 function buildSpec(state: PanelState): JsonRenderSpec {
@@ -216,6 +216,7 @@ function buildSpec(state: PanelState): JsonRenderSpec {
 
     const firedRows = state.firedLog.slice(-20).reverse().map((e) => ({
       shortcut: e.shortcut,
+      layer: e.layer,
       time: new Date(e.timestamp).toLocaleTimeString(),
     }));
 
@@ -224,6 +225,7 @@ function buildSpec(state: PanelState): JsonRenderSpec {
       props: {
         columns: [
           { key: 'shortcut', label: 'Shortcut' },
+          { key: 'layer', label: 'Layer', width: '80px' },
           { key: 'time', label: 'Time', width: '100px' },
         ],
         rows: firedRows,
@@ -251,6 +253,20 @@ function buildSpec(state: PanelState): JsonRenderSpec {
 export function hotterKeysViteDevtools(): PluginWithDevTools {
   return {
     name: 'hotter-keys-vite-devtools',
+    apply: 'serve',
+
+    // Auto-inject client script to set up sentinel and push state to panel
+    transformIndexHtml() {
+      return [
+        {
+          tag: 'script',
+          attrs: { type: 'module' },
+          children: `import '/@fs/${normalize(clientScript)}';`,
+          injectTo: 'body',
+        },
+      ];
+    },
+
     devtools: {
       setup(context) {
         let panelState: PanelState = { bindings: [], activeLayers: ['global'], firedLog: [] };
@@ -278,18 +294,6 @@ export function hotterKeysViteDevtools(): PluginWithDevTools {
           ui,
         });
 
-        // Client action — sets up sentinel and starts pushing state
-        context.docks.register({
-          type: 'action',
-          id: 'hotter-keys-connect',
-          title: 'Connect Hotter Keys',
-          icon: 'ph:plugs-connected-duotone',
-          category: 'web',
-          action: {
-            importFrom: `/@fs/${normalize(clientScript)}`,
-          },
-        });
-
         // RPC: receive state updates from the client
         context.rpc.register(defineRpcFunction({
           name: 'hotter-keys:update-state',
@@ -312,8 +316,29 @@ export function hotterKeysViteDevtools(): PluginWithDevTools {
           }),
         }));
 
+        let firedCount = 0;
+
+        context.rpc.register(defineRpcFunction({
+          name: 'hotter-keys:on-fired',
+          type: 'action',
+          setup: (ctx) => ({
+            handler: async (data: { tag: string; detail: string }) => {
+              firedCount++;
+              ctx.logs.add({
+                id: `hk-fired-${Date.now()}-${firedCount}`,
+                message: `${data.tag}: ${data.detail}`,
+                level: 'success',
+                category: 'hotter-keys',
+                notify: true,
+                autoDismiss: 3000,
+                autoDelete: 30000,
+              });
+            },
+          }),
+        }));
+
         context.logs.add({
-          message: 'Hotter Keys ready — click "Connect" to start capturing, or view the panel',
+          message: 'Hotter Keys devtools active — capturing keyboard shortcuts',
           level: 'info',
           notify: true,
           autoDismiss: 3000,

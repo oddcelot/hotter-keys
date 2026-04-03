@@ -1,4 +1,4 @@
-import type { DockClientScriptContext } from '@vitejs/devtools-kit/client';
+import { getDevToolsRpcClient } from '@vitejs/devtools-kit/client';
 import { setupSentinel, fmtSequence, type DevtoolsLogEntry } from './shared.js';
 
 interface BindingData {
@@ -7,15 +7,15 @@ interface BindingData {
   scope?: string;
 }
 
-export default async function hotterKeysAction(context: DockClientScriptContext): Promise<void> {
-  const { rpc, logs } = context;
+async function init() {
+  const client = await getDevToolsRpcClient();
 
   const registry = new Map<string, BindingData>();
   let activeLayers: string[] = ['global'];
-  const firedLog: Array<{ shortcut: string; timestamp: number }> = [];
+  const firedLog: Array<{ shortcut: string; layer: string; timestamp: number }> = [];
 
   function pushState() {
-    (rpc as any).call('hotter-keys:update-state', {
+    (client.call as any)('hotter-keys:update-state', {
       bindings: [...registry.values()],
       activeLayers,
       firedLog: firedLog.slice(-50),
@@ -24,12 +24,24 @@ export default async function hotterKeysAction(context: DockClientScriptContext)
 
   function onEvent(entry: DevtoolsLogEntry) {
     if (entry.type === 'binding:fired') {
-      firedLog.push({ shortcut: entry.detail, timestamp: entry.timestamp });
-      pushState();
+      // Also notify server to emit a log
+      (client.call as any)('hotter-keys:on-fired', {
+        tag: entry.tag,
+        detail: entry.detail,
+      });
     }
   }
 
   function onRawEvent(event: any) {
+    if (event.type === 'binding:fired') {
+      firedLog.push({
+        shortcut: fmtSequence(event.shortcut),
+        layer: event.layer ?? 'global',
+        timestamp: event.timestamp,
+      });
+      pushState();
+    }
+
     switch (event.type) {
       case 'binding:added': {
         const key = fmtSequence(event.shortcut);
@@ -55,14 +67,6 @@ export default async function hotterKeysAction(context: DockClientScriptContext)
   }
 
   setupSentinel(onEvent, undefined, onRawEvent);
-
-  await logs.add({
-    id: 'hotter-keys-connected',
-    message: 'Hotter Keys connected — capturing events',
-    level: 'success',
-    category: 'hotter-keys',
-    notify: true,
-    autoDismiss: 2000,
-    autoDelete: 5000,
-  });
 }
+
+init();
