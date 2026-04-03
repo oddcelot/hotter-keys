@@ -171,7 +171,6 @@ kbd {
 /* ── Code blocks ── */
 .sl-markdown-content pre {
     background: var(--hk-card-bg);
-    border: 1px solid var(--hk-card-border);
     border-radius: 6px;
     box-shadow: none;
 }

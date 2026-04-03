@@ -389,10 +389,11 @@
 .codePanel {
     flex: 0 1 320px;
     min-width: 0;
-    border: 1px solid var(--sl-color-gray-5);
+    border: 1px solid var(--sl-color-gray-4);
     border-radius: 8px;
     overflow: hidden;
     align-self: center;
+    background: var(--sl-color-bg-nav, var(--sl-color-gray-7));
 }
 
 .codePanelHeader {
@@ -403,15 +404,8 @@
     font-size: 12px;
     font-weight: 500;
     color: var(--sl-color-gray-3);
-    border-bottom: 1px solid var(--sl-color-gray-5);
+    border-bottom: 1px solid var(--sl-color-gray-4);
     background: var(--sl-color-gray-6);
-}
-
-.codePanelDot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
 }
 
 .codePre {
@@ -422,7 +416,15 @@
     line-height: 1.5;
     overflow-x: auto;
     color: var(--sl-color-gray-2);
-    background: var(--sl-color-bg-nav, var(--sl-color-gray-7));
+    background: transparent;
+    border: none;
+}
+
+.codePanelDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
 }
 
 /* Stack vertically on narrow screens */
