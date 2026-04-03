@@ -258,6 +258,10 @@ export class Hotkeys {
   // Binding API
   // ---------------------------------------------------------------------------
 
+  getBindings(): ReadonlyArray<Binding> {
+    return this.states.map((s) => s.binding);
+  }
+
   add(
     shortcut: string | Shortcut | ShortcutSequence,
     handler: ShortcutHandler,

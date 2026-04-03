@@ -111,11 +111,16 @@ export interface SentinelOptions {
   events?: DevtoolsEventType[];
 }
 
-export function setupSentinel(onEvent: (entry: DevtoolsLogEntry) => void, options?: SentinelOptions): void {
+export function setupSentinel(
+  onEvent: (entry: DevtoolsLogEntry) => void,
+  options?: SentinelOptions,
+  onRawEvent?: (event: any) => void,
+): void {
   const allowedTypes = new Set(options?.events ?? DEFAULT_EVENT_TYPES);
   const instances = new Set<any>();
 
   function hook(event: any) {
+    onRawEvent?.(event);
     if (!allowedTypes.has(event.type)) return;
     hkLog('event:', event.type);
     onEvent(toEntry(event));
@@ -127,6 +132,26 @@ export function setupSentinel(onEvent: (entry: DevtoolsLogEntry) => void, option
       hkLog('registered instance', instance);
       instances.add(instance);
       instance.__devtools = hook;
+
+      // Replay existing state for late-attached instances.
+      if (typeof instance.getBindings === 'function') {
+        const now = Date.now();
+        for (const binding of instance.getBindings()) {
+          hook({
+            type: 'binding:added',
+            shortcut: binding.sequence,
+            options: binding,
+            timestamp: now,
+          });
+        }
+      }
+      if (typeof instance.getLayers === 'function') {
+        hook({
+          type: 'layer:change',
+          layers: instance.getLayers(),
+          timestamp: Date.now(),
+        });
+      }
     },
   };
 
