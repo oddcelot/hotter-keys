@@ -1,50 +1,68 @@
 import type { DockClientScriptContext } from '@vitejs/devtools-kit/client';
 import { setupSentinel, fmtSequence, type DevtoolsLogEntry } from './shared.js';
 
+interface BindingData {
+  formatted: string;
+  layer: string;
+  scope?: string;
+}
+
 export default async function hotterKeysAction(context: DockClientScriptContext): Promise<void> {
-  const { logs } = context;
+  const { rpc, logs } = context;
 
-  const summary = await logs.add({
-    id: 'hotter-keys-summary',
-    message: 'Listening for keyboard shortcuts\u2026',
-    level: 'info',
-    category: 'hotter-keys',
-    status: 'loading',
-    notify: true,
-  });
+  const registry = new Map<string, BindingData>();
+  let activeLayers: string[] = ['global'];
+  const firedLog: Array<{ shortcut: string; timestamp: number }> = [];
 
-  let eventCount = 0;
-
-  function onEvent(entry: DevtoolsLogEntry) {
-    eventCount++;
-
-    logs.add({
-      id: `hotter-keys-${Date.now()}-${eventCount}`,
-      message: `${entry.tag.toUpperCase()}: ${entry.detail}`,
-      level: entry.type === 'binding:fired' ? 'success' : 'info',
-      category: 'hotter-keys',
-    });
-
-    summary.update({
-      message: `Captured ${eventCount} event${eventCount === 1 ? '' : 's'}`,
-      level: 'info',
-      status: 'loading',
+  function pushState() {
+    (rpc as any).call('hotter-keys:update-state', {
+      bindings: [...registry.values()],
+      activeLayers,
+      firedLog: firedLog.slice(-50),
     });
   }
 
+  function onEvent(entry: DevtoolsLogEntry) {
+    if (entry.type === 'binding:fired') {
+      firedLog.push({ shortcut: entry.detail, timestamp: entry.timestamp });
+      pushState();
+    }
+  }
+
   function onRawEvent(event: any) {
-    if (event.type === 'binding:added') {
-      const formatted = fmtSequence(event.shortcut);
-      const layer = event.options?.layer ?? 'global';
-      logs.add({
-        id: `hotter-keys-binding-${formatted}-${layer}`,
-        message: `Binding registered: ${formatted}`,
-        level: 'info',
-        category: 'hotter-keys',
-        description: `Layer: ${layer}${event.options?.scope ? ` | Scope: ${event.options.scope}` : ''}`,
-      });
+    switch (event.type) {
+      case 'binding:added': {
+        const key = fmtSequence(event.shortcut);
+        registry.set(key, {
+          formatted: key,
+          layer: event.options?.layer ?? 'global',
+          scope: event.options?.scope,
+        });
+        pushState();
+        break;
+      }
+      case 'binding:removed': {
+        registry.delete(fmtSequence(event.shortcut));
+        pushState();
+        break;
+      }
+      case 'layer:change': {
+        activeLayers = [...event.layers];
+        pushState();
+        break;
+      }
     }
   }
 
   setupSentinel(onEvent, undefined, onRawEvent);
+
+  await logs.add({
+    id: 'hotter-keys-connected',
+    message: 'Hotter Keys connected — capturing events',
+    level: 'success',
+    category: 'hotter-keys',
+    notify: true,
+    autoDismiss: 2000,
+    autoDelete: 5000,
+  });
 }
