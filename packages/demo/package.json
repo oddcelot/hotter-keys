@@ -13,6 +13,8 @@
   },
   "devDependencies": {
     "@hotter-keys/vite-plugin-devtools": "workspace:*",
+    "@vitejs/devtools": "^0.1.13",
+    "@vitejs/devtools-kit": "^0.1.13",
     "typescript": "catalog:default",
     "vite": ">=5.0.0",
     "vite-plugin-solid": "^2.11.6"
