@@ -75,6 +75,10 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: .
       - run: npx jsr publish --allow-dirty
         working-directory: packages/solid
 
@@ -89,5 +93,5 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: npx jsr publish --allow-dirty
+      - run: npx jsr publish --allow-dirty --allow-slow-types
         working-directory: packages/vite-plugin-devtools
