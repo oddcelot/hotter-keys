@@ -29,7 +29,8 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm --filter hotter-keys build
+      - run: pnpm --filter @hotter-keys/core build
+      - run: pnpm --filter @hotter-keys/devtools build
 
       - run: pnpm --filter @hotter-keys/docs build
         env:

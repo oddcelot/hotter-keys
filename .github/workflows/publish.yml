@@ -26,16 +26,24 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Test
-        run: pnpm --filter hotter-keys test
+        run: pnpm --filter @hotter-keys/core test
 
       - name: Build
-        run: pnpm --filter hotter-keys build
+        run: pnpm -r build
 
       - name: Publish to npm
-        run: pnpm --filter hotter-keys publish --no-git-checks --access public
+        run: pnpm changeset publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish to JSR
+      - name: Publish core to JSR
         run: npx jsr publish --allow-dirty
         working-directory: core
+
+      - name: Publish solid to JSR
+        run: npx jsr publish --allow-dirty
+        working-directory: packages/solid
+
+      - name: Publish devtools to JSR
+        run: npx jsr publish --allow-dirty
+        working-directory: packages/vite-plugin-devtools
