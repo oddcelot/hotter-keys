@@ -1,6 +1,7 @@
 import type {
   Binding,
   BindingOptions,
+  DevtoolsHook,
   HeldKeysListener,
   HotkeysOptions,
   KeyHoldListener,
@@ -48,6 +49,9 @@ interface BindingState {
 }
 
 export class Hotkeys {
+  /** Optional devtools hook. Set by devtools to receive structured events. */
+  __devtools?: DevtoolsHook;
+
   private states: BindingState[] = [];
   private scope: string;
   private target: EventTarget;
@@ -85,6 +89,12 @@ export class Hotkeys {
     this.target = options.target ?? document;
     this.scope = options.scope ?? "*";
     this.sequenceTimeout = options.sequenceTimeout ?? 1000;
+
+    // Auto-register with devtools if the sentinel is present.
+    if (typeof globalThis !== 'undefined' && (globalThis as any).__HOTTER_KEYS_DEVTOOLS__) {
+      (globalThis as any).__HOTTER_KEYS_DEVTOOLS__.__register(this);
+    }
+
     this.start();
   }
 
@@ -99,6 +109,7 @@ export class Hotkeys {
     this.target.addEventListener("blur", this._onReset);
     this.target.addEventListener("contextmenu", this._onContextMenu);
     this.listening = true;
+    this.__devtools?.({ type: 'lifecycle', action: 'start', timestamp: Date.now() });
   }
 
   stop(): void {
@@ -108,9 +119,11 @@ export class Hotkeys {
     this.target.removeEventListener("blur", this._onReset);
     this.target.removeEventListener("contextmenu", this._onContextMenu);
     this.listening = false;
+    this.__devtools?.({ type: 'lifecycle', action: 'stop', timestamp: Date.now() });
   }
 
   destroy(): void {
+    this.__devtools?.({ type: 'lifecycle', action: 'destroy', timestamp: Date.now() });
     this.stop();
     this._cancelDeferred();
     for (const s of this.states) {
@@ -133,7 +146,9 @@ export class Hotkeys {
   }
 
   setScope(scope: string): void {
+    const previous = this.scope;
     this.scope = scope;
+    this.__devtools?.({ type: 'scope:change', scope, previous, timestamp: Date.now() });
   }
 
   // ---------------------------------------------------------------------------
@@ -175,6 +190,7 @@ export class Hotkeys {
   private _emitLayerChange(): void {
     const snapshot = Object.freeze([...this._layers]);
     for (const listener of this._layerListeners) listener(snapshot);
+    this.__devtools?.({ type: 'layer:change', layers: snapshot, timestamp: Date.now() });
   }
 
   // ---------------------------------------------------------------------------
@@ -208,6 +224,7 @@ export class Hotkeys {
   private _emitHeldKeys(): void {
     const frozen = Object.freeze([...this._heldKeys]);
     for (const listener of this._heldKeysListeners) listener(frozen);
+    this.__devtools?.({ type: 'held-keys:change', keys: frozen, timestamp: Date.now() });
 
     // Key-hold: check each watched key against the current single-key state
     const single = frozen.length === 1 ? frozen[0]! : null;
@@ -263,11 +280,13 @@ export class Hotkeys {
     };
 
     this.states.push(state);
+    this.__devtools?.({ type: 'binding:added', shortcut: sequence, options, timestamp: Date.now() });
 
     return () => {
       const idx = this.states.indexOf(state);
       if (idx !== -1) this.states.splice(idx, 1);
       if (state.seqTimer !== undefined) clearTimeout(state.seqTimer);
+      this.__devtools?.({ type: 'binding:removed', shortcut: sequence, timestamp: Date.now() });
     };
   }
 
@@ -290,7 +309,10 @@ export class Hotkeys {
     this.states = this.states.filter((s) => {
       if (s.binding.sequence.length !== target.length) return true;
       const matches = s.binding.sequence.every((chord, i) => shortcutEquals(chord, target[i]!));
-      if (matches && s.seqTimer !== undefined) clearTimeout(s.seqTimer);
+      if (matches) {
+        if (s.seqTimer !== undefined) clearTimeout(s.seqTimer);
+        this.__devtools?.({ type: 'binding:removed', shortcut: s.binding.sequence, timestamp: Date.now() });
+      }
       return !matches;
     });
   }
@@ -298,6 +320,7 @@ export class Hotkeys {
   removeAll(): void {
     for (const s of this.states) {
       if (s.seqTimer !== undefined) clearTimeout(s.seqTimer);
+      this.__devtools?.({ type: 'binding:removed', shortcut: s.binding.sequence, timestamp: Date.now() });
     }
     this.states = [];
   }
@@ -411,6 +434,7 @@ export class Hotkeys {
         this._deferTimer = setTimeout(() => this._flushDeferred(), this.sequenceTimeout);
       } else {
         if (state.binding.requireReset) state.awaitingReset = true;
+        this.__devtools?.({ type: 'binding:fired', shortcut: state.binding.sequence, event, timestamp: Date.now() });
         state.binding.handler(event);
       }
     }
@@ -432,6 +456,7 @@ export class Hotkeys {
     }
     for (const { state, event } of this._deferred) {
       if (state.binding.requireReset) state.awaitingReset = true;
+      this.__devtools?.({ type: 'binding:fired', shortcut: state.binding.sequence, event, timestamp: Date.now() });
       state.binding.handler(event);
     }
     this._deferred = [];

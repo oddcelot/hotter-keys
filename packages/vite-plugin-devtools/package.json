@@ -1,0 +1,28 @@
+{
+  "name": "@hotter-keys/vite-plugin-devtools",
+  "version": "0.0.1",
+  "description": "Vite devtools plugin for hotter-keys — event log, binding inspector, and more.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "peerDependencies": {
+    "vite": ">=5.0.0"
+  },
+  "devDependencies": {
+    "typescript": "catalog:default",
+    "vite": "^6.0.0"
+  },
+  "license": "MIT"
+}

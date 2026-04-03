@@ -100,6 +100,21 @@ export interface HotkeysOptions {
   sequenceTimeout?: number;
 }
 
+// ---------------------------------------------------------------------------
+// Devtools
+// ---------------------------------------------------------------------------
+
+export type DevtoolsEvent =
+  | { type: 'binding:fired'; shortcut: ShortcutSequence; event: KeyboardEvent; timestamp: number }
+  | { type: 'binding:added'; shortcut: ShortcutSequence; options: BindingOptions; timestamp: number }
+  | { type: 'binding:removed'; shortcut: ShortcutSequence; timestamp: number }
+  | { type: 'layer:change'; layers: readonly string[]; timestamp: number }
+  | { type: 'scope:change'; scope: string; previous: string; timestamp: number }
+  | { type: 'held-keys:change'; keys: readonly string[]; timestamp: number }
+  | { type: 'lifecycle'; action: 'start' | 'stop' | 'destroy'; timestamp: number };
+
+export type DevtoolsHook = (event: DevtoolsEvent) => void;
+
 export interface RecordedShortcut {
   /** The raw KeyboardEvent.key, lowercased. */
   key: string;

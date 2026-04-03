@@ -34,6 +34,8 @@ export type {
   LayerChangeListener,
   HotkeysOptions,
   RecordedShortcut,
+  DevtoolsEvent,
+  DevtoolsHook,
 } from "./types";
 
 export {
