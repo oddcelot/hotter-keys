@@ -322,17 +322,28 @@
     opacity: 0.5;
 }
 
-/* Disabled state */
-.shortcutPill:disabled {
-    opacity: 0.3;
-    cursor: default;
-    pointer-events: none;
-}
-
 /* Fired flash */
 .pillFired {
     transform: scale(1.08);
     box-shadow: 0 0 8px currentColor;
+}
+
+/* Pill enter/exit transitions */
+.pillEnter {
+    opacity: 0;
+    transform: translateY(12px);
+}
+
+.pillEnterActive {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+.pillExitActive {
+    opacity: 0;
+    transform: translateY(-8px);
+    transition: opacity 0.2s ease-in, transform 0.2s ease-in;
 }
 
 /* Pill colour per layer */

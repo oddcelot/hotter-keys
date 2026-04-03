@@ -1,4 +1,12 @@
-import { createSignal, onCleanup, onMount, For, Show } from "solid-js";
+import {
+  createSignal,
+  createMemo,
+  onCleanup,
+  onMount,
+  For,
+  Show,
+} from "solid-js";
+import { createSwitchTransition } from "@solid-primitives/transition-group";
 import {
   createHotkeys,
   isMac,
@@ -9,199 +17,157 @@ import type { Hotkeys } from "hotter-keys";
 import "../styles/demo.css";
 import styles from "./ShortcutLayers.module.css";
 
-const GAP = 60;
-const ROT_Z = -35;
-const SCALE_PER_DEPTH = 0.06;
-const SINK_PER_DEPTH = 18;
-const CMD_LABELS = ["⌘K", "F", "N", "?"];
+const s = styles as Record<string, string>;
 
-function comboLabel(combo: string): string {
-  const mac = isMac();
-  return formatSequence(parseSequence(combo, { mac }), mac);
-}
+// ── Types ──────────────────────────────────────────────────────────────────
 
-interface Action {
+interface Shortcut {
   key: string;
-  label: string;
   desc: string;
-  advances?: boolean;
-  pos: [number, number, number, number];
-  round?: boolean;
-  cardLabel?: string;
+  advances?: true;
 }
 
-interface LayerConfig {
+interface ShapeLayout {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  round?: true;
+}
+
+interface LayerDef {
+  id: string;
   title: string;
-  layer?: string;
-  actions: Action[];
+  hkLayer?: string;
+  trackLabel: string;
+  shortcuts: Shortcut[];
+  layout: ShapeLayout[];
 }
 
-const LAYERS: LayerConfig[] = [
+// ── Escape (defined once, injected into every layer) ───────────────────────
+
+const ESC: Shortcut = { key: "escape", desc: "back" };
+const ESC_LAYOUT: ShapeLayout = { x: 152, y: 152, w: 56, h: 56, round: true };
+
+// ── Layer definitions ──────────────────────────────────────────────────────
+
+const LAYERS: LayerDef[] = [
   {
-    title: "Base — global shortcuts",
-    actions: [
-      {
-        key: "mod+k",
-        label: "",
-        cardLabel: "⌘ K",
-        desc: "command bar",
-        advances: true,
-        pos: [60, 60, 80, 44],
-      },
-      {
-        key: "mod+s",
-        label: "",
-        cardLabel: "⌘ S",
-        desc: "save",
-        pos: [220, 60, 80, 44],
-      },
-      {
-        key: "mod+shift+p",
-        label: "",
-        cardLabel: "⌘ ⇧P",
-        desc: "palette",
-        pos: [220, 256, 80, 44],
-      },
-      {
-        key: "mod+z",
-        label: "",
-        cardLabel: "⌘ Z",
-        desc: "undo",
-        pos: [60, 256, 80, 44],
-      },
-      {
-        key: "escape",
-        label: "Esc",
-        desc: "cancel",
-        pos: [152, 152, 56, 56],
-        round: true,
-      },
+    id: "base",
+    title: "Base \u2014 global shortcuts",
+    trackLabel: "\u2318K",
+    shortcuts: [
+      { key: "mod+k", desc: "command bar", advances: true },
+      { key: "mod+s", desc: "save" },
+      { key: "mod+shift+p", desc: "palette" },
+      { key: "mod+z", desc: "undo" },
+    ],
+    layout: [
+      { x: 60, y: 60, w: 80, h: 44 },
+      { x: 220, y: 60, w: 80, h: 44 },
+      { x: 220, y: 256, w: 80, h: 44 },
+      { x: 60, y: 256, w: 80, h: 44 },
     ],
   },
   {
-    title: "Command bar — category select",
-    layer: "cmdbar",
-    actions: [
-      {
-        key: "f",
-        label: "F",
-        desc: "file",
-        advances: true,
-        pos: [140, 60, 80, 72],
-      },
-      { key: "e", label: "E", desc: "edit", pos: [244, 164, 80, 72] },
-      { key: "v", label: "V", desc: "view", pos: [140, 228, 80, 72] },
-      { key: "g", label: "G", desc: "git", pos: [36, 164, 80, 72] },
-      {
-        key: "escape",
-        label: "Esc",
-        desc: "back",
-        pos: [152, 152, 56, 56],
-        round: true,
-      },
+    id: "cmdbar",
+    title: "Command bar \u2014 category select",
+    hkLayer: "cmdbar",
+    trackLabel: "F",
+    shortcuts: [
+      { key: "f", desc: "file", advances: true },
+      { key: "e", desc: "edit" },
+      { key: "v", desc: "view" },
+      { key: "g", desc: "git" },
+    ],
+    layout: [
+      { x: 140, y: 60, w: 80, h: 72 },
+      { x: 244, y: 164, w: 80, h: 72 },
+      { x: 140, y: 228, w: 80, h: 72 },
+      { x: 36, y: 164, w: 80, h: 72 },
     ],
   },
   {
-    title: "File — operations",
-    layer: "file",
-    actions: [
-      {
-        key: "n",
-        label: "N",
-        desc: "new file",
-        advances: true,
-        pos: [140, 64, 80, 60],
-      },
-      { key: "o", label: "O", desc: "open", pos: [238, 172, 80, 60] },
-      { key: "s", label: "S", desc: "save", pos: [42, 172, 80, 60] },
-      {
-        key: "shift+s",
-        label: "",
-        cardLabel: "⇧S",
-        desc: "save as",
-        pos: [140, 264, 80, 60],
-      },
-      {
-        key: "escape",
-        label: "Esc",
-        desc: "back",
-        pos: [152, 152, 56, 56],
-        round: true,
-      },
+    id: "file",
+    title: "File \u2014 operations",
+    hkLayer: "file",
+    trackLabel: "N",
+    shortcuts: [
+      { key: "n", desc: "new file", advances: true },
+      { key: "o", desc: "open" },
+      { key: "s", desc: "save" },
+      { key: "shift+s", desc: "save as" },
+    ],
+    layout: [
+      { x: 140, y: 64, w: 80, h: 60 },
+      { x: 238, y: 172, w: 80, h: 60 },
+      { x: 42, y: 172, w: 80, h: 60 },
+      { x: 140, y: 264, w: 80, h: 60 },
     ],
   },
   {
-    title: "New file — template type",
-    layer: "newfile",
-    actions: [
-      {
-        key: "t",
-        label: "T",
-        desc: "template",
-        pos: [78, 78, 64, 64],
-        round: true,
-      },
-      {
-        key: "b",
-        label: "B",
-        desc: "blank",
-        pos: [218, 78, 64, 64],
-        round: true,
-      },
-      {
-        key: "v",
-        label: "V",
-        desc: "clipboard",
-        pos: [78, 218, 64, 64],
-        round: true,
-      },
-      {
-        key: "d",
-        label: "D",
-        desc: "duplicate",
-        pos: [218, 218, 64, 64],
-        round: true,
-      },
-      {
-        key: "escape",
-        label: "Esc",
-        desc: "back",
-        pos: [152, 152, 56, 56],
-        round: true,
-      },
+    id: "newfile",
+    title: "New file \u2014 template type",
+    hkLayer: "newfile",
+    trackLabel: "",
+    shortcuts: [
+      { key: "t", desc: "template" },
+      { key: "b", desc: "blank" },
+      { key: "v", desc: "clipboard" },
+      { key: "d", desc: "duplicate" },
+    ],
+    layout: [
+      { x: 78, y: 78, w: 64, h: 64, round: true },
+      { x: 218, y: 78, w: 64, h: 64, round: true },
+      { x: 78, y: 218, w: 64, h: 64, round: true },
+      { x: 218, y: 218, w: 64, h: 64, round: true },
     ],
   },
 ];
 
-// Unique layer names in stack order
-const LAYER_NAMES = LAYERS.map((l) => l.layer).filter(Boolean) as string[];
+// ── Helpers ────────────────────────────────────────────────────────────────
 
-// Build the JSON config shown in the code panel (only user-facing fields)
-function layerToJson(cfg: LayerConfig): string {
+const GAP = 60;
+const ROT_Z = -35;
+const SCALE_PER_DEPTH = 0.06;
+const SINK_PER_DEPTH = 18;
+
+const labelCache = new Map<string, string>();
+function displayLabel(key: string): string {
+  let l = labelCache.get(key);
+  if (!l) {
+    const mac = isMac();
+    l = formatSequence(parseSequence(key, { mac }), mac);
+    labelCache.set(key, l);
+  }
+  return l;
+}
+
+function allShortcuts(layer: LayerDef): Shortcut[] {
+  return [...layer.shortcuts, ESC];
+}
+
+function allLayouts(layer: LayerDef): ShapeLayout[] {
+  return [...layer.layout, ESC_LAYOUT];
+}
+
+function layerToJson(layer: LayerDef): string {
   const obj: Record<string, unknown> = {};
-  if (cfg.layer) obj.layer = cfg.layer;
-  obj.shortcuts = cfg.actions
-    .filter((a) => a.key !== "escape")
-    .map((a) => ({ key: a.key, action: a.desc }));
+  if (layer.hkLayer) obj.layer = layer.hkLayer;
+  obj.shortcuts = layer.shortcuts.map((sc) => ({
+    key: sc.key,
+    action: sc.desc,
+  }));
   return JSON.stringify(obj, null, 2);
 }
 
-// Fill in platform-aware labels at init time
-function initLabels() {
-  for (const cfg of LAYERS) {
-    for (const a of cfg.actions) {
-      if (!a.label) a.label = comboLabel(a.key);
-      if (!a.cardLabel) a.cardLabel = a.label;
-    }
-  }
-}
-initLabels();
+// ── Component ──────────────────────────────────────────────────────────────
 
 export default function ShortcutLayers() {
-  const [step, setStep] = createSignal(1);
+  const [depth, setDepth] = createSignal(0);
   const [lastAction, setLastAction] = createSignal("");
   const [firedKey, setFiredKey] = createSignal("");
-  const [finalPick, setFinalPick] = createSignal("");
+  const [trackOverride, setTrackOverride] = createSignal<string | null>(null);
 
   let hk: Hotkeys;
   let resetTimer: ReturnType<typeof setTimeout> | undefined;
@@ -212,146 +178,99 @@ export default function ShortcutLayers() {
   }
 
   function goTo(target: number) {
-    const clamped = Math.max(0, Math.min(LAYERS.length, target));
-    const cur = step();
-    if (clamped === cur) return;
+    const to = Math.max(0, Math.min(LAYERS.length - 1, target));
+    if (to === depth()) return;
 
-    if (clamped > cur) {
-      for (let i = cur; i < clamped; i++) {
-        if (i > 0 && i - 1 < LAYER_NAMES.length)
-          hk.pushLayer(LAYER_NAMES[i - 1]);
+    if (to > depth()) {
+      for (let i = depth() + 1; i <= to; i++) {
+        const name = LAYERS[i].hkLayer;
+        if (name) hk.pushLayer(name);
       }
     } else {
-      for (let i = cur; i > clamped; i--) {
-        if (i - 2 >= 0 && i - 2 < LAYER_NAMES.length)
-          hk.popLayer(LAYER_NAMES[i - 2]);
+      for (let i = depth(); i > to; i--) {
+        const name = LAYERS[i].hkLayer;
+        if (name) hk.popLayer(name);
       }
     }
 
-    setStep(clamped);
+    setDepth(to);
   }
 
   function reset() {
-    for (let i = LAYER_NAMES.length - 1; i >= 0; i--)
-      hk.popLayer(LAYER_NAMES[i]);
-    setStep(1);
-    setLastAction("");
-    setFinalPick("");
-  }
-
-  function completeAction(label: string, desc: string, layerIdx: number) {
-    setLastAction(`${label} → ${desc}`);
-    flash(label);
-    clearTimeout(resetTimer);
-    if (layerIdx < LAYERS.length - 1) {
-      resetTimer = setTimeout(() => reset(), 1200);
-    } else {
-      setFinalPick(label);
+    for (let i = LAYERS.length - 1; i >= 0; i--) {
+      const name = LAYERS[i].hkLayer;
+      if (name) hk.popLayer(name);
     }
+    setDepth(0);
+    setLastAction("");
+    setTrackOverride(null);
   }
 
-  function fireAction(a: Action, layerIdx: number, cfg: LayerConfig) {
-    if (a.key === "escape") {
-      if (step() > 1) {
+  function fireAction(sc: Shortcut, layerIdx: number) {
+    if (sc.key === "escape") {
+      if (depth() > 0) {
         clearTimeout(resetTimer);
-        setFinalPick("");
-        goTo(step() - 1);
-        setLastAction("Esc → back");
+        setTrackOverride(null);
+        goTo(depth() - 1);
+        setLastAction("Esc \u2192 back");
         flash("Esc");
       }
       return;
     }
-    if (a.advances) {
-      if (!cfg.layer && step() !== 1) return;
+
+    const label = displayLabel(sc.key);
+    setLastAction(`${label} \u2192 ${sc.desc}`);
+    flash(label);
+
+    if (sc.advances) {
       clearTimeout(resetTimer);
-      goTo(layerIdx + 2);
-      setLastAction(`${a.label} → ${a.desc}`);
-      flash(a.label);
-    } else if (!cfg.layer) {
-      if (step() !== 1) return;
-      setLastAction(`${a.label} → ${a.desc}`);
-      flash(a.label);
-    } else {
-      completeAction(a.label, a.desc, layerIdx);
+      goTo(layerIdx + 1);
+    } else if (LAYERS[layerIdx].hkLayer) {
+      clearTimeout(resetTimer);
+      if (layerIdx === LAYERS.length - 1) {
+        setTrackOverride(label);
+      } else {
+        resetTimer = setTimeout(reset, 1200);
+      }
     }
   }
 
-  // Derived helpers
-  const topIndex = () => step() - 1;
-  const currentLayer = () => LAYERS[step() - 1];
-  const currentActions = () => currentLayer()?.actions ?? [];
-  const currentJson = () => {
-    const cfg = currentLayer();
-    return cfg ? layerToJson(cfg) : "";
-  };
+  // ── Derived ────────────────────────────────────────────────────────────
+
+  const currentLayer = () => LAYERS[depth()];
+  const currentJson = () => layerToJson(currentLayer());
+  const ringLit = (i: number) => depth() > i;
 
   const layerTransform = (i: number) => {
-    const on = i < step();
-    const isTop = i === topIndex();
+    const on = i <= depth();
+    const isTop = i === depth();
     const tz = i * GAP;
     if (!on) return `scale(0.85) translateZ(${tz}px)`;
     if (isTop) return `scale(1) translateZ(${tz}px)`;
-    const depth = topIndex() - i;
-    const s = 1 - depth * SCALE_PER_DEPTH;
-    const ty = depth * SINK_PER_DEPTH;
-    return `scale(${s}) translateY(${ty}px) translateZ(${tz}px)`;
+    const behind = depth() - i;
+    const sc = 1 - behind * SCALE_PER_DEPTH;
+    const ty = behind * SINK_PER_DEPTH;
+    return `scale(${sc}) translateY(${ty}px) translateZ(${tz}px)`;
   };
 
-  const layerClasses = (i: number) => {
-    const on = i < step();
-    const isTop = i === topIndex();
-    return [
-      styles.layer,
-      (styles as Record<string, string>)[`l${i}`],
-      on ? styles.visible : "",
-      on ? (isTop ? styles.active : styles.dimmed) : "",
-    ]
-      .filter(Boolean)
-      .join(" ");
-  };
-
-  const ringLit = (i: number) => step() > i + 1;
-
-  const dotClasses = (i: number) => {
-    const on = i < step();
-    const isTop = i === topIndex();
-    const colour = (styles as Record<string, string>)[`dot${i}`];
-    if (!on) return `${styles.stepDot} ${styles.dotOff}`;
-    if (isTop) return `${styles.stepDot} ${styles.dotOn} ${colour}`;
-    return `${styles.stepDot} ${styles.dotDim} ${colour}`;
-  };
-
-  const cmdShow = (i: number) => step() > i + 1;
-
-  const lineClasses = (i: number) => {
-    const on = step() > i + 1;
-    const colour = (styles as Record<string, string>)[`line${i}`];
-    return on
-      ? `${styles.stepLine} ${styles.lineOn} ${colour}`
-      : `${styles.stepLine} ${styles.lineOff}`;
-  };
+  // ── Keyboard setup ─────────────────────────────────────────────────────
 
   onMount(() => {
     hk = createHotkeys({ target: document });
 
-    LAYERS.forEach((cfg, layerIdx) => {
-      for (const a of cfg.actions) {
-        if (a.key === "escape") continue;
-        const opts = cfg.layer
-          ? { layer: cfg.layer, preventDefault: false }
+    LAYERS.forEach((layer, layerIdx) => {
+      for (const sc of layer.shortcuts) {
+        const opts = layer.hkLayer
+          ? { layer: layer.hkLayer, preventDefault: false }
           : undefined;
-        hk.add(a.key, () => fireAction(a, layerIdx, cfg), opts);
+        hk.add(sc.key, () => fireAction(sc, layerIdx), opts);
       }
     });
 
     const onEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && step() > 1) {
+      if (e.key === "Escape" && depth() > 0) {
         e.preventDefault();
-        fireAction(
-          { key: "escape", label: "Esc", desc: "back", pos: [0, 0, 0, 0] },
-          0,
-          LAYERS[0],
-        );
+        fireAction(ESC, depth());
       }
     };
     document.addEventListener("keydown", onEscape);
@@ -373,45 +292,58 @@ export default function ShortcutLayers() {
     });
   });
 
-  function renderLayer(layerIdx: number) {
+  // ── SVG layer renderer ─────────────────────────────────────────────────
+
+  function renderLayer(layer: LayerDef, layerIdx: number) {
+    const shortcuts = allShortcuts(layer);
+    const layouts = allLayouts(layer);
+
     return (
       <svg
         viewBox="0 0 360 360"
         xmlns="http://www.w3.org/2000/svg"
-        class={styles.layerSvg}
+        class={s.layerSvg}
+        role="img"
+        aria-label={layer.title}
       >
-        <For each={LAYERS[layerIdx].actions}>
-          {(a, j) => {
-            const [x, y, w, h] = a.pos;
-            const cx = x + w / 2;
-            const cy = y + h / 2;
+        <For each={layouts}>
+          {(shape, j) => {
+            const sc = shortcuts[j()];
+            const cx = shape.x + shape.w / 2;
+            const cy = shape.y + shape.h / 2;
             const lit = () => j() === 0 && ringLit(layerIdx);
             return (
               <g>
-                {a.round ? (
+                {shape.round ? (
                   <circle
                     cx={cx}
                     cy={cy}
-                    r={w / 2}
-                    class={`${styles.shape} ${lit() ? styles.shapeLit : ""}`}
+                    r={shape.w / 2}
+                    classList={{
+                      [s.shape]: true,
+                      [s.shapeLit]: lit(),
+                    }}
                   />
                 ) : (
                   <rect
-                    x={x}
-                    y={y}
-                    width={w}
-                    height={h}
+                    x={shape.x}
+                    y={shape.y}
+                    width={shape.w}
+                    height={shape.h}
                     rx="6"
-                    class={`${styles.shape} ${lit() ? styles.shapeLit : ""}`}
+                    classList={{
+                      [s.shape]: true,
+                      [s.shapeLit]: lit(),
+                    }}
                   />
                 )}
-                {a.key === "escape" ? (
+                {sc.key === "escape" ? (
                   <text
                     x={cx}
                     y={cy}
                     text-anchor="middle"
                     dominant-baseline="central"
-                    class={styles.shapeKey}
+                    class={s.shapeKey}
                   >
                     Esc
                   </text>
@@ -422,18 +354,18 @@ export default function ShortcutLayers() {
                       y={cy - 4}
                       text-anchor="middle"
                       dominant-baseline="central"
-                      class={styles.shapeKey}
+                      class={s.shapeKey}
                     >
-                      {a.cardLabel}
+                      {displayLabel(sc.key)}
                     </text>
                     <text
                       x={cx}
                       y={cy + 12}
                       text-anchor="middle"
                       dominant-baseline="central"
-                      class={styles.shapeDesc}
+                      class={s.shapeDesc}
                     >
-                      {a.desc}
+                      {sc.desc}
                     </text>
                   </>
                 )}
@@ -445,22 +377,85 @@ export default function ShortcutLayers() {
     );
   }
 
+  // ── Pill group transition (swap entire group on depth change) ─────────
+
+  const pillGroup = createMemo(() => {
+    const d = depth();
+    const layer = LAYERS[d];
+    const pills: Shortcut[] = layer.hkLayer
+      ? [...layer.shortcuts, ESC]
+      : layer.shortcuts;
+
+    return (
+      <div class={`not-content ${s.shortcuts}`}>
+        <For each={pills}>
+          {(sc) => {
+            const label = sc.key === "escape" ? "Esc" : displayLabel(sc.key);
+            const isEsc = sc.key === "escape";
+            return (
+              <button
+                type="button"
+                classList={{
+                  [s.shortcutPill]: true,
+                  [s[`pill${d}`]]: !isEsc,
+                  [s.pillAdvances]: !!sc.advances,
+                  [s.pillFired]: firedKey() === label,
+                  [s.pillEsc]: isEsc,
+                }}
+                onClick={() => fireAction(sc, d)}
+              >
+                <span class={s.pillKey}>{label}</span>
+                <span class={s.pillDesc}>{sc.desc}</span>
+              </button>
+            );
+          }}
+        </For>
+      </div>
+    ) as HTMLElement;
+  });
+
+  const pillTransition = createSwitchTransition(pillGroup, {
+    onEnter(el, done) {
+      el.classList.add(s.pillEnter);
+      requestAnimationFrame(() => {
+        // force the browser to paint the initial state before transitioning
+        void el.offsetHeight;
+        el.classList.remove(s.pillEnter);
+        el.classList.add(s.pillEnterActive);
+        el.addEventListener("transitionend", done, { once: true });
+      });
+    },
+    onExit(el, done) {
+      el.classList.add(s.pillExitActive);
+      el.addEventListener("transitionend", done, { once: true });
+    },
+    mode: "out-in",
+  });
+
+  // ── JSX ────────────────────────────────────────────────────────────────
+
   return (
     <>
-      <div class={styles.split}>
+      <div class={s.split}>
         {/* 3D stage */}
-        <div class={styles.stage}>
+        <div class={s.stage}>
           <div
-            class={styles.rig}
+            class={s.rig}
             style={{ transform: `rotateX(55deg) rotateZ(${ROT_Z}deg)` }}
           >
             <For each={LAYERS}>
-              {(_, i) => (
+              {(layer, i) => (
                 <div
-                  class={layerClasses(i())}
+                  classList={{
+                    [s.layer]: true,
+                    [s[`l${i()}`]]: true,
+                    [s.visible]: i() <= depth(),
+                    [s.active]: i() === depth(),
+                    [s.dimmed]: i() < depth(),
+                  }}
                   style={{ transform: layerTransform(i()) }}
                 >
-                  {renderLayer(i())}
+                  {renderLayer(layer, i())}
                 </div>
               )}
             </For>
@@ -468,86 +463,83 @@ export default function ShortcutLayers() {
         </div>
 
         {/* Config code panel */}
-        <div class={styles.codePanel}>
-          <div class={styles.codePanelHeader}>
+        <div class={s.codePanel}>
+          <div class={s.codePanelHeader}>
             <span
-              class={`${styles.codePanelDot} ${(styles as Record<string, string>)[`dot${step() - 1}`]}`}
+              classList={{
+                [s.codePanelDot]: true,
+                [s[`dot${depth()}`]]: true,
+              }}
             />
-            {currentLayer()?.title ?? ""}
+            {currentLayer().title}
           </div>
-          <pre class={styles.codePre}>
+          <pre class={s.codePre}>
             <code>{currentJson()}</code>
           </pre>
         </div>
       </div>
 
-      <div class={styles.ctrls}>
-        <div class={styles.stepTrack}>
+      <div class={s.ctrls}>
+        {/* Step track */}
+        <div class={s.stepTrack}>
           <For each={LAYERS}>
-            {(_, i) => (
-              <>
-                <Show when={i() > 0}>
-                  <div class={lineClasses(i() - 1)} />
-                </Show>
-                <div class={styles.stepSlot}>
-                  <div
-                    class={`${styles.stepCmd} ${(styles as Record<string, string>)[`cmd${i()}`]} ${cmdShow(i()) || (i() === LAYERS.length - 1 && finalPick() && step() === LAYERS.length) ? styles.stepCmdShow : ""}`}
-                  >
-                    {i() === LAYERS.length - 1 ? finalPick() : CMD_LABELS[i()]}
+            {(layer, i) => {
+              const isLast = i() === LAYERS.length - 1;
+              const label = () =>
+                isLast ? trackOverride() ?? layer.trackLabel : layer.trackLabel;
+              const showCmd = () =>
+                isLast
+                  ? !!(trackOverride() && depth() === LAYERS.length - 1)
+                  : depth() > i();
+              return (
+                <>
+                  <Show when={i() > 0}>
+                    <div
+                      classList={{
+                        [s.stepLine]: true,
+                        [s.lineOn]: depth() > i() - 1,
+                        [s.lineOff]: depth() <= i() - 1,
+                        [s[`line${i() - 1}`]]: depth() > i() - 1,
+                      }}
+                    />
+                  </Show>
+                  <div class={s.stepSlot}>
+                    <div
+                      classList={{
+                        [s.stepCmd]: true,
+                        [s[`cmd${i()}`]]: true,
+                        [s.stepCmdShow]: showCmd(),
+                      }}
+                    >
+                      {label()}
+                    </div>
+                    <div
+                      classList={{
+                        [s.stepDot]: true,
+                        [s.dotOff]: i() > depth(),
+                        [s.dotOn]: i() === depth(),
+                        [s.dotDim]: i() < depth(),
+                        [s[`dot${i()}`]]: i() <= depth(),
+                      }}
+                    />
                   </div>
-                  <div class={dotClasses(i())} />
-                </div>
-              </>
-            )}
+                </>
+              );
+            }}
           </For>
         </div>
 
-        {() => {
-          const cfg = currentLayer();
-          const li = step() - 1;
-          return (
-            <Show when={cfg}>
-              <div class={`not-content ${styles.shortcuts}`}>
-                <For each={cfg.actions}>
-                  {(a) => (
-                    <button
-                      type="button"
-                      class={`${styles.shortcutPill} ${(styles as Record<string, string>)[`pill${li}`]} ${a.advances ? styles.pillAdvances : ""} ${li > 0 && firedKey() === a.label ? styles.pillFired : ""}`}
-                      onClick={() => fireAction(a, li, cfg)}
-                    >
-                      <span class={styles.pillKey}>{a.label || a.cardLabel}</span>
-                      <span class={styles.pillDesc}>{a.desc}</span>
-                    </button>
-                  )}
-                </For>
-                <Show when={step() > 1}>
-                  <button
-                    type="button"
-                    class={`${styles.shortcutPill} ${styles.pillEsc} ${firedKey() === "Esc" ? styles.pillFired : ""}`}
-                    onClick={() => {
-                      clearTimeout(resetTimer);
-                      goTo(step() - 1);
-                      setLastAction("Esc → back");
-                      flash("Esc");
-                    }}
-                  >
-                    <span class={styles.pillKey}>Esc</span>
-                    <span class={styles.pillDesc}>back</span>
-                  </button>
-                </Show>
-              </div>
-            </Show>
-          );
-        }}
+        {/* Shortcut pills */}
+        <For each={pillTransition()}>{(el) => el}</For>
 
         <div
-          class={styles.actionFeedback}
+          class={s.actionFeedback}
           style={{ opacity: lastAction() ? 1 : 0 }}
         >
           {lastAction() || "\u00A0"}
         </div>
 
-        <div class={styles.btnRow}>
+        <div class={s.btnRow}>
           <button type="button" class="btn btn-sm" onClick={() => reset()}>
             Reset
           </button>
