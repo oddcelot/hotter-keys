@@ -7,9 +7,7 @@ import { hotterKeysDevtoolsIntegration } from "@hotter-keys/vite-plugin-devtools
 
 // https://astro.build/config
 export default defineConfig({
-  site: process.env.CI
-    ? "https://oddcelot.github.io"
-    : "http://localhost:4321",
+  site: process.env.CI ? "https://oddcelot.github.io" : "http://localhost:4321",
   base: process.env.CI ? "/hotter-keys" : "/",
   integrations: [
     starlight({
