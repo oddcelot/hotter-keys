@@ -18,6 +18,7 @@
     "hotter-keys": "workspace:*",
     "sharp": "catalog:",
     "solid-js": "catalog:",
-    "starlight-theme-hotter-keys": "workspace:*"
+    "starlight-theme-hotter-keys": "workspace:*",
+    "@hotter-keys/vite-plugin-devtools": "workspace:*"
   }
 }

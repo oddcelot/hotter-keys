@@ -11,18 +11,27 @@
       "default": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"
   },
   "peerDependencies": {
+    "astro": ">=4.0.0",
     "vite": ">=5.0.0"
   },
+  "peerDependenciesMeta": {
+    "astro": {
+      "optional": true
+    }
+  },
   "devDependencies": {
+    "astro": "catalog:default",
     "typescript": "catalog:default",
-    "vite": "^6.0.0"
+    "vite": "^8.0.3"
   },
   "license": "MIT"
 }
