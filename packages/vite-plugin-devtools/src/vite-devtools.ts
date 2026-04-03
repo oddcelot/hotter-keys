@@ -1,4 +1,4 @@
-import type { JsonRenderer, JsonRenderElement, JsonRenderSpec, PluginWithDevTools } from '@vitejs/devtools-kit';
+import type { JsonRenderElement, JsonRenderSpec, PluginWithDevTools } from '@vitejs/devtools-kit';
 import { defineRpcFunction } from '@vitejs/devtools-kit';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, normalize } from 'node:path';
@@ -41,268 +41,181 @@ interface BindingData {
   scope?: string;
 }
 
+type Tab = 'bindings' | 'events' | 'settings';
+
 interface PanelState {
   bindings: BindingData[];
   activeLayers: string[];
   firedLog: Array<{ shortcut: string; layer: string; timestamp: number }>;
   notifyOnFired: boolean;
+  activeTab: Tab;
+}
+
+function tabBtn(label: string, icon: string, tab: Tab, active: Tab): JsonRenderElement {
+  return {
+    type: 'Button',
+    props: {
+      label,
+      icon,
+      variant: active === tab ? 'primary' : 'ghost',
+    },
+    on: { press: { action: `hotter-keys:tab:${tab}` } },
+  };
 }
 
 function buildSpec(state: PanelState): JsonRenderSpec {
   const elements: Record<string, JsonRenderElement> = {};
-  const rootChildren: string[] = ['header', 'divider0'];
+  const contentChildren: string[] = [];
+  const tab = state.activeTab;
 
-  // ── Header ──
-  elements['header'] = {
+  // ── Tabs ──
+  elements['tabs'] = {
     type: 'Stack',
-    props: { direction: 'horizontal', gap: 8, align: 'center', justify: 'space-between' },
-    children: ['header-left', 'refresh-btn'],
+    props: { direction: 'horizontal', gap: 4 },
+    children: ['tab-bindings', 'tab-events', 'tab-settings'],
   };
-  elements['header-left'] = {
-    type: 'Stack',
-    props: { direction: 'horizontal', gap: 8, align: 'center' },
-    children: ['header-icon', 'title'],
-  };
-  elements['header-icon'] = {
-    type: 'Icon',
-    props: { name: 'ph:keyboard-duotone', size: 20 },
-  };
-  elements['title'] = {
-    type: 'Text',
-    props: { content: 'Hotter Keys', variant: 'heading' },
-  };
-  elements['refresh-btn'] = {
-    type: 'Button',
-    props: { label: 'Refresh', variant: 'ghost', icon: 'ph:arrows-clockwise' },
-    on: { press: { action: 'hotter-keys:refresh' } },
-  };
+  elements['tab-bindings'] = tabBtn('Bindings', 'ph:list-duotone', 'bindings', tab);
+  elements['tab-events'] = tabBtn(`Events${state.firedLog.length > 0 ? ` (${state.firedLog.length})` : ''}`, 'ph:lightning-duotone', 'events', tab);
+  elements['tab-settings'] = tabBtn('Settings', 'ph:gear-duotone', 'settings', tab);
   elements['divider0'] = { type: 'Divider', props: {} };
 
-  // ── Active layer stack ──
-  rootChildren.push('layer-stack');
-  const stackChildren: string[] = ['layer-stack-label'];
+  // ── TAB: Bindings ──
+  if (tab === 'bindings') {
+    contentChildren.push('layer-stack');
+    const stackChildren: string[] = ['layer-stack-icon', 'layer-stack-label'];
 
-  for (let i = 0; i < state.activeLayers.length; i++) {
-    const layer = state.activeLayers[i]!;
-    const id = `active-layer-${i}`;
-    stackChildren.push(id);
-    elements[id] = {
-      type: 'Badge',
-      props: {
-        text: `${i + 1}. ${layer}`,
-        variant: 'success',
-      },
-    };
-  }
+    for (let i = 0; i < state.activeLayers.length; i++) {
+      const layer = state.activeLayers[i]!;
+      const id = `active-layer-${i}`;
+      stackChildren.push(id);
+      elements[id] = { type: 'Badge', props: { text: `${i + 1}. ${layer}`, variant: 'success' } };
+    }
 
-  // Show inactive layers that have bindings
-  const activeSet0 = new Set(state.activeLayers);
-  const inactiveLayers = [...new Set(state.bindings.map(b => b.layer))].filter(l => !activeSet0.has(l));
-  for (let i = 0; i < inactiveLayers.length; i++) {
-    const id = `inactive-layer-${i}`;
-    stackChildren.push(id);
-    elements[id] = {
-      type: 'Badge',
-      props: {
-        text: inactiveLayers[i]!,
-        variant: 'default',
-      },
-    };
-  }
+    const activeSet0 = new Set(state.activeLayers);
+    const inactiveLayers = [...new Set(state.bindings.map(b => b.layer))].filter(l => !activeSet0.has(l));
+    for (let i = 0; i < inactiveLayers.length; i++) {
+      const id = `inactive-layer-${i}`;
+      stackChildren.push(id);
+      elements[id] = { type: 'Badge', props: { text: inactiveLayers[i]!, variant: 'default' } };
+    }
 
-  elements['layer-stack-icon'] = {
-    type: 'Icon',
-    props: { name: 'ph:stack-duotone', size: 16 },
-  };
-  elements['layer-stack-label'] = {
-    type: 'Text',
-    props: { content: 'Layer Stack:', variant: 'caption' },
-  };
-  stackChildren.unshift('layer-stack-icon');
-  elements['layer-stack'] = {
-    type: 'Stack',
-    props: { direction: 'horizontal', gap: 6, align: 'center' },
-    children: stackChildren,
-  };
-
-  rootChildren.push('divider-layers');
-  elements['divider-layers'] = { type: 'Divider', props: {} };
-
-  // ── Group bindings by layer ──
-  const groups = new Map<string, BindingData[]>();
-  for (const b of state.bindings) {
-    let list = groups.get(b.layer);
-    if (!list) { list = []; groups.set(b.layer, list); }
-    list.push(b);
-  }
-
-  // Sort: active first, then alphabetical
-  const activeSet = new Set(state.activeLayers);
-  const sortedLayers = [...groups.keys()].sort((a, b) => {
-    const aA = activeSet.has(a), bA = activeSet.has(b);
-    if (aA !== bA) return aA ? -1 : 1;
-    if (aA && bA) return state.activeLayers.indexOf(a) - state.activeLayers.indexOf(b);
-    return a.localeCompare(b);
-  });
-
-  // ── Layer cards ──
-  if (sortedLayers.length === 0) {
-    rootChildren.push('empty');
-    elements['empty'] = {
+    elements['layer-stack-icon'] = { type: 'Icon', props: { name: 'ph:stack-duotone', size: 16 } };
+    elements['layer-stack-label'] = { type: 'Text', props: { content: 'Layer Stack:', variant: 'caption' } };
+    elements['layer-stack'] = {
       type: 'Stack',
-      props: { direction: 'horizontal', gap: 8, align: 'center' },
-      children: ['empty-icon', 'empty-text'],
+      props: { direction: 'horizontal', gap: 6, align: 'center' },
+      children: stackChildren,
     };
-    elements['empty-icon'] = {
-      type: 'Icon',
-      props: { name: 'ph:plugs-connected-duotone', size: 16 },
-    };
-    elements['empty-text'] = {
-      type: 'Text',
-      props: { content: 'No bindings registered. Click "Connect Hotter Keys" to start capturing.', variant: 'caption' },
-    };
+
+    contentChildren.push('divider-layers');
+    elements['divider-layers'] = { type: 'Divider', props: {} };
+
+    const groups = new Map<string, BindingData[]>();
+    for (const b of state.bindings) {
+      let list = groups.get(b.layer);
+      if (!list) { list = []; groups.set(b.layer, list); }
+      list.push(b);
+    }
+
+    const activeSet = new Set(state.activeLayers);
+    const sortedLayers = [...groups.keys()].sort((a, b) => {
+      const aA = activeSet.has(a), bA = activeSet.has(b);
+      if (aA !== bA) return aA ? -1 : 1;
+      if (aA && bA) return state.activeLayers.indexOf(a) - state.activeLayers.indexOf(b);
+      return a.localeCompare(b);
+    });
+
+    if (sortedLayers.length === 0) {
+      contentChildren.push('empty');
+      elements['empty'] = { type: 'Text', props: { content: 'No bindings registered yet.', variant: 'caption' } };
+    }
+
+    for (const layer of sortedLayers) {
+      const bindings = groups.get(layer)!;
+      const active = activeSet.has(layer);
+      const id = `layer-${layer}`;
+      contentChildren.push(id);
+
+      elements[`${id}-icon`] = { type: 'Icon', props: { name: active ? 'ph:check-circle-duotone' : 'ph:circle-dashed', size: 16 } };
+      elements[`${id}-badge`] = { type: 'Badge', props: { text: layer, variant: active ? 'success' : 'default' } };
+      elements[`${id}-status`] = { type: 'Text', props: { content: active ? 'active' : 'inactive', variant: 'caption' } };
+      elements[`${id}-count`] = { type: 'Text', props: { content: `(${bindings.length})`, variant: 'caption' } };
+      elements[`${id}-header`] = {
+        type: 'Stack',
+        props: { direction: 'horizontal', gap: 8, align: 'center' },
+        children: [`${id}-icon`, `${id}-badge`, `${id}-status`, `${id}-count`],
+      };
+      elements[`${id}-list`] = {
+        type: 'DataTable',
+        props: {
+          columns: [{ key: 'shortcut', label: 'Shortcut' }, { key: 'scope', label: 'Scope', width: '100px' }],
+          rows: bindings.map((b) => ({ shortcut: b.formatted, scope: b.scope ?? '\u2014' })),
+        },
+      };
+      elements[id] = {
+        type: 'Stack',
+        props: { direction: 'vertical', gap: 4 },
+        children: [`${id}-header`, `${id}-list`],
+      };
+    }
   }
 
-  for (const layer of sortedLayers) {
-    const bindings = groups.get(layer)!;
-    const active = activeSet.has(layer);
-    const cardId = `layer-${layer}`;
-    const headerRowId = `${cardId}-header`;
-    const badgeId = `${cardId}-badge`;
-    const statusId = `${cardId}-status`;
-    const listId = `${cardId}-list`;
+  // ── TAB: Events ──
+  if (tab === 'events') {
+    if (state.firedLog.length === 0) {
+      contentChildren.push('events-empty');
+      elements['events-empty'] = { type: 'Text', props: { content: 'No events captured yet. Press a shortcut in the app.', variant: 'caption' } };
+    } else {
+      contentChildren.push('events-table');
+      elements['events-table'] = {
+        type: 'DataTable',
+        props: {
+          columns: [
+            { key: 'shortcut', label: 'Shortcut' },
+            { key: 'layer', label: 'Layer', width: '80px' },
+            { key: 'time', label: 'Time', width: '100px' },
+          ],
+          rows: state.firedLog.slice(-50).reverse().map((e) => ({
+            shortcut: e.shortcut,
+            layer: e.layer,
+            time: new Date(e.timestamp).toLocaleTimeString(),
+          })),
+          maxHeight: '400px',
+        },
+      };
+    }
+  }
 
-    rootChildren.push(cardId);
-
-    const iconId = `${cardId}-icon`;
-    const headerChildren = [iconId, badgeId, statusId];
-
-    elements[iconId] = {
-      type: 'Icon',
-      props: {
-        name: active ? 'ph:check-circle-duotone' : 'ph:circle-dashed',
-        size: 16,
-      },
-    };
-    elements[headerRowId] = {
+  // ── TAB: Settings ──
+  if (tab === 'settings') {
+    contentChildren.push('settings-notify');
+    elements['settings-notify'] = {
       type: 'Stack',
-      props: { direction: 'horizontal', gap: 8, align: 'center' },
-      children: headerChildren,
+      props: { direction: 'horizontal', gap: 8, align: 'center', justify: 'space-between' },
+      children: ['notify-label', 'notify-toggle'],
     };
-    elements[badgeId] = {
-      type: 'Badge',
+    elements['notify-label'] = { type: 'Text', props: { content: 'Show notifications on fired shortcuts', variant: 'body' } };
+    elements['notify-toggle'] = {
+      type: 'Button',
       props: {
-        text: layer,
-        variant: active ? 'success' : 'default',
+        label: state.notifyOnFired ? 'On' : 'Off',
+        variant: state.notifyOnFired ? 'primary' : 'ghost',
+        icon: state.notifyOnFired ? 'ph:bell-ringing' : 'ph:bell-slash',
       },
-    };
-    elements[statusId] = {
-      type: 'Text',
-      props: { content: active ? 'active' : 'inactive', variant: 'caption' },
-    };
-
-    // Binding rows as a table
-    const rows = bindings.map((b) => ({
-      shortcut: b.formatted,
-      scope: b.scope ?? '\u2014',
-    }));
-
-    elements[listId] = {
-      type: 'DataTable',
-      props: {
-        columns: [
-          { key: 'shortcut', label: 'Shortcut' },
-          { key: 'scope', label: 'Scope', width: '100px' },
-        ],
-        rows,
-      },
-    };
-
-    const cardContentId = `${cardId}-content`;
-    elements[cardContentId] = {
-      type: 'Stack',
-      props: { direction: 'vertical', gap: 4 },
-      children: [headerRowId, listId],
-    };
-
-    elements[cardId] = {
-      type: 'Card',
-      props: {
-        title: active
-          ? `${layer} \u2014 active (${bindings.length})`
-          : `${layer} \u2014 inactive (${bindings.length})`,
-        collapsible: true,
-      },
-      children: [cardContentId],
+      on: { press: { action: 'hotter-keys:toggle-notify' } },
     };
   }
 
-  // ── Recent fired shortcuts ──
-  if (state.firedLog.length > 0) {
-    rootChildren.push('divider1', 'fired-card');
-    elements['divider1'] = { type: 'Divider', props: {} };
-
-    const firedRows = state.firedLog.slice(-20).reverse().map((e) => ({
-      shortcut: e.shortcut,
-      layer: e.layer,
-      time: new Date(e.timestamp).toLocaleTimeString(),
-    }));
-
-    elements['fired-table'] = {
-      type: 'DataTable',
-      props: {
-        columns: [
-          { key: 'shortcut', label: 'Shortcut' },
-          { key: 'layer', label: 'Layer', width: '80px' },
-          { key: 'time', label: 'Time', width: '100px' },
-        ],
-        rows: firedRows,
-        maxHeight: '200px',
-      },
-    };
-    elements['fired-card'] = {
-      type: 'Card',
-      props: { title: `Recent Events (${state.firedLog.length})`, collapsible: true },
-      children: ['fired-table'],
-    };
-  }
-
-  // ── Settings ──
-  rootChildren.push('divider-settings', 'settings-card');
-  elements['divider-settings'] = { type: 'Divider', props: {} };
-  elements['settings-card'] = {
-    type: 'Card',
-    props: { title: 'Settings', collapsible: true },
-    children: ['settings-content'],
-  };
-  elements['settings-content'] = {
+  // ── Root ──
+  elements['content'] = {
     type: 'Stack',
-    props: { direction: 'vertical', gap: 8 },
-    children: ['notify-row'],
+    props: { direction: 'vertical', gap: 12 },
+    children: contentChildren,
   };
-  elements['notify-row'] = {
-    type: 'Stack',
-    props: { direction: 'horizontal', gap: 8, align: 'center', justify: 'space-between' },
-    children: ['notify-label', 'notify-toggle'],
-  };
-  elements['notify-label'] = {
-    type: 'Text',
-    props: { content: 'Show notifications on fired shortcuts', variant: 'body' },
-  };
-  elements['notify-toggle'] = {
-    type: 'Button',
-    props: {
-      label: state.notifyOnFired ? 'On' : 'Off',
-      variant: state.notifyOnFired ? 'primary' : 'ghost',
-      icon: state.notifyOnFired ? 'ph:bell-ringing' : 'ph:bell-slash',
-    },
-    on: { press: { action: 'hotter-keys:toggle-notify' } },
-  };
-
   elements['root'] = {
     type: 'Stack',
-    props: { direction: 'vertical', gap: 12, padding: 4 },
-    children: rootChildren,
+    props: { direction: 'vertical', gap: 8, padding: 4 },
+    children: ['tabs', 'divider0', 'content'],
   };
 
   return { root: 'root', elements };
@@ -315,7 +228,6 @@ export function hotterKeysViteDevtools(): PluginWithDevTools {
     name: 'hotter-keys-vite-devtools',
     apply: 'serve',
 
-    // Auto-inject client script to set up sentinel and push state to panel
     transformIndexHtml() {
       return [
         {
@@ -331,10 +243,12 @@ export function hotterKeysViteDevtools(): PluginWithDevTools {
       setup(context) {
         const settings = loadSettings(context.cwd);
         let notifyOnFired = settings.notifyOnFired;
-        let panelState: PanelState = { bindings: [], activeLayers: ['global'], firedLog: [], notifyOnFired };
+        let activeTab: Tab = 'bindings';
+        let panelState: PanelState = { bindings: [], activeLayers: ['global'], firedLog: [], notifyOnFired, activeTab };
         const ui = context.createJsonRenderer(buildSpec(panelState));
 
         function refresh() {
+          panelState = { ...panelState, notifyOnFired, activeTab };
           const total = panelState.bindings.length;
           ui.updateSpec(buildSpec(panelState));
           context.docks.update({
@@ -356,13 +270,20 @@ export function hotterKeysViteDevtools(): PluginWithDevTools {
           ui,
         });
 
-        // RPC: receive state updates from the client
+        // RPC: receive state from client
         context.rpc.register(defineRpcFunction({
           name: 'hotter-keys:update-state',
           type: 'action',
           setup: () => ({
             handler: async (data: Partial<PanelState>) => {
-              panelState = { ...panelState, bindings: data.bindings ?? panelState.bindings, activeLayers: data.activeLayers ?? panelState.activeLayers, firedLog: data.firedLog ?? panelState.firedLog, notifyOnFired };
+              panelState = {
+                ...panelState,
+                bindings: data.bindings ?? panelState.bindings,
+                activeLayers: data.activeLayers ?? panelState.activeLayers,
+                firedLog: data.firedLog ?? panelState.firedLog,
+                notifyOnFired,
+                activeTab,
+              };
               refresh();
             },
           }),
@@ -371,11 +292,7 @@ export function hotterKeysViteDevtools(): PluginWithDevTools {
         context.rpc.register(defineRpcFunction({
           name: 'hotter-keys:refresh',
           type: 'action',
-          setup: () => ({
-            handler: async () => {
-              refresh();
-            },
-          }),
+          setup: () => ({ handler: async () => { refresh(); } }),
         }));
 
         let firedCount = 0;
@@ -405,12 +322,24 @@ export function hotterKeysViteDevtools(): PluginWithDevTools {
           setup: () => ({
             handler: async () => {
               notifyOnFired = !notifyOnFired;
-              panelState.notifyOnFired = notifyOnFired;
               saveSettings(context.cwd, { notifyOnFired });
               refresh();
             },
           }),
         }));
+
+        for (const t of ['bindings', 'events', 'settings'] as Tab[]) {
+          context.rpc.register(defineRpcFunction({
+            name: `hotter-keys:tab:${t}`,
+            type: 'action',
+            setup: () => ({
+              handler: async () => {
+                activeTab = t;
+                refresh();
+              },
+            }),
+          }));
+        }
 
         context.logs.add({
           message: 'Hotter Keys devtools active — capturing keyboard shortcuts',
