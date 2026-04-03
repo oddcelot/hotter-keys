@@ -401,7 +401,6 @@ export function hotterKeysViteDevtools(): PluginWithDevTools {
                   level: "success",
                   category: "hotter-keys",
                   labels,
-                  description: `Layer: ${data.layer}${data.scope ? ` | Scope: ${data.scope}` : ""}`,
                   notify: notifyOnFired,
                   autoDismiss: notifyOnFired ? 3000 : undefined,
                   autoDelete: 30000,

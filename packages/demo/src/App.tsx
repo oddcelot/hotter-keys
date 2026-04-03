@@ -123,6 +123,19 @@ export default function App() {
   onMount(() => {
     hk = createHotkeys();
 
+    // Suppress browser defaults only for globally-bound shortcuts
+    const globalKeys = new Set(["s", "p", "k"]);
+    const globalShiftKeys = new Set(["p", "z"]);
+    const suppress = (e: KeyboardEvent) => {
+      const k = e.key.toLowerCase();
+      if ((e.metaKey || e.ctrlKey) && globalKeys.has(k))
+        e.preventDefault();
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && globalShiftKeys.has(k))
+        e.preventDefault();
+    };
+    document.addEventListener("keydown", suppress, { capture: true });
+    onCleanup(() => document.removeEventListener("keydown", suppress, { capture: true }));
+
     // Global shortcuts (always active)
     hk.add("mod+p", () => {
       addLog(`${mod}+P`, "Open modal");
@@ -247,7 +260,7 @@ export default function App() {
           push its layer; blur to pop it.
         </p>
         <div class="panel-grid">
-          <div
+          <section
             class="focus-panel"
             tabIndex={0}
             onFocus={() => focusLayer("editor", "editor")}
@@ -262,8 +275,8 @@ export default function App() {
               <kbd>{mod}+Z</kbd>
               <kbd>{mod}+Shift+Z</kbd>
             </div>
-          </div>
-          <div
+          </section>
+          <section
             class="focus-panel"
             tabIndex={0}
             onFocus={() => focusLayer("canvas", "canvas")}
@@ -278,7 +291,7 @@ export default function App() {
               <kbd>{mod}+D</kbd>
               <kbd>{mod}+G</kbd>
             </div>
-          </div>
+          </section>
         </div>
       </div>
 
@@ -298,7 +311,7 @@ export default function App() {
           <span class="badge badge-purple">{activeScope()}</span>
         </div>
         <div class="panel-grid">
-          <div
+          <section
             class="focus-panel"
             tabIndex={0}
             onFocus={() => switchScope("text-editor")}
@@ -321,8 +334,8 @@ export default function App() {
                 <span class="muted text-sm">Select all text</span>
               </div>
             </div>
-          </div>
-          <div
+          </section>
+          <section
             class="focus-panel"
             tabIndex={0}
             onFocus={() => switchScope("drawing")}
@@ -346,7 +359,7 @@ export default function App() {
                 <span class="muted text-sm">Select all objects</span>
               </div>
             </div>
-          </div>
+          </section>
         </div>
       </div>
 
