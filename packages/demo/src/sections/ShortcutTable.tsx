@@ -1,5 +1,5 @@
 import { For } from "solid-js";
-import { displayShortcut as fmt } from "hotter-keys";
+import { displayShortcut as fmt } from "@hotter-keys/core";
 import { BINDINGS, layerOf, layerColorOf, scopeOf } from "../bindings";
 
 export default function ShortcutTable() {

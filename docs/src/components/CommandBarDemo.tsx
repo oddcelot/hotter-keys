@@ -1,6 +1,6 @@
 import { createSignal, onCleanup, onMount, For, Show } from "solid-js";
-import { createHotkeys, formatSequence, parseSequence, isMac } from "hotter-keys";
-import type { Hotkeys } from "hotter-keys";
+import { createHotkeys, formatSequence, parseSequence, isMac } from "@hotter-keys/core";
+import type { Hotkeys } from "@hotter-keys/core";
 import "../styles/demo.css";
 import styles from "./CommandBarDemo.module.css";
 

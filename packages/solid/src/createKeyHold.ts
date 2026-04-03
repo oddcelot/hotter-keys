@@ -1,5 +1,5 @@
 import { createSignal, onCleanup, type Accessor } from "solid-js";
-import type { Hotkeys } from "hotter-keys";
+import type { Hotkeys } from "@hotter-keys/core";
 
 /**
  * Track whether a specific key is held alone.

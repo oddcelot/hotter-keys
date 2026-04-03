@@ -15,10 +15,10 @@
     "@astrojs/starlight": "catalog:",
     "@solid-primitives/transition-group": "^1.1.2",
     "astro": "catalog:",
-    "hotter-keys": "workspace:*",
+    "@hotter-keys/core": "workspace:*",
     "sharp": "catalog:",
     "solid-js": "catalog:",
-    "starlight-theme-hotter-keys": "workspace:*",
-    "@hotter-keys/vite-plugin-devtools": "workspace:*"
+    "@hotter-keys/starlight-theme": "workspace:*",
+    "@hotter-keys/devtools": "workspace:*"
   }
 }

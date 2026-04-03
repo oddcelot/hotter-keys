@@ -18,11 +18,11 @@
     "dev": "tsc --watch"
   },
   "peerDependencies": {
-    "hotter-keys": "workspace:*",
+    "@hotter-keys/core": "workspace:*",
     "solid-js": ">=1.8.0"
   },
   "devDependencies": {
-    "hotter-keys": "workspace:*",
+    "@hotter-keys/core": "workspace:*",
     "solid-js": "catalog:default",
     "typescript": "catalog:default"
   },

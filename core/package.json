@@ -1,5 +1,5 @@
 {
-  "name": "hotter-keys",
+  "name": "@hotter-keys/core",
   "version": "0.0.1",
   "description": "A correct, cross-browser, layout-aware keyboard shortcut library.",
   "type": "module",

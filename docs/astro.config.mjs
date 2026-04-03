@@ -2,8 +2,8 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import solidJs from "@astrojs/solid-js";
-import starlightThemeHotterKeys from "starlight-theme-hotter-keys";
-import { hotterKeysDevtoolsIntegration } from "@hotter-keys/vite-plugin-devtools";
+import starlightThemeHotterKeys from "@hotter-keys/starlight-theme";
+import { hotterKeysDevtoolsIntegration } from "@hotter-keys/devtools";
 
 // https://astro.build/config
 export default defineConfig({

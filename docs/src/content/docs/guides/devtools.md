@@ -3,12 +3,12 @@ title: DevTools
 description: Inspect keyboard shortcuts in real time with the hotter-keys devtools plugin.
 ---
 
-The `@hotter-keys/vite-plugin-devtools` package provides real-time visibility into which shortcuts are registered, which layers/scopes are active, and what fires when you press keys.
+The `@hotter-keys/devtools` package provides real-time visibility into which shortcuts are registered, which layers/scopes are active, and what fires when you press keys.
 
 ## Install
 
 ```bash
-npm install -D @hotter-keys/vite-plugin-devtools
+npm install -D @hotter-keys/devtools
 ```
 
 ## Astro integration
@@ -17,7 +17,7 @@ For Astro sites, register it as an Astro integration. It adds a Dev Toolbar app:
 
 ```ts
 // astro.config.mjs
-import { hotterKeysDevtoolsIntegration } from "@hotter-keys/vite-plugin-devtools";
+import { hotterKeysDevtoolsIntegration } from "@hotter-keys/devtools";
 
 export default defineConfig({
   integrations: [
@@ -37,7 +37,7 @@ For standard Vite apps, use the Vite plugin. It injects a custom overlay:
 
 ```ts
 // vite.config.ts
-import { hotterKeysDevtools } from "@hotter-keys/vite-plugin-devtools";
+import { hotterKeysDevtools } from "@hotter-keys/devtools";
 
 export default defineConfig({
   plugins: [
@@ -53,7 +53,7 @@ For projects using `@vitejs/devtools`, use the Vite DevTools plugin. It register
 ```ts
 // vite.config.ts
 import { DevTools } from "@vitejs/devtools";
-import { hotterKeysViteDevtools } from "@hotter-keys/vite-plugin-devtools/vite-devtools";
+import { hotterKeysViteDevtools } from "@hotter-keys/devtools/vite";
 
 export default defineConfig({
   plugins: [
@@ -101,7 +101,7 @@ Controls which event types the devtools captures. Defaults to everything except 
 To include held keys:
 
 ```ts
-import { DEFAULT_EVENT_TYPES } from "@hotter-keys/vite-plugin-devtools";
+import { DEFAULT_EVENT_TYPES } from "@hotter-keys/devtools";
 
 hotterKeysDevtools({
   events: [...DEFAULT_EVENT_TYPES, "held-keys:change"],

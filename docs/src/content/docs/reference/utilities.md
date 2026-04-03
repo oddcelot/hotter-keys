@@ -10,7 +10,7 @@ description: Parsing, formatting, and recording utility functions.
 Parse a raw shortcut string and format it for the current platform. Auto-detects macOS vs other platforms.
 
 ```ts
-import { displayShortcut } from "hotter-keys";
+import { displayShortcut } from "@hotter-keys/core";
 
 displayShortcut("mod+k");       // "⌘K" on Mac, "Ctrl+K" elsewhere
 displayShortcut("mod+k mod+c"); // "⌘K ⌘C" on Mac, "Ctrl+K Ctrl+C" elsewhere
@@ -26,7 +26,7 @@ This is a convenience wrapper around `formatSequence(parseSequence(raw), isMac()
 Serialize a `Shortcut` object to a human-readable string.
 
 ```ts
-import { formatShortcut } from "hotter-keys";
+import { formatShortcut } from "@hotter-keys/core";
 
 formatShortcut({ key: "k", ctrl: false, meta: true, shift: false, alt: false }, true);
 // "⌘K"
@@ -40,7 +40,7 @@ formatShortcut({ key: "k", ctrl: true, meta: false, shift: false, alt: false }, 
 Serialize a `ShortcutSequence` (array of chords) to a human-readable string.
 
 ```ts
-import { formatSequence } from "hotter-keys";
+import { formatSequence } from "@hotter-keys/core";
 
 formatSequence([
   { key: "k", ctrl: false, meta: true, shift: false, alt: false },
@@ -56,7 +56,7 @@ formatSequence([
 Parse a single chord string into a `Shortcut` object.
 
 ```ts
-import { parseShortcut } from "hotter-keys";
+import { parseShortcut } from "@hotter-keys/core";
 
 parseShortcut("ctrl+k");
 // { key: "k", ctrl: true, shift: false, meta: false, alt: false }
@@ -71,7 +71,7 @@ parseShortcut("mod+k");
 Parse a multi-chord string (space-separated) into a `ShortcutSequence`.
 
 ```ts
-import { parseSequence } from "hotter-keys";
+import { parseSequence } from "@hotter-keys/core";
 
 parseSequence("mod+k mod+c");
 // [{ key: "k", meta: true, ... }, { key: "c", meta: true, ... }]  (on Mac)
@@ -84,7 +84,7 @@ parseSequence("mod+k mod+c");
 Returns `true` if the current platform is macOS. Uses `navigator.platform` with a fallback to `navigator.userAgent`.
 
 ```ts
-import { isMac } from "hotter-keys";
+import { isMac } from "@hotter-keys/core";
 
 isMac(); // true on macOS, false elsewhere
 ```
@@ -104,7 +104,7 @@ On macOS, `ctrl` in a shortcut becomes `meta` (Cmd). On Windows/Linux, `meta` be
 Wait for the user to press a key combination and return a `RecordedShortcut`. Useful for "press a key to rebind" UIs.
 
 ```ts
-import { recordShortcut } from "hotter-keys";
+import { recordShortcut } from "@hotter-keys/core";
 
 const result = await recordShortcut();
 

@@ -8,7 +8,7 @@ description: Complete API reference for the Hotkeys class.
 Create a new `Hotkeys` instance. Starts listening immediately.
 
 ```ts
-import { createHotkeys } from "hotter-keys";
+import { createHotkeys } from "@hotter-keys/core";
 const hk = createHotkeys();
 ```
 

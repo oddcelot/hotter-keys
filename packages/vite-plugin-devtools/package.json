@@ -1,5 +1,5 @@
 {
-  "name": "@hotter-keys/vite-plugin-devtools",
+  "name": "@hotter-keys/devtools",
   "version": "0.0.1",
   "description": "Vite devtools plugin for hotter-keys — event log, binding inspector, and more.",
   "type": "module",
@@ -10,7 +10,7 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./vite-devtools": {
+    "./vite": {
       "types": "./dist/vite-devtools.d.ts",
       "default": "./dist/vite-devtools.js"
     }

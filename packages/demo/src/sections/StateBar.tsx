@@ -1,5 +1,5 @@
 import { For, type Accessor } from "solid-js";
-import { displayShortcut as fmt } from "hotter-keys";
+import { displayShortcut as fmt } from "@hotter-keys/core";
 
 interface Props {
   layers: string[];

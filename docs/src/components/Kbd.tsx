@@ -1,4 +1,4 @@
-import { isMac, parseSequence, formatSequence } from "hotter-keys";
+import { isMac, parseSequence, formatSequence } from "@hotter-keys/core";
 
 /**
  * Renders a shortcut string (e.g. "mod+k mod+c") formatted for the current

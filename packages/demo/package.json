@@ -8,12 +8,12 @@
     "build": "vite build"
   },
   "dependencies": {
-    "hotter-keys": "workspace:*",
+    "@hotter-keys/core": "workspace:*",
     "@fontsource-variable/lilex": "^5.1.1",
     "solid-js": "catalog:default"
   },
   "devDependencies": {
-    "@hotter-keys/vite-plugin-devtools": "workspace:*",
+    "@hotter-keys/devtools": "workspace:*",
     "@vitejs/devtools": "^0.1.13",
     "@vitejs/devtools-kit": "^0.1.13",
     "typescript": "catalog:default",

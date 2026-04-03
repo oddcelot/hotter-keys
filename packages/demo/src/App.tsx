@@ -1,6 +1,6 @@
 import { createSignal, onMount, onCleanup } from "solid-js";
 import { createStore, produce } from "solid-js/store";
-import { createHotkeys, displayShortcut as fmt } from "hotter-keys";
+import { createHotkeys, displayShortcut as fmt } from "@hotter-keys/core";
 import { BINDINGS } from "./bindings";
 import ShortcutTable from "./sections/ShortcutTable";
 import LayerPanels from "./sections/LayerPanels";

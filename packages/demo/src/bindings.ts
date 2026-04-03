@@ -1,4 +1,4 @@
-import { type BindingOptions } from "hotter-keys";
+import { type BindingOptions } from "@hotter-keys/core";
 
 export interface Binding {
   raw: string;

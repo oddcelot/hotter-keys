@@ -1,7 +1,7 @@
 import { createSignal, createEffect, onMount, onCleanup, For, Show } from "solid-js";
 import { createStore, produce } from "solid-js/store";
-import { createHotkeys, recordShortcut } from "hotter-keys";
-import type { Hotkeys, RecordedShortcut } from "hotter-keys";
+import { createHotkeys, recordShortcut } from "@hotter-keys/core";
+import type { Hotkeys, RecordedShortcut } from "@hotter-keys/core";
 import { loadKeymap, saveKeymap, isOpfsAvailable } from "../lib/opfs";
 import type { KeymapEntry } from "../lib/opfs";
 import "../styles/demo.css";

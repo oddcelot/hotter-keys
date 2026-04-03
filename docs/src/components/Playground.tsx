@@ -1,6 +1,6 @@
 import { createSignal, onCleanup, onMount, For, Show } from "solid-js";
-import { createHotkeys, recordShortcut, formatShortcut, formatSequence, parseSequence, isMac } from "hotter-keys";
-import type { Hotkeys, RecordedShortcut } from "hotter-keys";
+import { createHotkeys, recordShortcut, formatShortcut, formatSequence, parseSequence, isMac } from "@hotter-keys/core";
+import type { Hotkeys, RecordedShortcut } from "@hotter-keys/core";
 import Gauge from "./Gauge";
 import FireCounter from "./FireCounter";
 import "../styles/demo.css";

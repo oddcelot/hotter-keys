@@ -12,8 +12,8 @@ import {
   isMac,
   formatSequence,
   parseSequence,
-} from "hotter-keys";
-import type { Hotkeys } from "hotter-keys";
+} from "@hotter-keys/core";
+import type { Hotkeys } from "@hotter-keys/core";
 import "../styles/demo.css";
 import styles from "./ShortcutLayers.module.css";
 

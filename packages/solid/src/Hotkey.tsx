@@ -1,4 +1,4 @@
-import type { BindingOptions, ShortcutHandler } from "hotter-keys";
+import type { BindingOptions, ShortcutHandler } from "@hotter-keys/core";
 import type { HotkeysInstance } from "./createHotkeys.js";
 import { createShortcut } from "./createShortcut.js";
 

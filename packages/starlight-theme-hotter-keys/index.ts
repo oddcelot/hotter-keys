@@ -2,19 +2,19 @@ import type { StarlightPlugin } from "@astrojs/starlight/types";
 
 export default function starlightThemeHotterKeys(): StarlightPlugin {
   return {
-    name: "starlight-theme-hotter-keys",
+    name: "@hotter-keys/starlight-theme",
     hooks: {
       "config:setup"({ updateConfig }) {
         updateConfig({
           customCss: [
-            "starlight-theme-hotter-keys/styles/layers",
-            "starlight-theme-hotter-keys/styles/theme",
-            "starlight-theme-hotter-keys/styles/base",
-            "starlight-theme-hotter-keys/styles/demo",
+            "@hotter-keys/starlight-theme/styles/layers",
+            "@hotter-keys/starlight-theme/styles/theme",
+            "@hotter-keys/starlight-theme/styles/base",
+            "@hotter-keys/starlight-theme/styles/demo",
           ],
           components: {
-            Head: "starlight-theme-hotter-keys/overrides/Head.astro",
-            Footer: "starlight-theme-hotter-keys/overrides/Footer.astro",
+            Head: "@hotter-keys/starlight-theme/overrides/Head.astro",
+            Footer: "@hotter-keys/starlight-theme/overrides/Footer.astro",
           },
         });
       },

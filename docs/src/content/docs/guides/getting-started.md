@@ -6,13 +6,13 @@ description: Install and use hotter-keys in your project.
 ## Install
 
 ```bash
-npm install hotter-keys
+npm install @hotter-keys/core
 ```
 
 ## Quick start
 
 ```ts
-import { createHotkeys } from "hotter-keys";
+import { createHotkeys } from "@hotter-keys/core";
 
 const hk = createHotkeys();
 
@@ -49,7 +49,7 @@ hk.onKeyHold("shift", (held) => {
 Useful for building "press a key to rebind" UIs:
 
 ```ts
-import { recordShortcut, formatShortcut } from "hotter-keys";
+import { recordShortcut, formatShortcut } from "@hotter-keys/core";
 
 const result = await recordShortcut();
 

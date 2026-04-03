@@ -55,41 +55,41 @@ importers:
       '@astrojs/starlight':
         specifier: 'catalog:'
         version: 0.38.2(astro@6.1.3(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@5.8.3))
-      '@hotter-keys/vite-plugin-devtools':
+      '@hotter-keys/core':
+        specifier: workspace:*
+        version: link:../core
+      '@hotter-keys/devtools':
         specifier: workspace:*
         version: link:../packages/vite-plugin-devtools
+      '@hotter-keys/starlight-theme':
+        specifier: workspace:*
+        version: link:../packages/starlight-theme-hotter-keys
       '@solid-primitives/transition-group':
         specifier: ^1.1.2
         version: 1.1.2(solid-js@1.9.12)
       astro:
         specifier: 'catalog:'
         version: 6.1.3(@types/node@24.12.0)(jiti@2.6.1)(lightningcss@1.32.0)(rollup@4.60.0)(typescript@5.8.3)
-      hotter-keys:
-        specifier: workspace:*
-        version: link:../core
       sharp:
         specifier: 'catalog:'
         version: 0.34.5
       solid-js:
         specifier: 'catalog:'
         version: 1.9.12
-      starlight-theme-hotter-keys:
-        specifier: workspace:*
-        version: link:../packages/starlight-theme-hotter-keys
 
   packages/demo:
     dependencies:
       '@fontsource-variable/lilex':
         specifier: ^5.1.1
         version: 5.2.1
-      hotter-keys:
+      '@hotter-keys/core':
         specifier: workspace:*
         version: link:../../core
       solid-js:
         specifier: catalog:default
         version: 1.9.12
     devDependencies:
-      '@hotter-keys/vite-plugin-devtools':
+      '@hotter-keys/devtools':
         specifier: workspace:*
         version: link:../vite-plugin-devtools
       '@vitejs/devtools':
@@ -110,7 +110,7 @@ importers:
 
   packages/solid:
     devDependencies:
-      hotter-keys:
+      '@hotter-keys/core':
         specifier: workspace:*
         version: link:../../core
       solid-js:

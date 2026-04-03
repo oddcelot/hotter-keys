@@ -4,7 +4,7 @@ import {
   type Hotkeys,
   type HotkeysOptions,
   type Binding,
-} from "hotter-keys";
+} from "@hotter-keys/core";
 
 export interface HotkeysInstance {
   /** The underlying Hotkeys instance. */
