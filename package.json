@@ -1,5 +1,13 @@
 {
   "name": "hotter-keys",
   "private": true,
-  "packageManager": "pnpm@10.25.0"
+  "packageManager": "pnpm@10.25.0",
+  "scripts": {
+    "changeset": "changeset",
+    "version": "changeset version",
+    "publish": "pnpm -r build && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.30.0"
+  }
 }
