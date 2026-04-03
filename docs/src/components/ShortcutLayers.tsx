@@ -165,16 +165,21 @@ function layerToJson(layer: LayerDef): string {
 
 export default function ShortcutLayers() {
   const [depth, setDepth] = createSignal(0);
-  const [lastAction, setLastAction] = createSignal("");
-  const [firedKey, setFiredKey] = createSignal("");
-  const [trackOverride, setTrackOverride] = createSignal<string | null>(null);
+  const [fired, setFired] = createSignal<{
+    label: string;
+    desc: string;
+  } | null>(null);
+  const [trackOverride, setTrackOverride] = createSignal<{
+    label: string;
+    desc: string;
+  } | null>(null);
 
   let hk: Hotkeys;
   let resetTimer: ReturnType<typeof setTimeout> | undefined;
 
-  function flash(key: string) {
-    setFiredKey(key);
-    setTimeout(() => setFiredKey(""), 500);
+  function flash(label: string, desc: string) {
+    setFired({ label, desc });
+    setTimeout(() => setFired(null), 500);
   }
 
   function goTo(target: number) {
@@ -202,7 +207,7 @@ export default function ShortcutLayers() {
       if (name) hk.popLayer(name);
     }
     setDepth(0);
-    setLastAction("");
+    setFired(null);
     setTrackOverride(null);
   }
 
@@ -212,15 +217,13 @@ export default function ShortcutLayers() {
         clearTimeout(resetTimer);
         setTrackOverride(null);
         goTo(depth() - 1);
-        setLastAction("Esc \u2192 back");
-        flash("Esc");
+        flash("Esc", "back");
       }
       return;
     }
 
     const label = displayLabel(sc.key);
-    setLastAction(`${label} \u2192 ${sc.desc}`);
-    flash(label);
+    flash(label, sc.desc);
 
     if (sc.advances) {
       clearTimeout(resetTimer);
@@ -228,7 +231,7 @@ export default function ShortcutLayers() {
     } else if (LAYERS[layerIdx].hkLayer) {
       clearTimeout(resetTimer);
       if (layerIdx === LAYERS.length - 1) {
-        setTrackOverride(label);
+        setTrackOverride({ label, desc: sc.desc });
       } else {
         resetTimer = setTimeout(reset, 1200);
       }
@@ -399,7 +402,7 @@ export default function ShortcutLayers() {
                   [s.shortcutPill]: true,
                   [s[`pill${d}`]]: !isEsc,
                   [s.pillAdvances]: !!sc.advances,
-                  [s.pillFired]: firedKey() === label,
+                  [s.pillFired]: fired()?.label === label,
                   [s.pillEsc]: isEsc,
                 }}
                 onClick={() => fireAction(sc, d)}
@@ -485,8 +488,13 @@ export default function ShortcutLayers() {
           <For each={LAYERS}>
             {(layer, i) => {
               const isLast = i() === LAYERS.length - 1;
-              const label = () =>
-                isLast ? trackOverride() ?? layer.trackLabel : layer.trackLabel;
+              let stickyLabel = layer.trackLabel;
+              const label = () => {
+                if (!isLast) return layer.trackLabel;
+                const override = trackOverride()?.label;
+                if (override) stickyLabel = override;
+                return stickyLabel;
+              };
               const showCmd = () =>
                 isLast
                   ? !!(trackOverride() && depth() === LAYERS.length - 1)
@@ -532,12 +540,17 @@ export default function ShortcutLayers() {
         {/* Shortcut pills */}
         <For each={pillTransition()}>{(el) => el}</For>
 
-        <div
-          class={s.actionFeedback}
-          style={{ opacity: lastAction() ? 1 : 0 }}
-        >
-          {lastAction() || "\u00A0"}
-        </div>
+        {() => {
+          const f = fired() ?? trackOverride();
+          return (
+            <div
+              class={s.actionFeedback}
+              style={{ opacity: f ? 1 : 0 }}
+            >
+              {f ? `${f.label} \u2192 ${f.desc}` : "\u00A0"}
+            </div>
+          );
+        }}
 
         <div class={s.btnRow}>
           <button type="button" class="btn btn-sm" onClick={() => reset()}>
