@@ -92,6 +92,13 @@ const LAYERS: LayerConfig[] = [
       { key: "e", label: "E", desc: "edit", pos: [244, 164, 80, 72] },
       { key: "v", label: "V", desc: "view", pos: [140, 228, 80, 72] },
       { key: "g", label: "G", desc: "git", pos: [36, 164, 80, 72] },
+      {
+        key: "escape",
+        label: "Esc",
+        desc: "back",
+        pos: [152, 152, 56, 56],
+        round: true,
+      },
     ],
   },
   {
@@ -113,6 +120,13 @@ const LAYERS: LayerConfig[] = [
         cardLabel: "⇧S",
         desc: "save as",
         pos: [140, 264, 80, 60],
+      },
+      {
+        key: "escape",
+        label: "Esc",
+        desc: "back",
+        pos: [152, 152, 56, 56],
+        round: true,
       },
     ],
   },
@@ -148,6 +162,13 @@ const LAYERS: LayerConfig[] = [
         pos: [218, 218, 64, 64],
         round: true,
       },
+      {
+        key: "escape",
+        label: "Esc",
+        desc: "back",
+        pos: [152, 152, 56, 56],
+        round: true,
+      },
     ],
   },
 ];
@@ -174,6 +195,7 @@ function initLabels() {
     }
   }
 }
+initLabels();
 
 export default function ShortcutLayers() {
   const [step, setStep] = createSignal(1);
@@ -232,6 +254,7 @@ export default function ShortcutLayers() {
     if (a.key === "escape") {
       if (step() > 1) {
         clearTimeout(resetTimer);
+        setFinalPick("");
         goTo(step() - 1);
         setLastAction("Esc → back");
         flash("Esc");
@@ -309,7 +332,6 @@ export default function ShortcutLayers() {
   };
 
   onMount(() => {
-    initLabels();
     hk = createHotkeys({ target: document });
 
     LAYERS.forEach((cfg, layerIdx) => {
@@ -383,24 +405,38 @@ export default function ShortcutLayers() {
                     class={`${styles.shape} ${lit() ? styles.shapeLit : ""}`}
                   />
                 )}
-                <text
-                  x={cx}
-                  y={cy - 4}
-                  text-anchor="middle"
-                  dominant-baseline="central"
-                  class={styles.shapeKey}
-                >
-                  {a.cardLabel}
-                </text>
-                <text
-                  x={cx}
-                  y={cy + 12}
-                  text-anchor="middle"
-                  dominant-baseline="central"
-                  class={styles.shapeDesc}
-                >
-                  {a.desc}
-                </text>
+                {a.key === "escape" ? (
+                  <text
+                    x={cx}
+                    y={cy}
+                    text-anchor="middle"
+                    dominant-baseline="central"
+                    class={styles.shapeKey}
+                  >
+                    Esc
+                  </text>
+                ) : (
+                  <>
+                    <text
+                      x={cx}
+                      y={cy - 4}
+                      text-anchor="middle"
+                      dominant-baseline="central"
+                      class={styles.shapeKey}
+                    >
+                      {a.cardLabel}
+                    </text>
+                    <text
+                      x={cx}
+                      y={cy + 12}
+                      text-anchor="middle"
+                      dominant-baseline="central"
+                      class={styles.shapeDesc}
+                    >
+                      {a.desc}
+                    </text>
+                  </>
+                )}
               </g>
             );
           }}
@@ -455,9 +491,9 @@ export default function ShortcutLayers() {
                 </Show>
                 <div class={styles.stepSlot}>
                   <div
-                    class={`${styles.stepCmd} ${(styles as Record<string, string>)[`cmd${i()}`]} ${cmdShow(i()) || (i() === LAYERS.length - 1 && finalPick()) ? styles.stepCmdShow : ""}`}
+                    class={`${styles.stepCmd} ${(styles as Record<string, string>)[`cmd${i()}`]} ${cmdShow(i()) || (i() === LAYERS.length - 1 && finalPick() && step() === LAYERS.length) ? styles.stepCmdShow : ""}`}
                   >
-                    {i() === LAYERS.length - 1 && finalPick() ? finalPick() : CMD_LABELS[i()]}
+                    {i() === LAYERS.length - 1 ? finalPick() : CMD_LABELS[i()]}
                   </div>
                   <div class={dotClasses(i())} />
                 </div>
