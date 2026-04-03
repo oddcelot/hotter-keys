@@ -21,7 +21,7 @@ interface HotkeyProps {
  * <Hotkey hk={hk} combo="mod+z" onFire={() => undo()} options={{ layer: "editor" }} />
  * ```
  */
-export function Hotkey(props: HotkeyProps) {
+export function Hotkey(props: HotkeyProps): null {
   createShortcut(props.hk, () => props.combo, props.onFire, props.options);
   return null;
 }
