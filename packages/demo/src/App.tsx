@@ -1,5 +1,5 @@
-import { createSignal, onMount, onCleanup, For, Show } from "solid-js";
-import { createHotkeys, isMac } from "hotter-keys";
+import { createSignal, onMount, onCleanup, For } from "solid-js";
+import { createHotkeys, displayShortcut as fmt } from "hotter-keys";
 
 interface LogEntry {
   id: number;
@@ -15,87 +15,95 @@ interface ShortcutInfo {
   scope?: string;
 }
 
-const mod = isMac() ? "\u2318" : "Ctrl";
-
 const SHORTCUTS: ShortcutInfo[] = [
   {
-    keys: `${mod}+P`,
+    keys: fmt("mod+p"),
     action: "Open modal",
     layer: "global",
     layerColor: "purple",
   },
-  { keys: `${mod}+S`, action: "Save", layer: "global", layerColor: "purple" },
+  { keys: fmt("mod+s"), action: "Save", layer: "global", layerColor: "purple" },
   {
-    keys: `${mod}+Shift+P`,
+    keys: fmt("mod+shift+p"),
     action: "Quick search",
     layer: "global",
     layerColor: "purple",
   },
   {
-    keys: `${mod}+K ${mod}+C`,
+    keys: fmt("mod+k mod+c"),
     action: "Toggle comment",
     layer: "global",
     layerColor: "purple",
   },
-  { keys: `${mod}+Z`, action: "Undo", layer: "editor", layerColor: "green" },
+  { keys: fmt("mod+z"), action: "Undo", layer: "editor", layerColor: "green" },
   {
-    keys: `${mod}+Shift+Z`,
+    keys: fmt("mod+shift+z"),
     action: "Redo",
     layer: "editor",
     layerColor: "green",
   },
   {
-    keys: `${mod}+D`,
+    keys: fmt("mod+d"),
     action: "Duplicate",
     layer: "canvas",
     layerColor: "blue",
   },
-  { keys: `${mod}+G`, action: "Group", layer: "canvas", layerColor: "blue" },
+  { keys: fmt("mod+g"), action: "Group", layer: "canvas", layerColor: "blue" },
   {
-    keys: `${mod}+1`,
+    keys: fmt("mod+1"),
     action: "Copy link",
     layer: "modal",
     layerColor: "orange",
   },
-  { keys: `${mod}+2`, action: "Export", layer: "modal", layerColor: "orange" },
-  { keys: `${mod}+3`, action: "Delete", layer: "modal", layerColor: "orange" },
   {
-    keys: `${mod}+Z`,
+    keys: fmt("mod+2"),
+    action: "Export",
+    layer: "modal",
+    layerColor: "orange",
+  },
+  {
+    keys: fmt("mod+3"),
+    action: "Delete",
+    layer: "modal",
+    layerColor: "orange",
+  },
+  {
+    keys: fmt("mod+z"),
     action: "Undo text",
     layer: "global",
     layerColor: "purple",
     scope: "text-editor",
   },
   {
-    keys: `${mod}+Z`,
+    keys: fmt("mod+z"),
     action: "Undo stroke",
     layer: "global",
     layerColor: "purple",
     scope: "drawing",
   },
   {
-    keys: `${mod}+Shift+Z`,
+    keys: fmt("mod+shift+z"),
     action: "Redo text",
     layer: "global",
     layerColor: "purple",
     scope: "text-editor",
   },
   {
-    keys: `${mod}+Shift+Z`,
+    keys: fmt("mod+shift+z"),
     action: "Redo stroke",
     layer: "global",
     layerColor: "purple",
     scope: "drawing",
   },
   {
-    keys: `${mod}+A`,
+    keys: fmt("mod+a"),
     action: "Select all text",
     layer: "global",
     layerColor: "purple",
     scope: "text-editor",
   },
   {
-    keys: `${mod}+A`,
+    keys: fmt("mod+a"),
     action: "Select all objects",
     layer: "global",
     layerColor: "purple",
@@ -128,61 +136,60 @@ export default function App() {
     const globalShiftKeys = new Set(["p", "z"]);
     const suppress = (e: KeyboardEvent) => {
       const k = e.key.toLowerCase();
-      if ((e.metaKey || e.ctrlKey) && globalKeys.has(k))
-        e.preventDefault();
+      if ((e.metaKey || e.ctrlKey) && globalKeys.has(k)) e.preventDefault();
       if ((e.metaKey || e.ctrlKey) && e.shiftKey && globalShiftKeys.has(k))
         e.preventDefault();
     };
     document.addEventListener("keydown", suppress, { capture: true });
-    onCleanup(() => document.removeEventListener("keydown", suppress, { capture: true }));
+    onCleanup(() =>
+      document.removeEventListener("keydown", suppress, { capture: true }),
+    );
 
     // Global shortcuts (always active)
     hk.add("mod+p", () => {
-      addLog(`${mod}+P`, "Open modal");
+      addLog(fmt("mod+p"), "Open modal");
       openModal();
     });
-    hk.add("mod+s", () => addLog(`${mod}+S`, "Save"));
-    hk.add("mod+shift+p", () => addLog(`${mod}+Shift+P`, "Quick search"));
-    hk.add("mod+k mod+c", () => addLog(`${mod}+K ${mod}+C`, "Toggle comment"));
+    hk.add("mod+s", () => addLog(fmt("mod+s"), "Save"));
+    hk.add("mod+shift+p", () => addLog(fmt("mod+shift+p"), "Quick search"));
+    hk.add("mod+k mod+c", () => addLog(fmt("mod+k mod+c"), "Toggle comment"));
 
     // Editor layer shortcuts
-    hk.add("mod+z", () => addLog(`${mod}+Z`, "Undo"), { layer: "editor" });
-    hk.add("mod+shift+z", () => addLog(`${mod}+Shift+Z`, "Redo"), {
+    hk.add("mod+z", () => addLog(fmt("mod+z"), "Undo"), { layer: "editor" });
+    hk.add("mod+shift+z", () => addLog(fmt("mod+shift+z"), "Redo"), {
       layer: "editor",
     });
 
     // Canvas layer shortcuts
-    hk.add("mod+d", () => addLog(`${mod}+D`, "Duplicate"), { layer: "canvas" });
-    hk.add("mod+g", () => addLog(`${mod}+G`, "Group"), { layer: "canvas" });
+    hk.add("mod+d", () => addLog(fmt("mod+d"), "Duplicate"), {
+      layer: "canvas",
+    });
+    hk.add("mod+g", () => addLog(fmt("mod+g"), "Group"), { layer: "canvas" });
 
     // Modal layer shortcuts (only active when modal is open)
-    hk.add("mod+1", () => addLog(`${mod}+1`, "Action: Copy link"), {
+    hk.add("mod+1", () => addLog(fmt("mod+1"), "Copy link"), {
       layer: "modal",
     });
-    hk.add("mod+2", () => addLog(`${mod}+2`, "Action: Export"), {
-      layer: "modal",
-    });
-    hk.add("mod+3", () => addLog(`${mod}+3`, "Action: Delete"), {
-      layer: "modal",
-    });
+    hk.add("mod+2", () => addLog(fmt("mod+2"), "Export"), { layer: "modal" });
+    hk.add("mod+3", () => addLog(fmt("mod+3"), "Delete"), { layer: "modal" });
 
     // Scoped shortcuts — same key, different behavior per scope
-    hk.add("mod+z", () => addLog(`${mod}+Z`, "Undo text"), {
+    hk.add("mod+z", () => addLog(fmt("mod+z"), "Undo text"), {
       scope: "text-editor",
     });
-    hk.add("mod+z", () => addLog(`${mod}+Z`, "Undo stroke"), {
+    hk.add("mod+z", () => addLog(fmt("mod+z"), "Undo stroke"), {
       scope: "drawing",
     });
-    hk.add("mod+shift+z", () => addLog(`${mod}+Shift+Z`, "Redo text"), {
+    hk.add("mod+shift+z", () => addLog(fmt("mod+shift+z"), "Redo text"), {
       scope: "text-editor",
     });
-    hk.add("mod+shift+z", () => addLog(`${mod}+Shift+Z`, "Redo stroke"), {
+    hk.add("mod+shift+z", () => addLog(fmt("mod+shift+z"), "Redo stroke"), {
       scope: "drawing",
     });
-    hk.add("mod+a", () => addLog(`${mod}+A`, "Select all text"), {
+    hk.add("mod+a", () => addLog(fmt("mod+a"), "Select all text"), {
       scope: "text-editor",
     });
-    hk.add("mod+a", () => addLog(`${mod}+A`, "Select all objects"), {
+    hk.add("mod+a", () => addLog(fmt("mod+a"), "Select all objects"), {
       scope: "drawing",
     });
 
@@ -272,8 +279,8 @@ export default function App() {
             </div>
             <span class="focus-panel-hint">Focus to activate editor layer</span>
             <div class="focus-panel-shortcuts">
-              <kbd>{mod}+Z</kbd>
-              <kbd>{mod}+Shift+Z</kbd>
+              <kbd>{fmt("mod+z")}</kbd>
+              <kbd>{fmt("mod+shift+z")}</kbd>
             </div>
           </section>
           <section
@@ -288,8 +295,8 @@ export default function App() {
             </div>
             <span class="focus-panel-hint">Focus to activate canvas layer</span>
             <div class="focus-panel-shortcuts">
-              <kbd>{mod}+D</kbd>
-              <kbd>{mod}+G</kbd>
+              <kbd>{fmt("mod+d")}</kbd>
+              <kbd>{fmt("mod+g")}</kbd>
             </div>
           </section>
         </div>
@@ -302,9 +309,9 @@ export default function App() {
           Scopes <strong style={{ color: "var(--hk-ink)" }}>filter</strong>{" "}
           which bindings are considered. Only the active scope's bindings fire —
           others are invisible. Use scopes when the <em>same</em> key combo
-          should do different things depending on context, like {mod}+Z meaning
-          "undo text" in an editor vs "undo stroke" on a canvas. Click a panel
-          to switch scope.
+          should do different things depending on context, like {fmt("mod+z")}{" "}
+          meaning "undo text" in an editor vs "undo stroke" on a canvas. Click a
+          panel to switch scope.
         </p>
         <div class="flex gap-sm items-center mb-sm">
           <span class="text-sm muted">Active scope:</span>
@@ -323,14 +330,15 @@ export default function App() {
             <span class="focus-panel-hint">scope: text-editor</span>
             <div class="focus-panel-shortcuts">
               <div class="flex gap-sm items-center">
-                <kbd>{mod}+Z</kbd> <span class="muted text-sm">Undo text</span>
+                <kbd>{fmt("mod+z")}</kbd>{" "}
+                <span class="muted text-sm">Undo text</span>
               </div>
               <div class="flex gap-sm items-center">
-                <kbd>{mod}+Shift+Z</kbd>{" "}
+                <kbd>{fmt("mod+shift+z")}</kbd>{" "}
                 <span class="muted text-sm">Redo text</span>
               </div>
               <div class="flex gap-sm items-center">
-                <kbd>{mod}+A</kbd>{" "}
+                <kbd>{fmt("mod+a")}</kbd>{" "}
                 <span class="muted text-sm">Select all text</span>
               </div>
             </div>
@@ -347,15 +355,15 @@ export default function App() {
             <span class="focus-panel-hint">scope: drawing</span>
             <div class="focus-panel-shortcuts">
               <div class="flex gap-sm items-center">
-                <kbd>{mod}+Z</kbd>{" "}
+                <kbd>{fmt("mod+z")}</kbd>{" "}
                 <span class="muted text-sm">Undo stroke</span>
               </div>
               <div class="flex gap-sm items-center">
-                <kbd>{mod}+Shift+Z</kbd>{" "}
+                <kbd>{fmt("mod+shift+z")}</kbd>{" "}
                 <span class="muted text-sm">Redo stroke</span>
               </div>
               <div class="flex gap-sm items-center">
-                <kbd>{mod}+A</kbd>{" "}
+                <kbd>{fmt("mod+a")}</kbd>{" "}
                 <span class="muted text-sm">Select all objects</span>
               </div>
             </div>
@@ -417,15 +425,15 @@ export default function App() {
           </p>
           <div class="card">
             <div class="row">
-              <kbd>{mod}+1</kbd>
+              <kbd>{fmt("mod+1")}</kbd>
               <span class="flex-1 text-sm">Copy link</span>
             </div>
             <div class="row">
-              <kbd>{mod}+2</kbd>
+              <kbd>{fmt("mod+2")}</kbd>
               <span class="flex-1 text-sm">Export</span>
             </div>
             <div class="row">
-              <kbd>{mod}+3</kbd>
+              <kbd>{fmt("mod+3")}</kbd>
               <span class="flex-1 text-sm">Delete</span>
             </div>
           </div>
@@ -462,8 +470,15 @@ export default function App() {
           <span class="flex-1" />
           <button class="btn btn-sm" onClick={openModal}>
             Open Modal{" "}
-            <kbd style={{ "font-size": "0.55rem", "min-width": "auto", padding: "0 0.3rem", "margin-left": "0.3rem" }}>
-              {mod}+P
+            <kbd
+              style={{
+                "font-size": "0.55rem",
+                "min-width": "auto",
+                padding: "0 0.3rem",
+                "margin-left": "0.3rem",
+              }}
+            >
+              {fmt("mod+p")}
             </kbd>
           </button>
         </div>

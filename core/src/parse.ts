@@ -146,6 +146,19 @@ export function formatSequence(seq: ShortcutSequence, mac = false): string {
   return seq.map((s) => formatShortcut(s, mac)).join(" ");
 }
 
+/**
+ * Parse a raw shortcut string and format it for the current platform.
+ * Convenience wrapper around `formatSequence(parseSequence(raw), isMac())`.
+ *
+ * ```ts
+ * displayShortcut("mod+k")       // "⌘K" on Mac, "Ctrl+K" elsewhere
+ * displayShortcut("mod+k mod+c") // "⌘K ⌘C" on Mac
+ * ```
+ */
+export function displayShortcut(raw: string): string {
+  return formatSequence(parseSequence(raw), isMac());
+}
+
 export function isInputElement(el: EventTarget | null): boolean {
   if (!el || !(el instanceof HTMLElement)) return false;
   const tag = el.tagName;

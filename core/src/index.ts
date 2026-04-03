@@ -44,6 +44,7 @@ export {
   parseSequence,
   formatShortcut,
   formatSequence,
+  displayShortcut,
   translateForPlatform,
 } from "./parse";
 
