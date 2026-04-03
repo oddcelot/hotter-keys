@@ -121,6 +121,13 @@ kbd {
   text-align: center;
 }
 
+kbd.kbd-inline {
+  font-size: 0.55rem;
+  min-width: auto;
+  padding: 0 0.3rem;
+  margin-left: 0.3rem;
+}
+
 kbd.fired {
   background: var(--hk-green-low);
   border-color: oklch(from var(--hk-green) l c h / 0.3);
