@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "hotter-keys": "workspace:*",
+    "@fontsource-variable/lilex": "^5.1.1",
     "solid-js": "catalog:default"
   },
   "devDependencies": {

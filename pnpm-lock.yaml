@@ -79,6 +79,9 @@ importers:
 
   packages/demo:
     dependencies:
+      '@fontsource-variable/lilex':
+        specifier: ^5.1.1
+        version: 5.2.1
       hotter-keys:
         specifier: workspace:*
         version: link:../../core
