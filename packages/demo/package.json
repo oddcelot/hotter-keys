@@ -1,0 +1,23 @@
+{
+  "name": "@hotter-keys/demo",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "hotter-keys": "workspace:*",
+    "@fontsource-variable/lilex": "^5.1.1",
+    "solid-js": "catalog:default"
+  },
+  "devDependencies": {
+    "@hotter-keys/vite-plugin-devtools": "workspace:*",
+    "@vitejs/devtools": "^0.1.13",
+    "@vitejs/devtools-kit": "^0.1.13",
+    "typescript": "catalog:default",
+    "vite": ">=5.0.0",
+    "vite-plugin-solid": "^2.11.6"
+  }
+}
