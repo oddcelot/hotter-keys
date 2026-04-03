@@ -58,24 +58,24 @@
 
 /* Layer colour variants (light) */
 .l0 {
-    --lc: #afa9ec;
-    --lt: #7f77dd;
-    --lc-bg: rgba(174, 169, 236, 0.05);
+    --lc: #8a82d6;
+    --lt: #5b4fc4;
+    --lc-bg: rgba(138, 130, 214, 0.08);
 }
 .l1 {
-    --lc: #5dcaa5;
-    --lt: #0f6e56;
-    --lc-bg: rgba(93, 202, 165, 0.05);
+    --lc: #2da67e;
+    --lt: #0c5c48;
+    --lc-bg: rgba(45, 166, 126, 0.08);
 }
 .l2 {
-    --lc: #f0997b;
-    --lt: #993c1d;
-    --lc-bg: rgba(240, 153, 123, 0.05);
+    --lc: #d97a56;
+    --lt: #8c3418;
+    --lc-bg: rgba(217, 122, 86, 0.08);
 }
 .l3 {
-    --lc: #85b7eb;
-    --lt: #185fa5;
-    --lc-bg: rgba(133, 183, 235, 0.05);
+    --lc: #5a9ad6;
+    --lt: #14508c;
+    --lc-bg: rgba(90, 154, 214, 0.08);
 }
 
 /* --- SVG inside layers ------------------------------------------------- */
@@ -166,24 +166,24 @@
 }
 
 .cmd0 {
-    color: #7f77dd;
-    background: #afa9ec22;
-    border: 0.5px solid #afa9ec;
+    color: #5b4fc4;
+    background: #8a82d622;
+    border: 0.5px solid #8a82d6;
 }
 .cmd1 {
-    color: #0f6e56;
-    background: #5dcaa522;
-    border: 0.5px solid #5dcaa5;
+    color: #0c5c48;
+    background: #2da67e22;
+    border: 0.5px solid #2da67e;
 }
 .cmd2 {
-    color: #993c1d;
-    background: #f0997b22;
-    border: 0.5px solid #f0997b;
+    color: #8c3418;
+    background: #d97a5622;
+    border: 0.5px solid #d97a56;
 }
 .cmd3 {
-    color: #185fa5;
-    background: #85b7eb22;
-    border: 0.5px solid #85b7eb;
+    color: #14508c;
+    background: #5a9ad622;
+    border: 0.5px solid #5a9ad6;
 }
 
 /* Dots */
@@ -212,16 +212,16 @@
 }
 
 .dot0 {
-    background: #afa9ec;
+    background: #8a82d6;
 }
 .dot1 {
-    background: #5dcaa5;
+    background: #2da67e;
 }
 .dot2 {
-    background: #f0997b;
+    background: #d97a56;
 }
 .dot3 {
-    background: #85b7eb;
+    background: #5a9ad6;
 }
 
 /* Lines */
@@ -244,13 +244,13 @@
 }
 
 .line0 {
-    background: #afa9ec;
+    background: #8a82d6;
 }
 .line1 {
-    background: #5dcaa5;
+    background: #2da67e;
 }
 .line2 {
-    background: #f0997b;
+    background: #d97a56;
 }
 
 /* Title */
@@ -348,24 +348,24 @@
 
 /* Pill colour per layer */
 .pill0 {
-    color: #7f77dd;
-    border-color: #afa9ec;
-    background: #afa9ec18;
+    color: #5b4fc4;
+    border-color: #8a82d6;
+    background: #8a82d618;
 }
 .pill1 {
-    color: #0f6e56;
-    border-color: #5dcaa5;
-    background: #5dcaa518;
+    color: #0c5c48;
+    border-color: #2da67e;
+    background: #2da67e18;
 }
 .pill2 {
-    color: #993c1d;
-    border-color: #f0997b;
-    background: #f0997b18;
+    color: #8c3418;
+    border-color: #d97a56;
+    background: #d97a5618;
 }
 .pill3 {
-    color: #185fa5;
-    border-color: #85b7eb;
-    background: #85b7eb18;
+    color: #14508c;
+    border-color: #5a9ad6;
+    background: #5a9ad618;
 }
 
 .pillEsc {

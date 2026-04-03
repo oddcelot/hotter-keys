@@ -228,13 +228,8 @@ export default function ShortcutLayers() {
     if (sc.advances) {
       clearTimeout(resetTimer);
       goTo(layerIdx + 1);
-    } else if (LAYERS[layerIdx].hkLayer) {
-      clearTimeout(resetTimer);
-      if (layerIdx === LAYERS.length - 1) {
-        setTrackOverride({ label, desc: sc.desc });
-      } else {
-        resetTimer = setTimeout(reset, 1200);
-      }
+    } else if (layerIdx === LAYERS.length - 1) {
+      setTrackOverride({ label, desc: sc.desc });
     }
   }
 
