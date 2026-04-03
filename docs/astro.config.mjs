@@ -29,7 +29,12 @@ export default defineConfig({
       sidebar: [
         {
           label: "Guides",
-          items: [{ label: "Getting Started", slug: "guides/getting-started" }],
+          items: [
+            { label: "Getting Started", slug: "guides/getting-started" },
+            { label: "Layers", slug: "guides/layers" },
+            { label: "Scopes", slug: "guides/scopes" },
+            { label: "DevTools", slug: "guides/devtools" },
+          ],
         },
         {
           label: "Reference",
