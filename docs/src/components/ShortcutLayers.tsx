@@ -1,5 +1,10 @@
 import { createSignal, onCleanup, onMount, For, Show } from "solid-js";
-import { createHotkeys, isMac, formatSequence, parseSequence } from "hotter-keys";
+import {
+  createHotkeys,
+  isMac,
+  formatSequence,
+  parseSequence,
+} from "hotter-keys";
 import type { Hotkeys } from "hotter-keys";
 import "../styles/demo.css";
 import styles from "./ShortcutLayers.module.css";
@@ -35,18 +40,55 @@ const LAYERS: LayerConfig[] = [
   {
     title: "Base — global shortcuts",
     actions: [
-      { key: "mod+k", label: "", cardLabel: "⌘ K", desc: "command bar", advances: true, pos: [60, 60, 80, 44] },
-      { key: "mod+s", label: "", cardLabel: "⌘ S", desc: "save", pos: [220, 60, 80, 44] },
-      { key: "mod+shift+p", label: "", cardLabel: "⌘ ⇧P", desc: "palette", pos: [220, 256, 80, 44] },
-      { key: "mod+z", label: "", cardLabel: "⌘ Z", desc: "undo", pos: [60, 256, 80, 44] },
-      { key: "escape", label: "Esc", desc: "cancel", pos: [152, 152, 56, 56], round: true },
+      {
+        key: "mod+k",
+        label: "",
+        cardLabel: "⌘ K",
+        desc: "command bar",
+        advances: true,
+        pos: [60, 60, 80, 44],
+      },
+      {
+        key: "mod+s",
+        label: "",
+        cardLabel: "⌘ S",
+        desc: "save",
+        pos: [220, 60, 80, 44],
+      },
+      {
+        key: "mod+shift+p",
+        label: "",
+        cardLabel: "⌘ ⇧P",
+        desc: "palette",
+        pos: [220, 256, 80, 44],
+      },
+      {
+        key: "mod+z",
+        label: "",
+        cardLabel: "⌘ Z",
+        desc: "undo",
+        pos: [60, 256, 80, 44],
+      },
+      {
+        key: "escape",
+        label: "Esc",
+        desc: "cancel",
+        pos: [152, 152, 56, 56],
+        round: true,
+      },
     ],
   },
   {
     title: "Command bar — category select",
     layer: "cmdbar",
     actions: [
-      { key: "f", label: "F", desc: "file", advances: true, pos: [140, 60, 80, 72] },
+      {
+        key: "f",
+        label: "F",
+        desc: "file",
+        advances: true,
+        pos: [140, 60, 80, 72],
+      },
       { key: "e", label: "E", desc: "edit", pos: [244, 164, 80, 72] },
       { key: "v", label: "V", desc: "view", pos: [140, 228, 80, 72] },
       { key: "g", label: "G", desc: "git", pos: [36, 164, 80, 72] },
@@ -56,20 +98,56 @@ const LAYERS: LayerConfig[] = [
     title: "File — operations",
     layer: "file",
     actions: [
-      { key: "n", label: "N", desc: "new file", advances: true, pos: [140, 64, 80, 60] },
+      {
+        key: "n",
+        label: "N",
+        desc: "new file",
+        advances: true,
+        pos: [140, 64, 80, 60],
+      },
       { key: "o", label: "O", desc: "open", pos: [238, 172, 80, 60] },
       { key: "s", label: "S", desc: "save", pos: [42, 172, 80, 60] },
-      { key: "shift+s", label: "", cardLabel: "⇧S", desc: "save as", pos: [140, 264, 80, 60] },
+      {
+        key: "shift+s",
+        label: "",
+        cardLabel: "⇧S",
+        desc: "save as",
+        pos: [140, 264, 80, 60],
+      },
     ],
   },
   {
     title: "New file — template type",
     layer: "newfile",
     actions: [
-      { key: "t", label: "T", desc: "template", pos: [78, 78, 64, 64], round: true },
-      { key: "b", label: "B", desc: "blank", pos: [218, 78, 64, 64], round: true },
-      { key: "v", label: "V", desc: "clipboard", pos: [78, 218, 64, 64], round: true },
-      { key: "d", label: "D", desc: "duplicate", pos: [218, 218, 64, 64], round: true },
+      {
+        key: "t",
+        label: "T",
+        desc: "template",
+        pos: [78, 78, 64, 64],
+        round: true,
+      },
+      {
+        key: "b",
+        label: "B",
+        desc: "blank",
+        pos: [218, 78, 64, 64],
+        round: true,
+      },
+      {
+        key: "v",
+        label: "V",
+        desc: "clipboard",
+        pos: [78, 218, 64, 64],
+        round: true,
+      },
+      {
+        key: "d",
+        label: "D",
+        desc: "duplicate",
+        pos: [218, 218, 64, 64],
+        round: true,
+      },
     ],
   },
 ];
@@ -117,11 +195,13 @@ export default function ShortcutLayers() {
 
     if (clamped > cur) {
       for (let i = cur; i < clamped; i++) {
-        if (i > 0 && i - 1 < LAYER_NAMES.length) hk.pushLayer(LAYER_NAMES[i - 1]);
+        if (i > 0 && i - 1 < LAYER_NAMES.length)
+          hk.pushLayer(LAYER_NAMES[i - 1]);
       }
     } else {
       for (let i = cur; i > clamped; i--) {
-        if (i - 2 >= 0 && i - 2 < LAYER_NAMES.length) hk.popLayer(LAYER_NAMES[i - 2]);
+        if (i - 2 >= 0 && i - 2 < LAYER_NAMES.length)
+          hk.popLayer(LAYER_NAMES[i - 2]);
       }
     }
 
@@ -129,7 +209,8 @@ export default function ShortcutLayers() {
   }
 
   function reset() {
-    for (let i = LAYER_NAMES.length - 1; i >= 0; i--) hk.popLayer(LAYER_NAMES[i]);
+    for (let i = LAYER_NAMES.length - 1; i >= 0; i--)
+      hk.popLayer(LAYER_NAMES[i]);
     setStep(1);
     setLastAction("");
   }
@@ -139,6 +220,31 @@ export default function ShortcutLayers() {
     flash(label);
     clearTimeout(resetTimer);
     resetTimer = setTimeout(() => reset(), 1200);
+  }
+
+  function fireAction(a: Action, layerIdx: number, cfg: LayerConfig) {
+    if (a.key === "escape") {
+      if (step() > 1) {
+        clearTimeout(resetTimer);
+        goTo(step() - 1);
+        setLastAction("Esc → back");
+        flash("Esc");
+      }
+      return;
+    }
+    if (a.advances) {
+      if (!cfg.layer && step() !== 1) return;
+      clearTimeout(resetTimer);
+      goTo(layerIdx + 2);
+      setLastAction(`${a.label} → ${a.desc}`);
+      flash(a.label);
+    } else if (!cfg.layer) {
+      if (step() !== 1) return;
+      setLastAction(`${a.label} → ${a.desc}`);
+      flash(a.label);
+    } else {
+      completeAction(a.label, a.desc);
+    }
   }
 
   // Derived helpers
@@ -203,46 +309,31 @@ export default function ShortcutLayers() {
     LAYERS.forEach((cfg, layerIdx) => {
       for (const a of cfg.actions) {
         if (a.key === "escape") continue;
-
         const opts = cfg.layer
           ? { layer: cfg.layer, preventDefault: false }
           : undefined;
-
-        if (a.advances) {
-          hk.add(a.key, () => {
-            if (!cfg.layer && step() !== 1) return;
-            clearTimeout(resetTimer);
-            goTo(layerIdx + 2);
-            setLastAction(`${a.label} → ${a.desc}`);
-            flash(a.label);
-          }, opts);
-        } else if (!cfg.layer) {
-          hk.add(a.key, () => {
-            if (step() !== 1) return;
-            setLastAction(`${a.label} → ${a.desc}`);
-            flash(a.label);
-          });
-        } else {
-          hk.add(a.key, () => completeAction(a.label, a.desc), opts);
-        }
+        hk.add(a.key, () => fireAction(a, layerIdx, cfg), opts);
       }
     });
 
     const onEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape" && step() > 1) {
         e.preventDefault();
-        clearTimeout(resetTimer);
-        goTo(step() - 1);
-        setLastAction("Esc → back");
-        flash("Esc");
+        fireAction(
+          { key: "escape", label: "Esc", desc: "back", pos: [0, 0, 0, 0] },
+          0,
+          LAYERS[0],
+        );
       }
     };
     document.addEventListener("keydown", onEscape);
 
     const suppress = (e: KeyboardEvent) => {
       const k = e.key.toLowerCase();
-      if ((e.metaKey || e.ctrlKey) && ["k", "s", "z"].includes(k)) e.preventDefault();
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && k === "p") e.preventDefault();
+      if ((e.metaKey || e.ctrlKey) && ["k", "s", "z"].includes(k))
+        e.preventDefault();
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && k === "p")
+        e.preventDefault();
     };
     document.addEventListener("keydown", suppress, { capture: true });
 
@@ -254,23 +345,61 @@ export default function ShortcutLayers() {
     });
   });
 
-  function renderCards(layerIdx: number) {
+  function renderLayer(layerIdx: number) {
     return (
-      <For each={LAYERS[layerIdx].actions}>
-        {(a, j) => {
-          const [x, y, w, h] = a.pos;
-          const lit = () => j() === 0 && ringLit(layerIdx);
-          return (
-            <div
-              class={`${styles.card} ${a.round ? styles.cardRound : ""} ${lit() ? styles.cardLit : ""}`}
-              style={{ left: `${x}px`, top: `${y}px`, width: `${w}px`, height: `${h}px` }}
-            >
-              <span class={styles.cardKey}>{a.cardLabel}</span>
-              <span class={styles.cardDesc}>{a.desc}</span>
-            </div>
-          );
-        }}
-      </For>
+      <svg
+        viewBox="0 0 360 360"
+        xmlns="http://www.w3.org/2000/svg"
+        class={styles.layerSvg}
+      >
+        <For each={LAYERS[layerIdx].actions}>
+          {(a, j) => {
+            const [x, y, w, h] = a.pos;
+            const cx = x + w / 2;
+            const cy = y + h / 2;
+            const lit = () => j() === 0 && ringLit(layerIdx);
+            return (
+              <g>
+                {a.round ? (
+                  <circle
+                    cx={cx}
+                    cy={cy}
+                    r={w / 2}
+                    class={`${styles.shape} ${lit() ? styles.shapeLit : ""}`}
+                  />
+                ) : (
+                  <rect
+                    x={x}
+                    y={y}
+                    width={w}
+                    height={h}
+                    rx="6"
+                    class={`${styles.shape} ${lit() ? styles.shapeLit : ""}`}
+                  />
+                )}
+                <text
+                  x={cx}
+                  y={cy - 4}
+                  text-anchor="middle"
+                  dominant-baseline="central"
+                  class={styles.shapeKey}
+                >
+                  {a.cardLabel}
+                </text>
+                <text
+                  x={cx}
+                  y={cy + 12}
+                  text-anchor="middle"
+                  dominant-baseline="central"
+                  class={styles.shapeDesc}
+                >
+                  {a.desc}
+                </text>
+              </g>
+            );
+          }}
+        </For>
+      </svg>
     );
   }
 
@@ -289,7 +418,7 @@ export default function ShortcutLayers() {
                   class={layerClasses(i())}
                   style={{ transform: layerTransform(i()) }}
                 >
-                  {renderCards(i())}
+                  {renderLayer(i())}
                 </div>
               )}
             </For>
@@ -299,10 +428,14 @@ export default function ShortcutLayers() {
         {/* Config code panel */}
         <div class={styles.codePanel}>
           <div class={styles.codePanelHeader}>
-            <span class={`${styles.codePanelDot} ${(styles as Record<string, string>)[`dot${step() - 1}`]}`} />
+            <span
+              class={`${styles.codePanelDot} ${(styles as Record<string, string>)[`dot${step() - 1}`]}`}
+            />
             {currentLayer()?.title ?? ""}
           </div>
-          <pre class={styles.codePre}><code>{currentJson()}</code></pre>
+          <pre class={styles.codePre}>
+            <code>{currentJson()}</code>
+          </pre>
         </div>
       </div>
 
@@ -327,28 +460,42 @@ export default function ShortcutLayers() {
           </For>
         </div>
 
-        <div class={styles.shortcuts}>
+        <div class={`not-content ${styles.shortcuts}`}>
           <For each={currentActions()}>
-            {(a) => (
-              <span
-                class={`${styles.shortcutPill} ${(styles as Record<string, string>)[`pill${step() - 1}`]} ${a.advances ? styles.pillAdvances : ""} ${firedKey() === a.label ? styles.pillFired : ""}`}
-              >
-                <span class={styles.pillKey}>{a.label}</span>
-                <span class={styles.pillDesc}>{a.desc}</span>
-              </span>
-            )}
+            {(a) => {
+              const layerIdx = step() - 1;
+              const cfg = LAYERS[layerIdx];
+              return (
+                <button
+                  class={`${styles.shortcutPill} ${(styles as Record<string, string>)[`pill${layerIdx}`]} ${a.advances ? styles.pillAdvances : ""} ${firedKey() === a.label ? styles.pillFired : ""}`}
+                  onClick={() => fireAction(a, layerIdx, cfg)}
+                >
+                  <span class={styles.pillKey}>{a.label}</span>
+                  <span class={styles.pillDesc}>{a.desc}</span>
+                </button>
+              );
+            }}
           </For>
           <Show when={step() > 1}>
-            <span
+            <button
               class={`${styles.shortcutPill} ${styles.pillEsc} ${firedKey() === "Esc" ? styles.pillFired : ""}`}
+              onClick={() => {
+                clearTimeout(resetTimer);
+                goTo(step() - 1);
+                setLastAction("Esc → back");
+                flash("Esc");
+              }}
             >
               <span class={styles.pillKey}>Esc</span>
               <span class={styles.pillDesc}>back</span>
-            </span>
+            </button>
           </Show>
         </div>
 
-        <div class={styles.actionFeedback} style={{ opacity: lastAction() ? 1 : 0 }}>
+        <div
+          class={styles.actionFeedback}
+          style={{ opacity: lastAction() ? 1 : 0 }}
+        >
           {lastAction() || "\u00A0"}
         </div>
 
