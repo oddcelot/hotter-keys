@@ -391,13 +391,17 @@ export function hotterKeysViteDevtools(): PluginWithDevTools {
             name: "hotter-keys:on-fired",
             type: "action",
             setup: (ctx) => ({
-              handler: async (data: { tag: string; detail: string }) => {
+              handler: async (data: { shortcut: string; layer: string; scope?: string }) => {
                 firedCount++;
+                const labels = [`layer:${data.layer}`];
+                if (data.scope) labels.push(`scope:${data.scope}`);
                 ctx.logs.add({
                   id: `hk-fired-${Date.now()}-${firedCount}`,
-                  message: `${data.tag}: ${data.detail}`,
+                  message: `fired: ${data.shortcut}`,
                   level: "success",
                   category: "hotter-keys",
+                  labels,
+                  description: `Layer: ${data.layer}${data.scope ? ` | Scope: ${data.scope}` : ""}`,
                   notify: notifyOnFired,
                   autoDismiss: notifyOnFired ? 3000 : undefined,
                   autoDelete: 30000,

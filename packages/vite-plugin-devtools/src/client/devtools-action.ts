@@ -22,25 +22,26 @@ async function init() {
     });
   }
 
-  function onEvent(entry: DevtoolsLogEntry) {
-    if (entry.type === 'binding:fired') {
-      // Also notify server to emit a log
-      (client.call as any)('hotter-keys:on-fired', {
-        tag: entry.tag,
-        detail: entry.detail,
-      });
-    }
-  }
+  function onEvent(_entry: DevtoolsLogEntry) {}
 
   function onRawEvent(event: any) {
     if (event.type === 'binding:fired') {
+      const shortcut = fmtSequence(event.shortcut);
+      const layer = event.layer ?? 'global';
+      const scope = event.scope;
       firedLog.push({
-        shortcut: fmtSequence(event.shortcut),
-        layer: event.layer ?? 'global',
-        scope: event.scope ?? '\u2014',
+        shortcut,
+        layer,
+        scope: scope ?? '\u2014',
         timestamp: event.timestamp,
       });
       pushState();
+
+      (client.call as any)('hotter-keys:on-fired', {
+        shortcut,
+        layer,
+        scope,
+      });
     }
 
     switch (event.type) {
