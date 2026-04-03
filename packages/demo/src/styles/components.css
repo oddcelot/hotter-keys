@@ -193,6 +193,73 @@ kbd.fired {
 .text-sm { font-size: 0.75rem; }
 .mb-sm { margin-bottom: 0.5rem; }
 
+/* ── Focus panels ── */
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.focus-panel {
+  background: var(--hk-card-bg);
+  border: 1px solid var(--hk-card-border);
+  border-radius: 6px;
+  padding: 0.75rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+  min-height: 7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.focus-panel:focus-within {
+  border-color: var(--hk-accent);
+}
+
+.focus-panel-label {
+  font-size: var(--hk-label-size);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking);
+  color: var(--hk-ink-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.focus-panel-label .focus-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--hk-gray-4);
+  transition: background 0.15s;
+}
+
+.focus-panel:focus-within .focus-dot {
+  background: var(--hk-green);
+}
+
+.focus-panel-hint {
+  font-size: 0.7rem;
+  color: var(--hk-gray-4);
+}
+
+.focus-panel-shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: auto;
+}
+
+.focus-panel-shortcuts kbd {
+  font-size: 0.65rem;
+  min-width: auto;
+  padding: 0.05rem 0.35rem;
+}
+
 /* ── Scrollable log ── */
 
 .log-scroll {
