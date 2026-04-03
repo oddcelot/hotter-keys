@@ -179,6 +179,7 @@ export default function ShortcutLayers() {
   const [step, setStep] = createSignal(1);
   const [lastAction, setLastAction] = createSignal("");
   const [firedKey, setFiredKey] = createSignal("");
+  const [finalPick, setFinalPick] = createSignal("");
 
   let hk: Hotkeys;
   let resetTimer: ReturnType<typeof setTimeout> | undefined;
@@ -213,13 +214,18 @@ export default function ShortcutLayers() {
       hk.popLayer(LAYER_NAMES[i]);
     setStep(1);
     setLastAction("");
+    setFinalPick("");
   }
 
-  function completeAction(label: string, desc: string) {
+  function completeAction(label: string, desc: string, layerIdx: number) {
     setLastAction(`${label} → ${desc}`);
     flash(label);
     clearTimeout(resetTimer);
-    resetTimer = setTimeout(() => reset(), 1200);
+    if (layerIdx < LAYERS.length - 1) {
+      resetTimer = setTimeout(() => reset(), 1200);
+    } else {
+      setFinalPick(label);
+    }
   }
 
   function fireAction(a: Action, layerIdx: number, cfg: LayerConfig) {
@@ -243,7 +249,7 @@ export default function ShortcutLayers() {
       setLastAction(`${a.label} → ${a.desc}`);
       flash(a.label);
     } else {
-      completeAction(a.label, a.desc);
+      completeAction(a.label, a.desc, layerIdx);
     }
   }
 
@@ -449,9 +455,9 @@ export default function ShortcutLayers() {
                 </Show>
                 <div class={styles.stepSlot}>
                   <div
-                    class={`${styles.stepCmd} ${(styles as Record<string, string>)[`cmd${i()}`]} ${cmdShow(i()) ? styles.stepCmdShow : ""}`}
+                    class={`${styles.stepCmd} ${(styles as Record<string, string>)[`cmd${i()}`]} ${cmdShow(i()) || (i() === LAYERS.length - 1 && finalPick()) ? styles.stepCmdShow : ""}`}
                   >
-                    {CMD_LABELS[i()]}
+                    {i() === LAYERS.length - 1 && finalPick() ? finalPick() : CMD_LABELS[i()]}
                   </div>
                   <div class={dotClasses(i())} />
                 </div>
@@ -460,25 +466,27 @@ export default function ShortcutLayers() {
           </For>
         </div>
 
-        <For each={LAYERS}>
-          {(cfg, li) => {
-            const active = () => li() === step() - 1;
-            return (
+        {() => {
+          const cfg = currentLayer();
+          const li = step() - 1;
+          return (
+            <Show when={cfg}>
               <div class={`not-content ${styles.shortcuts}`}>
                 <For each={cfg.actions}>
                   {(a) => (
                     <button
-                      class={`${styles.shortcutPill} ${(styles as Record<string, string>)[`pill${li()}`]} ${a.advances ? styles.pillAdvances : ""} ${li() > 0 && active() && firedKey() === a.label ? styles.pillFired : ""}`}
-                      disabled={!active()}
-                      onClick={() => fireAction(a, li(), cfg)}
+                      type="button"
+                      class={`${styles.shortcutPill} ${(styles as Record<string, string>)[`pill${li}`]} ${a.advances ? styles.pillAdvances : ""} ${li > 0 && firedKey() === a.label ? styles.pillFired : ""}`}
+                      onClick={() => fireAction(a, li, cfg)}
                     >
                       <span class={styles.pillKey}>{a.label || a.cardLabel}</span>
                       <span class={styles.pillDesc}>{a.desc}</span>
                     </button>
                   )}
                 </For>
-                <Show when={active() && step() > 1}>
+                <Show when={step() > 1}>
                   <button
+                    type="button"
                     class={`${styles.shortcutPill} ${styles.pillEsc} ${firedKey() === "Esc" ? styles.pillFired : ""}`}
                     onClick={() => {
                       clearTimeout(resetTimer);
@@ -492,9 +500,9 @@ export default function ShortcutLayers() {
                   </button>
                 </Show>
               </div>
-            );
-          }}
-        </For>
+            </Show>
+          );
+        }}
 
         <div
           class={styles.actionFeedback}
@@ -504,7 +512,7 @@ export default function ShortcutLayers() {
         </div>
 
         <div class={styles.btnRow}>
-          <button class="btn btn-sm" onClick={() => reset()}>
+          <button type="button" class="btn btn-sm" onClick={() => reset()}>
             Reset
           </button>
         </div>
