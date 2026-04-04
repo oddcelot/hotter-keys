@@ -92,13 +92,14 @@ export class Hotkeys {
 
     // Devtools discovery: register eagerly if sentinel exists, or
     // stash on a global list so the sentinel can find us when it loads.
-    if (typeof globalThis !== 'undefined') {
+    if (typeof globalThis !== "undefined") {
       const g = globalThis as any;
       if (g.__HOTTER_KEYS_DEVTOOLS__) {
-        if (g.__HOTTER_KEYS_DEBUG__) console.log('[hk-core] sentinel found, registering eagerly');
+        if (g.__HOTTER_KEYS_DEBUG__) console.log("[hk-core] sentinel found, registering eagerly");
         g.__HOTTER_KEYS_DEVTOOLS__.__register(this);
       } else {
-        if (g.__HOTTER_KEYS_DEBUG__) console.log('[hk-core] no sentinel, stashing on __HOTTER_KEYS_INSTANCES__');
+        if (g.__HOTTER_KEYS_DEBUG__)
+          console.log("[hk-core] no sentinel, stashing on __HOTTER_KEYS_INSTANCES__");
         (g.__HOTTER_KEYS_INSTANCES__ ??= []).push(this);
       }
     }
@@ -117,7 +118,7 @@ export class Hotkeys {
     this.target.addEventListener("blur", this._onReset);
     this.target.addEventListener("contextmenu", this._onContextMenu);
     this.listening = true;
-    this.__devtools?.({ type: 'lifecycle', action: 'start', timestamp: Date.now() });
+    this.__devtools?.({ type: "lifecycle", action: "start", timestamp: Date.now() });
   }
 
   stop(): void {
@@ -127,11 +128,11 @@ export class Hotkeys {
     this.target.removeEventListener("blur", this._onReset);
     this.target.removeEventListener("contextmenu", this._onContextMenu);
     this.listening = false;
-    this.__devtools?.({ type: 'lifecycle', action: 'stop', timestamp: Date.now() });
+    this.__devtools?.({ type: "lifecycle", action: "stop", timestamp: Date.now() });
   }
 
   destroy(): void {
-    this.__devtools?.({ type: 'lifecycle', action: 'destroy', timestamp: Date.now() });
+    this.__devtools?.({ type: "lifecycle", action: "destroy", timestamp: Date.now() });
     this.stop();
     this._cancelDeferred();
     for (const s of this.states) {
@@ -156,7 +157,7 @@ export class Hotkeys {
   setScope(scope: string): void {
     const previous = this.scope;
     this.scope = scope;
-    this.__devtools?.({ type: 'scope:change', scope, previous, timestamp: Date.now() });
+    this.__devtools?.({ type: "scope:change", scope, previous, timestamp: Date.now() });
   }
 
   // ---------------------------------------------------------------------------
@@ -192,13 +193,15 @@ export class Hotkeys {
 
   onLayerChange(listener: LayerChangeListener): () => void {
     this._layerListeners.add(listener);
-    return () => { this._layerListeners.delete(listener); };
+    return () => {
+      this._layerListeners.delete(listener);
+    };
   }
 
   private _emitLayerChange(): void {
     const snapshot = Object.freeze([...this._layers]);
     for (const listener of this._layerListeners) listener(snapshot);
-    this.__devtools?.({ type: 'layer:change', layers: snapshot, timestamp: Date.now() });
+    this.__devtools?.({ type: "layer:change", layers: snapshot, timestamp: Date.now() });
   }
 
   // ---------------------------------------------------------------------------
@@ -206,12 +209,14 @@ export class Hotkeys {
   // ---------------------------------------------------------------------------
 
   getHeldKeys(): ReadonlyArray<string> {
-    return this._heldKeys;
+    return [...this._heldKeys];
   }
 
   onHeldKeysChange(listener: HeldKeysListener): () => void {
     this._heldKeysListeners.add(listener);
-    return () => { this._heldKeysListeners.delete(listener); };
+    return () => {
+      this._heldKeysListeners.delete(listener);
+    };
   }
 
   onKeyHold(key: string, listener: KeyHoldListener): () => void {
@@ -232,7 +237,7 @@ export class Hotkeys {
   private _emitHeldKeys(): void {
     const frozen = Object.freeze([...this._heldKeys]);
     for (const listener of this._heldKeysListeners) listener(frozen);
-    this.__devtools?.({ type: 'held-keys:change', keys: frozen, timestamp: Date.now() });
+    this.__devtools?.({ type: "held-keys:change", keys: frozen, timestamp: Date.now() });
 
     // Key-hold: check each watched key against the current single-key state
     const single = frozen.length === 1 ? frozen[0]! : null;
@@ -265,7 +270,7 @@ export class Hotkeys {
   add(
     shortcut: string | Shortcut | ShortcutSequence,
     handler: ShortcutHandler,
-    options: BindingOptions = {}
+    options: BindingOptions = {},
   ): () => void {
     let sequence = toSequence(shortcut);
 
@@ -292,27 +297,32 @@ export class Hotkeys {
     };
 
     this.states.push(state);
-    this.__devtools?.({ type: 'binding:added', shortcut: sequence, options, timestamp: Date.now() });
+    this.__devtools?.({
+      type: "binding:added",
+      shortcut: sequence,
+      options,
+      timestamp: Date.now(),
+    });
 
     return () => {
       const idx = this.states.indexOf(state);
       if (idx !== -1) this.states.splice(idx, 1);
       if (state.seqTimer !== undefined) clearTimeout(state.seqTimer);
-      this.__devtools?.({ type: 'binding:removed', shortcut: sequence, timestamp: Date.now() });
+      this.__devtools?.({ type: "binding:removed", shortcut: sequence, timestamp: Date.now() });
     };
   }
 
-  addMany(
-    map: Record<string, ShortcutHandler>,
-    options: BindingOptions = {}
-  ): () => void {
+  addMany(map: Record<string, ShortcutHandler>, options: BindingOptions = {}): () => void {
     const unsubs = Object.entries(map).map(([shortcut, handler]) =>
-      this.add(shortcut, handler, options)
+      this.add(shortcut, handler, options),
     );
     return () => unsubs.forEach((u) => u());
   }
 
-  remove(shortcut: string | Shortcut | ShortcutSequence, options?: { crossPlatform?: boolean }): void {
+  remove(
+    shortcut: string | Shortcut | ShortcutSequence,
+    options?: { crossPlatform?: boolean },
+  ): void {
     let target = toSequence(shortcut);
     if (options?.crossPlatform !== false) {
       target = target.map((s) => translateForPlatform(s));
@@ -323,7 +333,11 @@ export class Hotkeys {
       const matches = s.binding.sequence.every((chord, i) => shortcutEquals(chord, target[i]!));
       if (matches) {
         if (s.seqTimer !== undefined) clearTimeout(s.seqTimer);
-        this.__devtools?.({ type: 'binding:removed', shortcut: s.binding.sequence, timestamp: Date.now() });
+        this.__devtools?.({
+          type: "binding:removed",
+          shortcut: s.binding.sequence,
+          timestamp: Date.now(),
+        });
       }
       return !matches;
     });
@@ -332,7 +346,11 @@ export class Hotkeys {
   removeAll(): void {
     for (const s of this.states) {
       if (s.seqTimer !== undefined) clearTimeout(s.seqTimer);
-      this.__devtools?.({ type: 'binding:removed', shortcut: s.binding.sequence, timestamp: Date.now() });
+      this.__devtools?.({
+        type: "binding:removed",
+        shortcut: s.binding.sequence,
+        timestamp: Date.now(),
+      });
     }
     this.states = [];
   }
@@ -363,7 +381,7 @@ export class Hotkeys {
     if (this._deferred.length === 0) return;
 
     const continues = this.states.some(
-      (s) => s.seqIndex > 0 && eventMatchesShortcut(event, s.binding.sequence[s.seqIndex]!)
+      (s) => s.seqIndex > 0 && eventMatchesShortcut(event, s.binding.sequence[s.seqIndex]!),
     );
 
     if (continues) {
@@ -436,7 +454,7 @@ export class Hotkeys {
 
   private _resolveCompletedBindings(
     completedStates: ReadonlyArray<{ state: BindingState; event: KeyboardEvent }>,
-    hasSequenceAdvance: boolean
+    hasSequenceAdvance: boolean,
   ): void {
     for (const { state, event } of completedStates) {
       this._resetBindingState(state);
@@ -446,7 +464,14 @@ export class Hotkeys {
         this._deferTimer = setTimeout(() => this._flushDeferred(), this.sequenceTimeout);
       } else {
         if (state.binding.requireReset) state.awaitingReset = true;
-        this.__devtools?.({ type: 'binding:fired', shortcut: state.binding.sequence, layer: state.binding.layer ?? 'global', scope: state.binding.scope, event, timestamp: Date.now() });
+        this.__devtools?.({
+          type: "binding:fired",
+          shortcut: state.binding.sequence,
+          layer: state.binding.layer ?? "global",
+          scope: state.binding.scope,
+          event,
+          timestamp: Date.now(),
+        });
         state.binding.handler(event);
       }
     }
@@ -468,7 +493,14 @@ export class Hotkeys {
     }
     for (const { state, event } of this._deferred) {
       if (state.binding.requireReset) state.awaitingReset = true;
-      this.__devtools?.({ type: 'binding:fired', shortcut: state.binding.sequence, layer: state.binding.layer ?? 'global', scope: state.binding.scope, event, timestamp: Date.now() });
+      this.__devtools?.({
+        type: "binding:fired",
+        shortcut: state.binding.sequence,
+        layer: state.binding.layer ?? "global",
+        scope: state.binding.scope,
+        event,
+        timestamp: Date.now(),
+      });
       state.binding.handler(event);
     }
     this._deferred = [];
