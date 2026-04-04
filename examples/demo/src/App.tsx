@@ -96,9 +96,8 @@ export default function App() {
     <div class="container">
       <h1>Hotter Keys Demo</h1>
       <p style={{ "margin-bottom": "1.5rem" }}>
-        Interactive demo of{" "}
-        <strong style={{ color: "var(--hk-ink)" }}>@hotter-keys/core</strong>{" "}
-        — layers, scopes, sequences, and more.
+        Open <strong style={{ color: "var(--hk-ink)" }}>Vite DevTools</strong>{" "}
+        to inspect bindings, layers, and events in real time.
       </p>
 
       <ShortcutTable />
