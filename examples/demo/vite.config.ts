@@ -4,5 +4,5 @@ import solidPlugin from "vite-plugin-solid";
 import { hotterKeysViteDevtools } from "@hotter-keys/devtools/vite";
 
 export default defineConfig({
-  plugins: [DevTools({ auth: false }), solidPlugin(), hotterKeysViteDevtools()],
+  plugins: [DevTools({ clientAuth: false }), solidPlugin(), hotterKeysViteDevtools()],
 });
