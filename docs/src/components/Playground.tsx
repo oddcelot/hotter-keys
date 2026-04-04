@@ -1,6 +1,13 @@
 import { createSignal, onCleanup, onMount, For, Show } from "solid-js";
-import { createHotkeys, recordShortcut, formatShortcut, formatSequence, parseSequence, isMac } from "@hotter-keys/core";
-import type { Hotkeys, RecordedShortcut } from "@hotter-keys/core";
+import {
+  createHotkeys,
+  recordShortcut,
+  formatShortcut,
+  formatSequence,
+  parseSequence,
+  isMac,
+} from "@hotter-keys/core";
+import type { Hotkeys, RecordedShortcut, Shortcut } from "@hotter-keys/core";
 import Gauge from "./Gauge";
 import FireCounter from "./FireCounter";
 import "../styles/demo.css";
@@ -60,6 +67,10 @@ const INITIAL_SEQUENCES: ShortcutRow[] = [
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+function recordedToShortcut(r: RecordedShortcut): Shortcut {
+  return { key: r.key as Shortcut["key"], ctrl: r.ctrl, shift: r.shift, meta: r.meta, alt: r.alt };
+}
 
 function recordedToCombo(r: RecordedShortcut): string {
   const parts: string[] = [];
@@ -149,7 +160,10 @@ export default function Playground() {
   const withEscapeCancel = (fn: (ac: AbortController) => void): AbortController => {
     const ac = new AbortController();
     const onEscape = (e: KeyboardEvent) => {
-      if (e.key === "Escape") { ac.abort(); e.preventDefault(); }
+      if (e.key === "Escape") {
+        ac.abort();
+        e.preventDefault();
+      }
     };
     containerRef.addEventListener("keydown", onEscape, { capture: true });
     ac.signal.addEventListener("abort", () => {
@@ -176,12 +190,15 @@ export default function Playground() {
       const comboStr = recordedToCombo(result);
 
       unbindMap.get(rowId)?.();
-      setter((rows) =>
-        rows.map((r) => (r.id === rowId ? { ...r, combo: comboStr } : r))
-      );
-      const row = { id: rowId, combo: comboStr, description: setter === setShortcuts
-        ? shortcuts().find((r) => r.id === rowId)!.description
-        : sequences().find((r) => r.id === rowId)!.description };
+      setter((rows) => rows.map((r) => (r.id === rowId ? { ...r, combo: comboStr } : r)));
+      const row = {
+        id: rowId,
+        combo: comboStr,
+        description:
+          setter === setShortcuts
+            ? shortcuts().find((r) => r.id === rowId)!.description
+            : sequences().find((r) => r.id === rowId)!.description,
+      };
       bindRow(row, type);
       pushLog(`Rebound to ${comboLabel(comboStr)}`, "record");
     } catch {
@@ -201,9 +218,15 @@ export default function Playground() {
     const ev = e as KeyboardEvent;
     if (typeof ev.key !== "string") return;
     setRawEvent({
-      key: ev.key, code: ev.code, keyCode: ev.keyCode, which: ev.which,
-      ctrlKey: ev.ctrlKey, shiftKey: ev.shiftKey, metaKey: ev.metaKey,
-      altKey: ev.altKey, repeat: ev.repeat,
+      key: ev.key,
+      code: ev.code,
+      keyCode: ev.keyCode,
+      which: ev.which,
+      ctrlKey: ev.ctrlKey,
+      shiftKey: ev.shiftKey,
+      metaKey: ev.metaKey,
+      altKey: ev.altKey,
+      repeat: ev.repeat,
     });
   };
 
@@ -231,7 +254,7 @@ export default function Playground() {
       const result = await recordShortcut(containerRef, ac.signal);
       setRecorded(result);
       if (result.safe) {
-        pushLog(`Recorded: ${formatShortcut(result)}`, "record");
+        pushLog(`Recorded: ${formatShortcut(recordedToShortcut(result))}`, "record");
       } else {
         pushLog(`Recorded (unsafe): ${result.unsafeReason}`, "record");
       }
@@ -250,7 +273,8 @@ export default function Playground() {
   return (
     <div ref={containerRef} tabIndex={0} class={`demo ${styles.container}`}>
       <p class="demo-hint">
-        Click anywhere in the playground to focus, then start pressing keys. Use the record buttons to rebind shortcuts.
+        Click anywhere in the playground to focus, then start pressing keys. Use the record buttons
+        to rebind shortcuts.
       </p>
 
       {/* ---- HELD KEYS ---- */}
@@ -260,10 +284,7 @@ export default function Playground() {
           <Gauge count={Math.min(heldKeys().length, 6)} />
           <div style={{ flex: "1" }}>
             <div class={styles.heldKeysRow}>
-              <Show
-                when={heldKeys().length > 0}
-                fallback={<span class="muted">No keys held</span>}
-              >
+              <Show when={heldKeys().length > 0} fallback={<span class="muted">No keys held</span>}>
                 <For each={[...heldKeys()]}>
                   {(key, i) => (
                     <span>
@@ -293,7 +314,8 @@ export default function Playground() {
               return (
                 <div class={rowClass(isThisRec(), fired(), "green")}>
                   <span class="row-label">
-                    <kbd class="kbd">{comboLabel(s.combo)}</kbd> <span class="row-desc">{s.description}</span>
+                    <kbd class="kbd">{comboLabel(s.combo)}</kbd>{" "}
+                    <span class="row-desc">{s.description}</span>
                   </span>
                   <Show when={fired()}>
                     <span class="badge badge-green">FIRED</span>
@@ -316,7 +338,8 @@ export default function Playground() {
       <div class="section">
         <h4 class="section-title">Sequences</h4>
         <p class={styles.seqHint}>
-          Press the first chord, then the second within 1 second. Rebinding replaces the full sequence with a single chord.
+          Press the first chord, then the second within 1 second. Rebinding replaces the full
+          sequence with a single chord.
         </p>
         <div class="stack">
           <For each={sequences()}>
@@ -326,7 +349,8 @@ export default function Playground() {
               return (
                 <div class={rowClass(isThisRec(), fired(), "blue")}>
                   <span class="row-label">
-                    <kbd class="kbd">{comboLabel(s.combo)}</kbd> <span class="row-desc">{s.description}</span>
+                    <kbd class="kbd">{comboLabel(s.combo)}</kbd>{" "}
+                    <span class="row-desc">{s.description}</span>
                   </span>
                   <Show when={fired()}>
                     <span class="badge badge-blue">FIRED</span>
@@ -369,7 +393,7 @@ export default function Playground() {
               >
                 <span>
                   <span class="badge badge-green log-badge">SAFE</span>
-                  <kbd class="kbd">{formatShortcut(r())}</kbd>
+                  <kbd class="kbd">{formatShortcut(recordedToShortcut(r()))}</kbd>
                 </span>
               </Show>
             )}
@@ -381,13 +405,12 @@ export default function Playground() {
       <div class="section">
         <div class="section-header">
           <h4 class="section-title">Event Log</h4>
-          <button onClick={() => setEventLog([])} class="btn-sm">Clear</button>
+          <button onClick={() => setEventLog([])} class="btn-sm">
+            Clear
+          </button>
         </div>
         <div class="log-scroll">
-          <Show
-            when={eventLog().length > 0}
-            fallback={<span class="muted">No events yet</span>}
-          >
+          <Show when={eventLog().length > 0} fallback={<span class="muted">No events yet</span>}>
             <For each={eventLog()}>
               {(entry) => (
                 <div class="log-entry">
@@ -404,16 +427,12 @@ export default function Playground() {
       {/* ---- RAW EVENT INSPECTOR ---- */}
       <div class="section">
         <h4 class="section-title">Raw Event Inspector</h4>
-        <Show
-          when={rawEvent()}
-          fallback={<span class="muted">Press a key to inspect</span>}
-        >
+        <Show when={rawEvent()} fallback={<span class="muted">Press a key to inspect</span>}>
           {(ev) => (
             <div class="inspector-grid">
               <span class="inspector-correct">key</span>
               <span>
-                <kbd class="kbd">{ev().key}</kbd>{" "}
-                <span class="badge badge-green">CORRECT</span>
+                <kbd class="kbd">{ev().key}</kbd> <span class="badge badge-green">CORRECT</span>
               </span>
 
               <span class="inspector-deprecated">code</span>
@@ -436,13 +455,19 @@ export default function Playground() {
               </span>
 
               <span class="muted-light">ctrlKey</span>
-              <span><kbd class="kbd">{String(ev().ctrlKey)}</kbd></span>
+              <span>
+                <kbd class="kbd">{String(ev().ctrlKey)}</kbd>
+              </span>
 
               <span class="muted-light">shiftKey</span>
-              <span><kbd class="kbd">{String(ev().shiftKey)}</kbd></span>
+              <span>
+                <kbd class="kbd">{String(ev().shiftKey)}</kbd>
+              </span>
 
               <span class="muted-light">metaKey</span>
-              <span><kbd class="kbd">{String(ev().metaKey)}</kbd></span>
+              <span>
+                <kbd class="kbd">{String(ev().metaKey)}</kbd>
+              </span>
 
               <span class={ev().altKey ? styles.altWarning : "muted-light"}>altKey</span>
               <span>
@@ -450,12 +475,16 @@ export default function Playground() {
                 <Show when={ev().altKey}>
                   {" "}
                   <span class="badge badge-yellow">CAUTION</span>
-                  <span class={styles.altNote}>Alt transforms key values on macOS — use <code>mod2</code> for cross-platform</span>
+                  <span class={styles.altNote}>
+                    Alt transforms key values on macOS — use <code>mod2</code> for cross-platform
+                  </span>
                 </Show>
               </span>
 
               <span class="muted-light">repeat</span>
-              <span><kbd class="kbd">{String(ev().repeat)}</kbd></span>
+              <span>
+                <kbd class="kbd">{String(ev().repeat)}</kbd>
+              </span>
             </div>
           )}
         </Show>
