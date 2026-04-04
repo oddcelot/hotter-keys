@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: voidzero-dev/setup-vp@v1
         with:
           node-version: "22"
@@ -21,7 +21,7 @@ jobs:
       - run: vp install
       - run: vp run --cache --filter @hotter-keys/core test
       - run: vp run --cache -r build
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: dist
           path: |
@@ -33,13 +33,13 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: voidzero-dev/setup-vp@v1
         with:
           node-version: "22"
           cache: true
       - run: vp install
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: dist
           path: .
@@ -51,7 +51,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: voidzero-dev/setup-vp@v1
         with:
           node-version: "22"
