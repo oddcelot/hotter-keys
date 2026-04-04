@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@fontsource-variable/lilex": "5.2.1",
-    "@hotter-keys/core": "^0.0.1",
+    "@hotter-keys/core": "0.0.1",
     "solid-js": "1.9.12"
   },
   "devDependencies": {

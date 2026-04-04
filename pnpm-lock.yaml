@@ -40,7 +40,7 @@ importers:
   .:
     devDependencies:
       '@changesets/cli':
-        specifier: ^2.30.0
+        specifier: 2.30.0
         version: 2.30.0(@types/node@24.12.0)
       vite-plus:
         specifier: 'catalog:'
@@ -64,7 +64,7 @@ importers:
         specifier: workspace:*
         version: link:../packages/starlight-theme-hotter-keys
       '@solid-primitives/transition-group':
-        specifier: ^1.1.2
+        specifier: 1.1.2
         version: 1.1.2(solid-js@1.9.12)
       astro:
         specifier: 'catalog:'
@@ -109,7 +109,7 @@ importers:
         specifier: '>=0.34.0'
         version: 0.38.2(astro@6.1.3(@types/node@24.12.0)(@vitejs/devtools@0.1.13)(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3))
       '@fontsource-variable/lilex':
-        specifier: ^5.2.1
+        specifier: 5.2.1
         version: 5.2.1
 
   packages/vite-plugin-devtools:
@@ -119,7 +119,7 @@ importers:
         version: '@voidzero-dev/vite-plus-core@0.1.15(@types/node@24.12.0)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@6.0.2))(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(typescript@6.0.2)'
     devDependencies:
       '@vitejs/devtools-kit':
-        specifier: ^0.1.13
+        specifier: 0.1.13
         version: 0.1.13(@voidzero-dev/vite-plus-core@0.1.15)(typescript@6.0.2)(ws@8.20.0)
       astro:
         specifier: catalog:default
