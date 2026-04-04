@@ -1,7 +1,7 @@
-export const tokensCSS = /* css */ `
 /* ── Design tokens — mirrors the docs site theme ── */
 
 :root {
+  color-scheme: dark;
   /* Hue palette */
   --hk-hue-warm: 95;
   --hk-hue-accent: 240;
@@ -52,6 +52,7 @@ export const tokensCSS = /* css */ `
 
 /* ── Light mode ── */
 [data-theme="light"] {
+  color-scheme: light;
   --hk-base-white: oklch(0.18 0.01 var(--hk-hue-warm));
   --hk-base-black: oklch(0.87 0.015 var(--hk-hue-warm));
 
@@ -71,4 +72,3 @@ export const tokensCSS = /* css */ `
   --hk-card-border: oklch(from var(--hk-base-white) l c h / 0.7);
   --hk-rule: oklch(from var(--hk-base-white) l c h / 0.7);
 }
-`;

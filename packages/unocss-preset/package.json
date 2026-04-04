@@ -24,14 +24,17 @@
     }
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch"
+    "build": "vp build && tsc --emitDeclarationOnly",
+    "dev": "vite --open /kitchensink.html"
   },
   "dependencies": {
     "@unocss/core": "^66.0.0"
   },
   "devDependencies": {
+    "@fontsource-variable/lilex": "5.2.1",
+    "@types/node": "^24.0.0",
     "typescript": "catalog:",
+    "unocss": "^66.0.0",
     "vite-plus": "catalog:"
   }
 }
