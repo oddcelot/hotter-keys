@@ -12,12 +12,11 @@ export default function ScopePanels(props: Props) {
     <div class="section">
       <h2>Scopes — Context Switching</h2>
       <p class="mb-sm">
-        Scopes <strong style={{ color: "var(--hk-ink)" }}>filter</strong> which
-        bindings are considered. Only the active scope's bindings fire — others
-        are invisible. Use scopes when the <em>same</em> key combo should do
-        different things depending on context, like {fmt("mod+z")} meaning "undo
-        text" in an editor vs "undo stroke" on a canvas. Click a panel to switch
-        scope.
+        Scopes <strong style={{ color: "var(--hk-ink)" }}>filter</strong> which bindings are
+        considered. Only the active scope's bindings fire — others are invisible. Use scopes when
+        the <em>same</em> key combo should do different things depending on context, like{" "}
+        {fmt("mod+z")} meaning "undo text" in an editor vs "undo stroke" on a canvas. Click a panel
+        to switch scope.
       </p>
       <div class="flex gap-sm items-center mb-sm">
         <span class="text-sm muted">Active scope:</span>
@@ -45,11 +44,7 @@ export default function ScopePanels(props: Props) {
             </For>
           </div>
         </section>
-        <section
-          class="focus-panel"
-          tabIndex={0}
-          onFocus={() => props.onSwitchScope("drawing")}
-        >
+        <section class="focus-panel" tabIndex={0} onFocus={() => props.onSwitchScope("drawing")}>
           <div class="focus-panel-label">
             <span class="focus-dot" />
             Drawing Canvas

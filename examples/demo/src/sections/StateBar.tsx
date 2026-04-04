@@ -22,8 +22,7 @@ export default function StateBar(props: Props) {
         <span class="badge badge-green">{props.activeScope()}</span>
         <span class="flex-1" />
         <button class="btn btn-sm" onClick={props.onOpenModal}>
-          Open Modal{" "}
-          <kbd class="kbd-inline">{fmt("mod+p")}</kbd>
+          Open Modal <kbd class="kbd-inline">{fmt("mod+p")}</kbd>
         </button>
       </div>
     </div>

@@ -12,12 +12,10 @@ export default function LayerPanels(props: Props) {
     <div class="section">
       <h2>Layers — Priority &amp; Override</h2>
       <p class="mb-sm">
-        Layers form a{" "}
-        <strong style={{ color: "var(--hk-ink)" }}>stack</strong>. Higher layers
-        consume key events first, preventing lower layers from firing. Use layers
-        when UI regions add <em>extra</em> shortcuts on top of a base set — like
-        an editor toolbar or a modal overlay. Click a panel to push its layer;
-        blur to pop it.
+        Layers form a <strong style={{ color: "var(--hk-ink)" }}>stack</strong>. Higher layers
+        consume key events first, preventing lower layers from firing. Use layers when UI regions
+        add <em>extra</em> shortcuts on top of a base set — like an editor toolbar or a modal
+        overlay. Click a panel to push its layer; blur to pop it.
       </p>
       <div class="panel-grid">
         <section

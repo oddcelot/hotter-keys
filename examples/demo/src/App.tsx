@@ -52,13 +52,10 @@ export default function App() {
     const suppress = (e: KeyboardEvent) => {
       const k = e.key.toLowerCase();
       if ((e.metaKey || e.ctrlKey) && globalKeys.has(k)) e.preventDefault();
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && globalShiftKeys.has(k))
-        e.preventDefault();
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && globalShiftKeys.has(k)) e.preventDefault();
     };
     document.addEventListener("keydown", suppress, { capture: true });
-    onCleanup(() =>
-      document.removeEventListener("keydown", suppress, { capture: true }),
-    );
+    onCleanup(() => document.removeEventListener("keydown", suppress, { capture: true }));
 
     // Register all bindings from the single definition
     for (const b of BINDINGS) {
@@ -96,8 +93,8 @@ export default function App() {
     <div class="container">
       <h1>Hotter Keys Demo</h1>
       <p style={{ "margin-bottom": "1.5rem" }}>
-        Open <strong style={{ color: "var(--hk-ink)" }}>Vite DevTools</strong>{" "}
-        and click the keyboard icon to capture events.
+        Open <strong style={{ color: "var(--hk-ink)" }}>Vite DevTools</strong> and click the
+        keyboard icon to capture events.
       </p>
 
       <ShortcutTable />
@@ -105,11 +102,7 @@ export default function App() {
       <ScopePanels activeScope={activeScope} onSwitchScope={switchScope} />
       <EventLog log={log} onClear={() => setLog([])} />
       <ModalDialog ref={(el) => (dialogRef = el)} onClose={closeModal} />
-      <StateBar
-        layers={layers}
-        activeScope={activeScope}
-        onOpenModal={openModal}
-      />
+      <StateBar layers={layers} activeScope={activeScope} onOpenModal={openModal} />
     </div>
   );
 }

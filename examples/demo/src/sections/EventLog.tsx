@@ -26,10 +26,7 @@ export default function EventLog(props: Props) {
       </div>
       <div class="card log-scroll">
         {props.log.length === 0 ? (
-          <div
-            class="row muted"
-            style={{ "justify-content": "center", padding: "1.5rem" }}
-          >
+          <div class="row muted" style={{ "justify-content": "center", padding: "1.5rem" }}>
             Press a shortcut to see it here...
           </div>
         ) : (

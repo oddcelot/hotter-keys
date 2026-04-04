@@ -12,12 +12,8 @@ export default function ShortcutTable() {
             <div class="row">
               <kbd>{fmt(b.raw)}</kbd>
               <span class="flex-1 text-sm">{b.action}</span>
-              {scopeOf(b) && (
-                <span class="badge badge-green">{scopeOf(b)}</span>
-              )}
-              <span class={`badge badge-${layerColorOf(b)}`}>
-                {layerOf(b)}
-              </span>
+              {scopeOf(b) && <span class="badge badge-green">{scopeOf(b)}</span>}
+              <span class={`badge badge-${layerColorOf(b)}`}>{layerOf(b)}</span>
             </div>
           )}
         </For>
