@@ -19,8 +19,8 @@ jobs:
           node-version: "22"
           cache: true
       - run: vp install
-      - run: vp run --filter @hotter-keys/core test
-      - run: vp run -r build
+      - run: vp run --cache --filter @hotter-keys/core test
+      - run: vp run --cache -r build
       - uses: actions/upload-artifact@v4
         with:
           name: dist
