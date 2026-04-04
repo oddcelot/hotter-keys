@@ -1,8 +1,4 @@
-import type {
-  JsonRenderElement,
-  JsonRenderSpec,
-  PluginWithDevTools,
-} from "@vitejs/devtools-kit";
+import type { JsonRenderElement, JsonRenderSpec, PluginWithDevTools } from "@vitejs/devtools-kit";
 import { defineRpcFunction } from "@vitejs/devtools-kit";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve, normalize } from "node:path";
@@ -58,12 +54,7 @@ interface PanelState {
   activeTab: Tab;
 }
 
-function tabBtn(
-  label: string,
-  icon: string,
-  tab: Tab,
-  active: Tab,
-): JsonRenderElement {
+function tabBtn(label: string, icon: string, tab: Tab, active: Tab): JsonRenderElement {
   return {
     type: "Button",
     props: {
@@ -86,24 +77,14 @@ function buildSpec(state: PanelState): JsonRenderSpec {
     props: { direction: "horizontal", gap: 4 },
     children: ["tab-bindings", "tab-events", "tab-settings"],
   };
-  elements["tab-bindings"] = tabBtn(
-    "Bindings",
-    "ph:list-duotone",
-    "bindings",
-    tab,
-  );
+  elements["tab-bindings"] = tabBtn("Bindings", "ph:list-duotone", "bindings", tab);
   elements["tab-events"] = tabBtn(
     `Events${state.firedLog.length > 0 ? ` (${state.firedLog.length})` : ""}`,
     "ph:lightning-duotone",
     "events",
     tab,
   );
-  elements["tab-settings"] = tabBtn(
-    "Settings",
-    "ph:gear-duotone",
-    "settings",
-    tab,
-  );
+  elements["tab-settings"] = tabBtn("Settings", "ph:gear-duotone", "settings", tab);
   elements["divider0"] = { type: "Divider", props: {} };
 
   // ── TAB: Bindings ──
@@ -153,8 +134,7 @@ function buildSpec(state: PanelState): JsonRenderSpec {
       const aA = activeSet.has(a),
         bA = activeSet.has(b);
       if (aA !== bA) return aA ? -1 : 1;
-      if (aA && bA)
-        return state.activeLayers.indexOf(a) - state.activeLayers.indexOf(b);
+      if (aA && bA) return state.activeLayers.indexOf(a) - state.activeLayers.indexOf(b);
       return a.localeCompare(b);
     });
 
@@ -331,7 +311,7 @@ export function hotterKeysViteDevtools(): PluginWithDevTools {
         function refresh() {
           panelState = { ...panelState, notifyOnFired, activeTab };
           const total = panelState.bindings.length;
-          ui.updateSpec(buildSpec(panelState));
+          void ui.updateSpec(buildSpec(panelState));
           context.docks.update({
             id: "hotter-keys",
             type: "json-render",
@@ -395,7 +375,7 @@ export function hotterKeysViteDevtools(): PluginWithDevTools {
                 firedCount++;
                 const labels = [`layer:${data.layer}`];
                 if (data.scope) labels.push(`scope:${data.scope}`);
-                ctx.logs.add({
+                void ctx.logs.add({
                   id: `hk-fired-${Date.now()}-${firedCount}`,
                   message: `fired: ${data.shortcut}`,
                   level: "success",
@@ -439,7 +419,7 @@ export function hotterKeysViteDevtools(): PluginWithDevTools {
           );
         }
 
-        context.logs.add({
+        void context.logs.add({
           message: "Hotter Keys devtools active — capturing keyboard shortcuts",
           level: "info",
           notify: true,

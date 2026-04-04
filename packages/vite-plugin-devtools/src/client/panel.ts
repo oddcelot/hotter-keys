@@ -247,4 +247,4 @@ async function init() {
   renderSettings();
 }
 
-init();
+void init();
