@@ -30,7 +30,8 @@
   },
   "files": [
     "dist",
-    "!dist/test-helpers*"
+    "!dist/test-helpers*",
+    "README.md"
   ],
   "scripts": {
     "build": "tsc",

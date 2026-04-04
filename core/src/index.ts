@@ -1,24 +1,35 @@
 /**
- * hotkeys — a correct, cross-browser, layout-aware keyboard shortcut library.
+ * @module
  *
- * Design principles (per https://blog.duvallj.pw/posts/2025-01-10-all-javascript-keyboard-shortcut-libraries-are-broken.html):
- *   1. Match on `key`, never `code`/`keyCode`/`which`
- *   2. Only a-z and 0-9 are safe non-modifier keys across layouts
- *   3. Normalize case via toLowerCase()
- *   4. Shift is only allowed with a-z (Shift+2 produces locale-dependent symbols)
- *   5. Alt/Option is allowed as an explicit modifier (`alt`, `option`, or `mod2`).
- *      On macOS, Alt/Option transforms the character (e.g. Alt+c → ç), so the
- *      `mod2` virtual keyword resolves to Ctrl on macOS and Alt on Windows/Linux,
- *      giving a safe cross-platform secondary modifier.
- *   6. Progressive enhancement: use the Keyboard API (Chrome) when available
- *      to support `code`-based matching for broader key coverage
+ * A correct, cross-browser, layout-aware keyboard shortcut library.
  *
- * Features inspired by solid-primitives/keyboard:
- *   - Held-keys tracking with stale-modifier recovery
- *   - Blur / contextmenu reset to prevent phantom stuck keys
- *   - Key sequences / chords (e.g. "ctrl+k ctrl+c")
- *   - Single-key hold detection
- *   - requireReset mode: shortcut fires once per press cycle
+ * @example
+ * ```ts
+ * import { createHotkeys, displayShortcut } from "@hotter-keys/core";
+ *
+ * const hk = createHotkeys();
+ *
+ * // Single shortcut
+ * hk.add("mod+s", () => console.log("Save!"));
+ *
+ * // Multi-chord sequence
+ * hk.add("mod+k mod+c", () => console.log("Comment!"));
+ *
+ * // Layers for priority
+ * hk.add("mod+z", () => undo(), { layer: "editor" });
+ * hk.pushLayer("editor");
+ *
+ * // Scopes for context switching
+ * hk.add("mod+z", () => undoText(), { scope: "text" });
+ * hk.add("mod+z", () => undoStroke(), { scope: "draw" });
+ * hk.setScope("text");
+ *
+ * // Display shortcuts for the current platform
+ * displayShortcut("mod+s"); // "⌘S" on Mac, "Ctrl+S" elsewhere
+ *
+ * // Clean up
+ * hk.destroy();
+ * ```
  */
 
 export type {

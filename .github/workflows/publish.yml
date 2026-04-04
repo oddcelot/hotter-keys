@@ -79,7 +79,7 @@ jobs:
         with:
           name: dist
           path: .
-      - run: npx jsr publish --allow-dirty
+      - run: npx jsr publish --allow-dirty --allow-slow-types
         working-directory: packages/solid
 
   publish-jsr-devtools:
