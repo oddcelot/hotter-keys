@@ -32,7 +32,7 @@ export default function ModalDialog(props: Props) {
             {(b) => (
               <div class="row">
                 <kbd>{fmt(b.raw)}</kbd>
-                <span class="flex-1 text-sm">{b.action}</span>
+                <span class="flex-1 min-w-0 text-xs">{b.action}</span>
               </div>
             )}
           </For>

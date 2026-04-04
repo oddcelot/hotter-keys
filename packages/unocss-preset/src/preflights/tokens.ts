@@ -1,5 +1,4 @@
-@import "@fontsource-variable/lilex";
-
+export const tokensCSS = /* css */ `
 /* ── Design tokens — mirrors the docs site theme ── */
 
 :root {
@@ -72,3 +71,4 @@
   --hk-card-border: oklch(from var(--hk-base-white) l c h / 0.7);
   --hk-rule: oklch(from var(--hk-base-white) l c h / 0.7);
 }
+`;

@@ -19,7 +19,7 @@ export default function ScopePanels(props: Props) {
         to switch scope.
       </p>
       <div class="flex gap-sm items-center mb-sm">
-        <span class="text-sm muted">Active scope:</span>
+        <span class="text-xs muted">Active scope:</span>
         <span class="badge badge-purple">{props.activeScope()}</span>
       </div>
       <div class="panel-grid">
@@ -38,7 +38,7 @@ export default function ScopePanels(props: Props) {
               {(b) => (
                 <div class="flex gap-sm items-center">
                   <kbd>{fmt(b.raw)}</kbd>
-                  <span class="muted text-sm">{b.action}</span>
+                  <span class="muted text-xs">{b.action}</span>
                 </div>
               )}
             </For>
@@ -55,7 +55,7 @@ export default function ScopePanels(props: Props) {
               {(b) => (
                 <div class="flex gap-sm items-center">
                   <kbd>{fmt(b.raw)}</kbd>
-                  <span class="muted text-sm">{b.action}</span>
+                  <span class="muted text-xs">{b.action}</span>
                 </div>
               )}
             </For>

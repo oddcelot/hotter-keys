@@ -1,7 +1,7 @@
 /* @refresh reload */
 import { render } from "solid-js/web";
-import "./styles/tokens.css";
-import "./styles/components.css";
+import "@fontsource-variable/lilex";
+import "virtual:uno.css";
 import App from "./App";
 
 const root = document.getElementById("app");

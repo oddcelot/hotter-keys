@@ -12,15 +12,15 @@ export default function StateBar(props: Props) {
     <div class="layer-bar">
       <div class="flex gap-sm items-center flex-wrap">
         <h2 style={{ margin: "0" }}>State</h2>
-        <span class="muted text-sm">Layers:</span>
+        <span class="muted text-xs">Layers:</span>
         <For each={props.layers}>
           {(l) => <span class="layer-pill layer-pill-active">{l}</span>}
         </For>
-        <span class="muted text-sm" style={{ "margin-left": "0.25rem" }}>
+        <span class="muted text-xs" style={{ "margin-left": "0.25rem" }}>
           Scope:
         </span>
         <span class="badge badge-green">{props.activeScope()}</span>
-        <span class="flex-1" />
+        <span class="flex-1 min-w-0" />
         <button class="btn btn-sm" onClick={props.onOpenModal}>
           Open Modal <kbd class="kbd-inline">{fmt("mod+p")}</kbd>
         </button>

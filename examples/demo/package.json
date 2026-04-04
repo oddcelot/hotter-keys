@@ -13,8 +13,10 @@
   },
   "devDependencies": {
     "@hotter-keys/devtools": "0.0.1",
+    "@hotter-keys/unocss-preset": "file:../../packages/unocss-preset",
     "@vitejs/devtools": "0.1.13",
     "typescript": "6.0.2",
+    "unocss": "^66.0.0",
     "vite": "8.0.3",
     "vite-plugin-solid": "2.11.11"
   }

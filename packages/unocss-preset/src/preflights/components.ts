@@ -1,9 +1,9 @@
-/* ── Base reset ── */
+export const componentsCSS = /* css */ `
+/* ── Base ── */
 
 *,
 *::before,
 *::after {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
@@ -220,40 +220,6 @@ kbd.fired {
   border-color: var(--hk-card-border);
 }
 
-/* ── Utilities ── */
-
-.flex {
-  display: flex;
-}
-.flex-wrap {
-  flex-wrap: wrap;
-}
-.items-center {
-  align-items: center;
-}
-.justify-between {
-  justify-content: space-between;
-}
-.gap-sm {
-  gap: 0.4rem;
-}
-.gap-md {
-  gap: 0.75rem;
-}
-.flex-1 {
-  flex: 1;
-  min-width: 0;
-}
-.muted {
-  color: var(--hk-gray-4);
-}
-.text-sm {
-  font-size: 0.75rem;
-}
-.mb-sm {
-  margin-bottom: 0.5rem;
-}
-
 /* ── Focus panels ── */
 
 .panel-grid {
@@ -359,3 +325,4 @@ kbd.fired {
   scrollbar-width: thin;
   scrollbar-color: var(--hk-gray-5) transparent;
 }
+`;
