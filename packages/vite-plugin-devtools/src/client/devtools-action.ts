@@ -14,8 +14,14 @@ async function init() {
   let activeLayers: string[] = ['global'];
   const firedLog: Array<{ shortcut: string; layer: string; scope: string; timestamp: number }> = [];
 
+  function rpcCall(method: string, ...args: any[]) {
+    try {
+      (client.call as any)(method, ...args);
+    } catch {}
+  }
+
   function pushState() {
-    (client.call as any)('hotter-keys:update-state', {
+    rpcCall('hotter-keys:update-state', {
       bindings: [...registry.values()],
       activeLayers,
       firedLog: firedLog.slice(-50),
@@ -37,11 +43,7 @@ async function init() {
       });
       pushState();
 
-      (client.call as any)('hotter-keys:on-fired', {
-        shortcut,
-        layer,
-        scope,
-      });
+      rpcCall('hotter-keys:on-fired', { shortcut, layer, scope });
     }
 
     switch (event.type) {
