@@ -4,6 +4,8 @@ export interface LogEntry {
   id: number;
   shortcut: string;
   action: string;
+  layer: string;
+  scope?: string;
 }
 
 interface Props {
@@ -36,6 +38,8 @@ export default function EventLog(props: Props) {
               <div class="row row-fired">
                 <kbd class="fired">{entry.shortcut}</kbd>
                 <span class="flex-1 text-sm">{entry.action}</span>
+                <span class="badge badge-purple">{entry.layer}</span>
+                {entry.scope && <span class="badge badge-green">{entry.scope}</span>}
               </div>
             )}
           </For>

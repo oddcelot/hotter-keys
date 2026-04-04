@@ -20,10 +20,10 @@ export default function App() {
   let hk: ReturnType<typeof createHotkeys>;
   let dialogRef: HTMLDialogElement | undefined;
 
-  function addLog(shortcut: string, action: string) {
+  function addLog(shortcut: string, action: string, layer: string, scope?: string) {
     setLog(
       produce((l) => {
-        l.unshift({ id: nextId++, shortcut, action });
+        l.unshift({ id: nextId++, shortcut, action, layer, scope });
         if (l.length > 30) l.length = 30;
       }),
     );
@@ -63,7 +63,7 @@ export default function App() {
     // Register all bindings from the single definition
     for (const b of BINDINGS) {
       const handler = () => {
-        addLog(fmt(b.raw), b.action);
+        addLog(fmt(b.raw), b.action, b.options?.layer ?? "global", b.options?.scope);
         if (b.handler === "openModal") openModal();
       };
       hk.add(b.raw, handler, b.options);
@@ -97,7 +97,7 @@ export default function App() {
       <h1>Hotter Keys Demo</h1>
       <p style={{ "margin-bottom": "1.5rem" }}>
         Open <strong style={{ color: "var(--hk-ink)" }}>Vite DevTools</strong>{" "}
-        to inspect bindings, layers, and events in real time.
+        and click the keyboard icon to capture events.
       </p>
 
       <ShortcutTable />

@@ -103,10 +103,6 @@ npm install -D @hotter-keys/devtools
 import { hotterKeysDevtoolsIntegration } from "@hotter-keys/devtools";
 // → adds a Dev Toolbar app with bindings, events, and settings tabs
 
-// Vite
-import { hotterKeysDevtools } from "@hotter-keys/devtools";
-// → injects an overlay in dev mode
-
 // @vitejs/devtools
 import { hotterKeysViteDevtools } from "@hotter-keys/devtools/vite";
 // → registers a browsable panel with binding inspector

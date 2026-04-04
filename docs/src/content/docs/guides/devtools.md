@@ -31,21 +31,6 @@ The toolbar app shows:
 - **Events tab** — table of fired shortcuts with layer, scope, and timestamp
 - **Settings tab** — notification toggle
 
-## Vite plugin (non-Astro)
-
-For standard Vite apps, use the Vite plugin. It injects a custom overlay:
-
-```ts
-// vite.config.ts
-import { hotterKeysDevtools } from "@hotter-keys/devtools";
-
-export default defineConfig({
-  plugins: [
-    hotterKeysDevtools(),
-  ],
-});
-```
-
 ## Vite DevTools panel
 
 For projects using `@vitejs/devtools`, use the Vite DevTools plugin. It registers a browsable panel:
@@ -71,7 +56,7 @@ The panel shows:
 
 ## Options
 
-All three exports accept the same options:
+Both exports accept the same options:
 
 ```ts
 hotterKeysDevtoolsIntegration({
@@ -97,16 +82,6 @@ When `true`, logs `[hk-devtools]` messages to the browser console showing sentin
 ### `events`
 
 Controls which event types the devtools captures. Defaults to everything except `"held-keys:change"` (which fires on every keydown/keyup and would be noisy).
-
-To include held keys:
-
-```ts
-import { DEFAULT_EVENT_TYPES } from "@hotter-keys/devtools";
-
-hotterKeysDevtools({
-  events: [...DEFAULT_EVENT_TYPES, "held-keys:change"],
-});
-```
 
 ## How it works
 

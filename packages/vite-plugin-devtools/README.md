@@ -18,16 +18,6 @@ export default defineConfig({
 });
 ```
 
-## Vite
-
-```ts
-import { hotterKeysDevtools } from "@hotter-keys/devtools";
-
-export default defineConfig({
-  plugins: [hotterKeysDevtools()],
-});
-```
-
 ## Vite DevTools
 
 ```ts
