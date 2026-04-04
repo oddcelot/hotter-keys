@@ -36,8 +36,8 @@ type KeyHoldEntry = { listener: KeyHoldListener; held: boolean };
 
 function toSequence(shortcut: string | Shortcut | ShortcutSequence): ShortcutSequence {
   if (typeof shortcut === "string") return parseSequence(shortcut);
-  if (Array.isArray(shortcut)) return shortcut;
-  return [shortcut];
+  if ("key" in shortcut && !Array.isArray(shortcut)) return [shortcut];
+  return shortcut as ShortcutSequence;
 }
 
 /** Internal runtime state wrapping a public Binding. */
