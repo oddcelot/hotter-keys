@@ -64,34 +64,5 @@ jobs:
       - run: npx jsr publish --allow-dirty
         working-directory: core
 
-  publish-jsr-solid:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: .
-      - run: npx jsr publish --allow-dirty --allow-slow-types
-        working-directory: packages/solid
-
-  publish-jsr-devtools:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: npx jsr publish --allow-dirty --allow-slow-types
-        working-directory: packages/vite-plugin-devtools
+  # Note: @hotter-keys/solid and @hotter-keys/devtools are npm-only.
+  # They depend on npm packages (solid-js, astro, vite) that JSR can't resolve.

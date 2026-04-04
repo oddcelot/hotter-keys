@@ -26,5 +26,5 @@
     "solid-js": "catalog:default",
     "typescript": "catalog:default"
   },
-  "license": "MIT"
+  "license": "GPL-3.0-only"
 }

@@ -36,5 +36,5 @@
     "typescript": "catalog:default",
     "vite": "^8.0.3"
   },
-  "license": "MIT"
+  "license": "GPL-3.0-only"
 }
