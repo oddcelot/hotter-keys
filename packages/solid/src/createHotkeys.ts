@@ -3,7 +3,6 @@ import {
   createHotkeys as coreCreateHotkeys,
   type Hotkeys,
   type HotkeysOptions,
-  type Binding,
 } from "@hotter-keys/core";
 
 export interface HotkeysInstance {
