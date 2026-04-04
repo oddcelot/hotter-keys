@@ -112,6 +112,10 @@ import { hotterKeysViteDevtools } from "@hotter-keys/devtools/vite";
 // → registers a browsable panel with binding inspector
 ```
 
+## Try it
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/oddcelot/hotter-keys/tree/main/examples/demo?startScript=dev)
+
 ## Documentation
 
 Full docs at **[oddcelot.github.io/hotter-keys](https://oddcelot.github.io/hotter-keys)**

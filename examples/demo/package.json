@@ -1,0 +1,19 @@
+{
+  "name": "hotter-keys-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@hotter-keys/core": "^0.0.1",
+    "@fontsource-variable/lilex": "^5.1.1",
+    "solid-js": "^1.9.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "vite": "^6.0.0",
+    "vite-plugin-solid": "^2.11.0"
+  }
+}

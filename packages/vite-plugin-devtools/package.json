@@ -2,6 +2,12 @@
   "name": "@hotter-keys/devtools",
   "version": "0.0.1",
   "description": "Vite devtools plugin for hotter-keys — event log, binding inspector, and more.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/oddcelot/hotter-keys.git",
+    "directory": "packages/vite-plugin-devtools"
+  },
+  "homepage": "https://oddcelot.github.io/hotter-keys/guides/devtools",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
