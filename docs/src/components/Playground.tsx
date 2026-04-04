@@ -121,6 +121,7 @@ export default function Playground() {
   const [recordingRowId, setRecordingRowId] = createSignal<number | null>(null);
   const [fireCount, setFireCount] = createSignal(0);
 
+  // eslint-disable-next-line no-unassigned-vars -- assigned by Solid's ref={} JSX binding
   let containerRef!: HTMLDivElement;
   let hk: Hotkeys;
   const unbindMap = new Map<number, () => void>();

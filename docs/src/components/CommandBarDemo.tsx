@@ -62,6 +62,7 @@ export default function CommandBarDemo() {
   const [firedCmd, setFiredCmd] = createSignal<Record<string, number>>({});
   const [eventLog, setEventLog] = createSignal<LogEntry[]>([]);
 
+  // eslint-disable-next-line no-unassigned-vars -- assigned by Solid's ref={} JSX binding
   let containerRef!: HTMLDivElement;
   let hk: Hotkeys;
 
@@ -120,11 +121,15 @@ export default function CommandBarDemo() {
     });
 
     for (const action of COMMANDBAR_ACTIONS) {
-      hk.add(action.key, () => {
-        flash(setFiredCmd, action.key);
-        pushLog(`${action.key} — ${action.label}`, "commandbar");
-        closeCommandBar();
-      }, { layer: "commandbar", preventDefault: false });
+      hk.add(
+        action.key,
+        () => {
+          flash(setFiredCmd, action.key);
+          pushLog(`${action.key} — ${action.label}`, "commandbar");
+          closeCommandBar();
+        },
+        { layer: "commandbar", preventDefault: false },
+      );
     }
 
     const onEscape = (e: KeyboardEvent) => {
@@ -152,8 +157,9 @@ export default function CommandBarDemo() {
   return (
     <div ref={containerRef} class="demo" style={{ position: "relative" }}>
       <p class="demo-hint">
-        Press <kbd class="kbd">{comboLabel("mod+k")}</kbd> to open the command bar.
-        Try <kbd class="kbd">{comboLabel("mod+s")}</kbd> and <kbd class="kbd">{comboLabel("mod+p")}</kbd> as global shortcuts.
+        Press <kbd class="kbd">{comboLabel("mod+k")}</kbd> to open the command bar. Try{" "}
+        <kbd class="kbd">{comboLabel("mod+s")}</kbd> and{" "}
+        <kbd class="kbd">{comboLabel("mod+p")}</kbd> as global shortcuts.
       </p>
 
       {/* ---- GLOBAL SHORTCUTS ---- */}
@@ -220,7 +226,14 @@ export default function CommandBarDemo() {
                   : GLOBAL_SHORTCUTS.map((s) => `${comboLabel(s.key)}: ${s.label}`);
               return (
                 <div class={`${styles.layerBlock} ${isActive() ? styles.layerBlockActive : ""}`}>
-                  <div style={{ display: "flex", "align-items": "center", gap: "0.5rem", "margin-bottom": "0.3rem" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      "align-items": "center",
+                      gap: "0.5rem",
+                      "margin-bottom": "0.3rem",
+                    }}
+                  >
                     <span class={styles.layerName}>{layer}</span>
                     <Show when={isActive()}>
                       <span class="badge badge-accent">ACTIVE</span>
@@ -242,13 +255,12 @@ export default function CommandBarDemo() {
       <div class="section">
         <div class="section-header">
           <h4 class="section-title">Event Log</h4>
-          <button onClick={() => setEventLog([])} class="btn-sm">Clear</button>
+          <button onClick={() => setEventLog([])} class="btn-sm">
+            Clear
+          </button>
         </div>
         <div class="log-scroll">
-          <Show
-            when={eventLog().length > 0}
-            fallback={<span class="muted">No events yet</span>}
-          >
+          <Show when={eventLog().length > 0} fallback={<span class="muted">No events yet</span>}>
             <For each={eventLog()}>
               {(entry) => (
                 <div class="log-entry">
