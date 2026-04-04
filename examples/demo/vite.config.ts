@@ -1,8 +1,15 @@
-import { DevTools } from "@vitejs/devtools";
 import { defineConfig } from "vite";
 import solidPlugin from "vite-plugin-solid";
-import { hotterKeysViteDevtools } from "@hotter-keys/devtools/vite";
+import { hotterKeysDevtools } from "@hotter-keys/devtools";
+// import { DevTools } from "@vitejs/devtools";
+// import { hotterKeysViteDevtools } from "@hotter-keys/devtools/vite";
 
 export default defineConfig({
-  plugins: [DevTools({ clientAuth: false }), solidPlugin(), hotterKeysViteDevtools()],
+  plugins: [
+    // Uncomment for @vitejs/devtools panel (requires terminal auth):
+    // DevTools(),
+    // hotterKeysViteDevtools(),
+    solidPlugin(),
+    hotterKeysDevtools({ debug: true }),
+  ],
 });
