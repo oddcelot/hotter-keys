@@ -8,9 +8,11 @@ export interface KeymapEntry {
 }
 
 export function isOpfsAvailable(): boolean {
-  return typeof navigator !== "undefined"
-    && "storage" in navigator
-    && "getDirectory" in navigator.storage;
+  return (
+    typeof navigator !== "undefined" &&
+    "storage" in navigator &&
+    "getDirectory" in navigator.storage
+  );
 }
 
 export async function loadKeymap(): Promise<KeymapEntry[]> {

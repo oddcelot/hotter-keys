@@ -74,10 +74,10 @@ Based on [this analysis](https://blog.duvallj.pw/posts/2025-01-10-all-javascript
 
 hotter-keys provides two virtual modifier keywords that resolve differently per platform:
 
-| Keyword | macOS | Windows/Linux | Role |
-|---------|-------|---------------|------|
-| `mod` | Cmd (⌘) | Ctrl | Primary modifier |
-| `mod2` | Ctrl (⌃) | Alt | Secondary modifier |
+| Keyword | macOS    | Windows/Linux | Role               |
+| ------- | -------- | ------------- | ------------------ |
+| `mod`   | Cmd (⌘)  | Ctrl          | Primary modifier   |
+| `mod2`  | Ctrl (⌃) | Alt           | Secondary modifier |
 
 ```ts
 // Primary modifier — Cmd on macOS, Ctrl elsewhere

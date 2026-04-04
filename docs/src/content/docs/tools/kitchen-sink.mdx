@@ -3,12 +3,22 @@ title: Kitchen Sink
 description: Every component, element, and pattern available in the theme — in one page.
 ---
 
-import { Aside, Badge, Card, CardGrid, LinkCard, Steps, Tabs, TabItem, FileTree } from '@astrojs/starlight/components';
-import Playground from '../../../../src/components/Playground.tsx';
-import CommandBarDemo from '../../../../src/components/CommandBarDemo.tsx';
-import KeymapCreator from '../../../../src/components/KeymapCreator.tsx';
-import Gauge from '../../../../src/components/Gauge.tsx';
-import FireCounter from '../../../../src/components/FireCounter.tsx';
+import {
+  Aside,
+  Badge,
+  Card,
+  CardGrid,
+  LinkCard,
+  Steps,
+  Tabs,
+  TabItem,
+  FileTree,
+} from "@astrojs/starlight/components";
+import Playground from "../../../../src/components/Playground.tsx";
+import CommandBarDemo from "../../../../src/components/CommandBarDemo.tsx";
+import KeymapCreator from "../../../../src/components/KeymapCreator.tsx";
+import Gauge from "../../../../src/components/Gauge.tsx";
+import FireCounter from "../../../../src/components/FireCounter.tsx";
 
 ## Typography
 
@@ -26,7 +36,7 @@ import FireCounter from '../../../../src/components/FireCounter.tsx';
 
 Body text. The quick brown fox jumps over the lazy dog. This is a paragraph demonstrating the base typographic style — Lilex Variable throughout, with lighter weight for headings and display numbers.
 
-**Bold text** and *italic text* and ~~strikethrough text~~ and `inline code` and [a link to somewhere](#).
+**Bold text** and _italic text_ and ~~strikethrough text~~ and `inline code` and [a link to somewhere](#).
 
 > Blockquote. Design is not just what it looks like and feels like. Design is how it works.
 >
@@ -90,7 +100,7 @@ hk.onHeldKeysChange((keys) => {
 ```css title="theme-tokens.css"
 :root {
   --hk-card-bg: #e4e4da;
-  --hk-card-border: rgba(26, 26, 23, 0.10);
+  --hk-card-border: rgba(26, 26, 23, 0.1);
   --hk-rule: rgba(26, 26, 23, 0.07);
   --hk-danger: #c45040;
 }
@@ -109,19 +119,19 @@ hk.onHeldKeysChange((keys) => {
 
 ## Tables
 
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `target` | `HTMLElement` | — | The element to listen on |
-| `timeout` | `number` | `1000` | Sequence timeout in ms |
-| `suppress` | `boolean` | `true` | Prevent default on match |
+| Property   | Type          | Default | Description              |
+| ---------- | ------------- | ------- | ------------------------ |
+| `target`   | `HTMLElement` | —       | The element to listen on |
+| `timeout`  | `number`      | `1000`  | Sequence timeout in ms   |
+| `suppress` | `boolean`     | `true`  | Prevent default on match |
 
 A wider table:
 
-| Key | Code | keyCode | Deprecated | Layout-aware | Safe |
-|-----|------|---------|------------|--------------|------|
-| `a` | `KeyA` | 65 | No | Yes | Yes |
-| `ArrowUp` | `ArrowUp` | 38 | No | N/A | Yes |
-| `Alt` | `AltLeft` | 18 | No | N/A | No |
+| Key       | Code      | keyCode | Deprecated | Layout-aware | Safe |
+| --------- | --------- | ------- | ---------- | ------------ | ---- |
+| `a`       | `KeyA`    | 65      | No         | Yes          | Yes  |
+| `ArrowUp` | `ArrowUp` | 38      | No         | N/A          | Yes  |
+| `Alt`     | `AltLeft` | 18      | No         | N/A          | No   |
 
 ---
 
@@ -175,13 +185,21 @@ Sizes: <Badge text="Small" size="small" /> <Badge text="Medium" size="medium" />
 ## Link Cards
 
 <CardGrid>
-  <LinkCard title="Getting Started" href="/guides/getting-started/" description="Install and configure hotter-keys in your project." />
-  <LinkCard title="Keymap Creator" href="/tools/keymap-creator/" description="Visual keymap editor with persistence." />
+  <LinkCard
+    title="Getting Started"
+    href="/guides/getting-started/"
+    description="Install and configure hotter-keys in your project."
+  />
+  <LinkCard
+    title="Keymap Creator"
+    href="/tools/keymap-creator/"
+    description="Visual keymap editor with persistence."
+  />
 </CardGrid>
 
 ---
----
 
+---
 
 ---
 

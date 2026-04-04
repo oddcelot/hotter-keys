@@ -19,8 +19,8 @@ hk.add("mod+s", () => save());
 hk.add("mod+z", () => undo(), { layer: "editor" });
 hk.add("mod+shift+z", () => redo(), { layer: "editor" });
 
-hk.pushLayer("editor");   // editor shortcuts now active
-hk.popLayer("editor");    // editor shortcuts deactivated
+hk.pushLayer("editor"); // editor shortcuts now active
+hk.popLayer("editor"); // editor shortcuts deactivated
 ```
 
 ## Listening to layer changes
@@ -90,6 +90,7 @@ If `"modal"` has a binding for `Mod+Z`, it fires. If not, it falls through to `"
 ## When to use layers
 
 Use layers when:
+
 - A UI region adds **extra** shortcuts on top of a base set
 - You need **priority override** (e.g. a modal consuming keys before the editor)
 - Shortcuts should **stack** (global + editor + modal all active simultaneously)

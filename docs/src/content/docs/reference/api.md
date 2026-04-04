@@ -14,11 +14,11 @@ const hk = createHotkeys();
 
 ### Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `target` | `EventTarget` | `document` | Element to listen on |
-| `scope` | `string` | `"*"` | Initial scope |
-| `sequenceTimeout` | `number` | `1000` | Ms between chords before resetting sequence progress |
+| Option            | Type          | Default    | Description                                          |
+| ----------------- | ------------- | ---------- | ---------------------------------------------------- |
+| `target`          | `EventTarget` | `document` | Element to listen on                                 |
+| `scope`           | `string`      | `"*"`      | Initial scope                                        |
+| `sequenceTimeout` | `number`      | `1000`     | Ms between chords before resetting sequence progress |
 
 ## Binding methods
 
@@ -60,15 +60,15 @@ Remove all bindings.
 
 ## BindingOptions
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `scope` | `string` | — | Only fires in the matching scope |
-| `layer` | `string` | `"global"` | Layer for priority ordering |
-| `preventDefault` | `boolean` | `true` | Call `event.preventDefault()` |
-| `stopPropagation` | `boolean` | `false` | Call `event.stopPropagation()` |
-| `enableInInput` | `boolean` | `false` | Fire in `<input>`, `<textarea>`, `contenteditable` |
-| `requireReset` | `boolean` | `false` | Fire once per press cycle (all keys must release first) |
-| `crossPlatform` | `boolean` | `true` | Auto-translate `ctrl` ↔ `meta` per platform |
+| Option            | Type      | Default    | Description                                             |
+| ----------------- | --------- | ---------- | ------------------------------------------------------- |
+| `scope`           | `string`  | —          | Only fires in the matching scope                        |
+| `layer`           | `string`  | `"global"` | Layer for priority ordering                             |
+| `preventDefault`  | `boolean` | `true`     | Call `event.preventDefault()`                           |
+| `stopPropagation` | `boolean` | `false`    | Call `event.stopPropagation()`                          |
+| `enableInInput`   | `boolean` | `false`    | Fire in `<input>`, `<textarea>`, `contenteditable`      |
+| `requireReset`    | `boolean` | `false`    | Fire once per press cycle (all keys must release first) |
+| `crossPlatform`   | `boolean` | `true`     | Auto-translate `ctrl` ↔ `meta` per platform             |
 
 ## Scope methods
 

@@ -18,11 +18,11 @@
 
 ## Packages
 
-| Package | npm | JSR | Description |
-|---------|-----|-----|-------------|
-| [`@hotter-keys/core`](core/) | [![npm](https://img.shields.io/npm/v/@hotter-keys/core)](https://www.npmjs.com/package/@hotter-keys/core) | [![JSR](https://jsr.io/badges/@hotter-keys/core)](https://jsr.io/@hotter-keys/core) | Core library — zero dependencies |
-| [`@hotter-keys/solid`](packages/solid/) | [![npm](https://img.shields.io/npm/v/@hotter-keys/solid)](https://www.npmjs.com/package/@hotter-keys/solid) | — | Solid.js primitives |
-| [`@hotter-keys/devtools`](packages/vite-plugin-devtools/) | [![npm](https://img.shields.io/npm/v/@hotter-keys/devtools)](https://www.npmjs.com/package/@hotter-keys/devtools) | — | Devtools for Vite, Astro & @vitejs/devtools |
+| Package                                                   | npm                                                                                                               | JSR                                                                                 | Description                                 |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------- |
+| [`@hotter-keys/core`](core/)                              | [![npm](https://img.shields.io/npm/v/@hotter-keys/core)](https://www.npmjs.com/package/@hotter-keys/core)         | [![JSR](https://jsr.io/badges/@hotter-keys/core)](https://jsr.io/@hotter-keys/core) | Core library — zero dependencies            |
+| [`@hotter-keys/solid`](packages/solid/)                   | [![npm](https://img.shields.io/npm/v/@hotter-keys/solid)](https://www.npmjs.com/package/@hotter-keys/solid)       | —                                                                                   | Solid.js primitives                         |
+| [`@hotter-keys/devtools`](packages/vite-plugin-devtools/) | [![npm](https://img.shields.io/npm/v/@hotter-keys/devtools)](https://www.npmjs.com/package/@hotter-keys/devtools) | —                                                                                   | Devtools for Vite, Astro & @vitejs/devtools |
 
 ## Quick start
 

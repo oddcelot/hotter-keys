@@ -14,8 +14,8 @@ const hk = createHotkeys();
 hk.add("mod+z", () => undoText(), { scope: "text-editor" });
 hk.add("mod+z", () => undoStroke(), { scope: "drawing" });
 
-hk.setScope("text-editor");  // Mod+Z → undoText()
-hk.setScope("drawing");      // Mod+Z → undoStroke()
+hk.setScope("text-editor"); // Mod+Z → undoText()
+hk.setScope("drawing"); // Mod+Z → undoStroke()
 ```
 
 The same key combo does completely different things depending on the active scope.
@@ -58,13 +58,13 @@ canvasEl.addEventListener("focus", () => hk.setScope("drawing"));
 
 ## Layers vs scopes
 
-| | Layers | Scopes |
-|---|---|---|
-| **Model** | Priority stack | Context filter |
-| **Multiple active** | Yes (stacked) | No (one at a time) |
-| **Same key, different action** | Higher layer wins | Active scope wins |
-| **Unmatched keys** | Fall through to lower layers | Ignored |
-| **Use case** | Additive shortcuts (editor + modal) | Context switching (text vs canvas) |
+|                                | Layers                              | Scopes                             |
+| ------------------------------ | ----------------------------------- | ---------------------------------- |
+| **Model**                      | Priority stack                      | Context filter                     |
+| **Multiple active**            | Yes (stacked)                       | No (one at a time)                 |
+| **Same key, different action** | Higher layer wins                   | Active scope wins                  |
+| **Unmatched keys**             | Fall through to lower layers        | Ignored                            |
+| **Use case**                   | Additive shortcuts (editor + modal) | Context switching (text vs canvas) |
 
 **Use layers** when UI regions add extra shortcuts on top of a base set.
 

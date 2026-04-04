@@ -20,13 +20,12 @@ For Astro sites, register it as an Astro integration. It adds a Dev Toolbar app:
 import { hotterKeysDevtoolsIntegration } from "@hotter-keys/devtools";
 
 export default defineConfig({
-  integrations: [
-    hotterKeysDevtoolsIntegration(),
-  ],
+  integrations: [hotterKeysDevtoolsIntegration()],
 });
 ```
 
 The toolbar app shows:
+
 - **Bindings tab** — all registered bindings grouped by layer, with scope info
 - **Events tab** — table of fired shortcuts with layer, scope, and timestamp
 - **Settings tab** — notification toggle
@@ -41,14 +40,12 @@ import { DevTools } from "@vitejs/devtools";
 import { hotterKeysViteDevtools } from "@hotter-keys/devtools/vite";
 
 export default defineConfig({
-  plugins: [
-    DevTools(),
-    hotterKeysViteDevtools(),
-  ],
+  plugins: [DevTools(), hotterKeysViteDevtools()],
 });
 ```
 
 The panel shows:
+
 - **Bindings** — bindings grouped by layer with active/inactive indicators
 - **Events** — fired shortcut log with layer, scope, and time columns
 - **Settings** — persistent notification toggle
@@ -88,6 +85,7 @@ Controls which event types the devtools captures. Defaults to everything except 
 The devtools plugin attaches to `Hotkeys` instances via the `__devtools` hook — an opt-in callback on the `Hotkeys` class that emits structured events. When no devtools is attached, the hook is `undefined` and the check short-circuits (zero overhead).
 
 Discovery is automatic:
+
 1. If the devtools sentinel loads **before** your app creates hotkeys instances, they register eagerly via the constructor.
 2. If instances are created **before** the sentinel, they're stashed on `globalThis.__HOTTER_KEYS_INSTANCES__` and drained when the sentinel loads.
 3. On late-attach, existing bindings and layer state are replayed so the panel populates immediately.
