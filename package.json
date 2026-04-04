@@ -1,13 +1,15 @@
 {
   "name": "hotter-keys",
   "private": true,
-  "packageManager": "pnpm@10.25.0",
   "scripts": {
     "changeset": "changeset",
     "version": "changeset version",
-    "publish": "pnpm -r build && changeset publish"
+    "publish": "pnpm -r build && changeset publish",
+    "prepare": "vp config"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.30.0"
-  }
+    "@changesets/cli": "^2.30.0",
+    "vite-plus": "catalog:"
+  },
+  "packageManager": "pnpm@10.25.0"
 }

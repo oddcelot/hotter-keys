@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi } from "vite-plus/test";
 import { recordShortcut } from "./record";
 import * as parse from "./parse";
 import { fireKey } from "./test-helpers";

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "vite-plus/test";
 import {
   parseShortcut,
   parseSequence,
@@ -10,15 +10,33 @@ import type { Shortcut } from "./types";
 
 describe("parseShortcut", () => {
   it("parses a simple letter", () => {
-    expect(parseShortcut("k")).toEqual({ key: "k", ctrl: false, shift: false, meta: false, alt: false });
+    expect(parseShortcut("k")).toEqual({
+      key: "k",
+      ctrl: false,
+      shift: false,
+      meta: false,
+      alt: false,
+    });
   });
 
   it("parses a digit", () => {
-    expect(parseShortcut("3")).toEqual({ key: "3", ctrl: false, shift: false, meta: false, alt: false });
+    expect(parseShortcut("3")).toEqual({
+      key: "3",
+      ctrl: false,
+      shift: false,
+      meta: false,
+      alt: false,
+    });
   });
 
   it("parses ctrl+letter", () => {
-    expect(parseShortcut("ctrl+k")).toEqual({ key: "k", ctrl: true, shift: false, meta: false, alt: false });
+    expect(parseShortcut("ctrl+k")).toEqual({
+      key: "k",
+      ctrl: true,
+      shift: false,
+      meta: false,
+      alt: false,
+    });
   });
 
   it("parses meta+shift+letter", () => {
@@ -69,15 +87,33 @@ describe("parseShortcut", () => {
   });
 
   it("allows shift+letter", () => {
-    expect(parseShortcut("shift+a")).toEqual({ key: "a", ctrl: false, shift: true, meta: false, alt: false });
+    expect(parseShortcut("shift+a")).toEqual({
+      key: "a",
+      ctrl: false,
+      shift: true,
+      meta: false,
+      alt: false,
+    });
   });
 
   it("parses alt+letter", () => {
-    expect(parseShortcut("alt+k")).toEqual({ key: "k", ctrl: false, shift: false, meta: false, alt: true });
+    expect(parseShortcut("alt+k")).toEqual({
+      key: "k",
+      ctrl: false,
+      shift: false,
+      meta: false,
+      alt: true,
+    });
   });
 
   it("accepts option as alt alias", () => {
-    expect(parseShortcut("option+k")).toEqual({ key: "k", ctrl: false, shift: false, meta: false, alt: true });
+    expect(parseShortcut("option+k")).toEqual({
+      key: "k",
+      ctrl: false,
+      shift: false,
+      meta: false,
+      alt: true,
+    });
   });
 });
 
@@ -109,20 +145,30 @@ describe("parseSequence", () => {
 
 describe("formatShortcut", () => {
   it("formats for non-mac", () => {
-    expect(formatShortcut({ key: "k", ctrl: true, shift: false, meta: false, alt: false })).toBe("Ctrl+K");
+    expect(formatShortcut({ key: "k", ctrl: true, shift: false, meta: false, alt: false })).toBe(
+      "Ctrl+K",
+    );
   });
 
   it("formats for mac", () => {
-    expect(formatShortcut({ key: "s", ctrl: false, shift: true, meta: true, alt: false }, true)).toBe("⇧⌘S");
+    expect(
+      formatShortcut({ key: "s", ctrl: false, shift: true, meta: true, alt: false }, true),
+    ).toBe("⇧⌘S");
   });
 
   it("formats plain key", () => {
-    expect(formatShortcut({ key: "a", ctrl: false, shift: false, meta: false, alt: false })).toBe("A");
+    expect(formatShortcut({ key: "a", ctrl: false, shift: false, meta: false, alt: false })).toBe(
+      "A",
+    );
   });
 
   it("formats alt modifier", () => {
-    expect(formatShortcut({ key: "k", ctrl: false, shift: false, meta: false, alt: true })).toBe("Alt+K");
-    expect(formatShortcut({ key: "k", ctrl: false, shift: false, meta: false, alt: true }, true)).toBe("⌥K");
+    expect(formatShortcut({ key: "k", ctrl: false, shift: false, meta: false, alt: true })).toBe(
+      "Alt+K",
+    );
+    expect(
+      formatShortcut({ key: "k", ctrl: false, shift: false, meta: false, alt: true }, true),
+    ).toBe("⌥K");
   });
 });
 
@@ -136,15 +182,33 @@ describe("formatSequence", () => {
 
 describe("mod keyword", () => {
   it("resolves mod to meta on macOS", () => {
-    expect(parseShortcut("mod+s", { mac: true })).toEqual({ key: "s", ctrl: false, shift: false, meta: true, alt: false });
+    expect(parseShortcut("mod+s", { mac: true })).toEqual({
+      key: "s",
+      ctrl: false,
+      shift: false,
+      meta: true,
+      alt: false,
+    });
   });
 
   it("resolves mod to ctrl on non-macOS", () => {
-    expect(parseShortcut("mod+s", { mac: false })).toEqual({ key: "s", ctrl: true, shift: false, meta: false, alt: false });
+    expect(parseShortcut("mod+s", { mac: false })).toEqual({
+      key: "s",
+      ctrl: true,
+      shift: false,
+      meta: false,
+      alt: false,
+    });
   });
 
   it("mod+shift works", () => {
-    expect(parseShortcut("mod+shift+p", { mac: true })).toEqual({ key: "p", ctrl: false, shift: true, meta: true, alt: false });
+    expect(parseShortcut("mod+shift+p", { mac: true })).toEqual({
+      key: "p",
+      ctrl: false,
+      shift: true,
+      meta: true,
+      alt: false,
+    });
   });
 
   it("mod works in sequences", () => {
@@ -158,25 +222,41 @@ describe("mod keyword", () => {
 describe("mod2 keyword", () => {
   it("resolves mod2 to ctrl on macOS", () => {
     expect(parseShortcut("mod2+s", { mac: true })).toEqual({
-      key: "s", ctrl: true, shift: false, meta: false, alt: false,
+      key: "s",
+      ctrl: true,
+      shift: false,
+      meta: false,
+      alt: false,
     });
   });
 
   it("resolves mod2 to alt on non-macOS", () => {
     expect(parseShortcut("mod2+s", { mac: false })).toEqual({
-      key: "s", ctrl: false, shift: false, meta: false, alt: true,
+      key: "s",
+      ctrl: false,
+      shift: false,
+      meta: false,
+      alt: true,
     });
   });
 
   it("mod+mod2 works (Cmd+Ctrl on mac)", () => {
     expect(parseShortcut("mod+mod2+s", { mac: true })).toEqual({
-      key: "s", ctrl: true, shift: false, meta: true, alt: false,
+      key: "s",
+      ctrl: true,
+      shift: false,
+      meta: true,
+      alt: false,
     });
   });
 
   it("mod+mod2 works (Ctrl+Alt on non-mac)", () => {
     expect(parseShortcut("mod+mod2+s", { mac: false })).toEqual({
-      key: "s", ctrl: true, shift: false, meta: false, alt: true,
+      key: "s",
+      ctrl: true,
+      shift: false,
+      meta: false,
+      alt: true,
     });
   });
 
@@ -190,12 +270,18 @@ describe("mod2 keyword", () => {
 
 describe("translateForPlatform", () => {
   it("translates ctrl to meta on macOS", () => {
-    const result = translateForPlatform({ key: "s", ctrl: true, shift: false, meta: false, alt: false }, { mac: true });
+    const result = translateForPlatform(
+      { key: "s", ctrl: true, shift: false, meta: false, alt: false },
+      { mac: true },
+    );
     expect(result).toEqual({ key: "s", ctrl: false, shift: false, meta: true, alt: false });
   });
 
   it("translates meta to ctrl on non-macOS", () => {
-    const result = translateForPlatform({ key: "s", ctrl: false, shift: false, meta: true, alt: false }, { mac: false });
+    const result = translateForPlatform(
+      { key: "s", ctrl: false, shift: false, meta: true, alt: false },
+      { mac: false },
+    );
     expect(result).toEqual({ key: "s", ctrl: true, shift: false, meta: false, alt: false });
   });
 
@@ -210,7 +296,10 @@ describe("translateForPlatform", () => {
   });
 
   it("preserves shift alongside translation", () => {
-    const result = translateForPlatform({ key: "p", ctrl: true, shift: true, meta: false, alt: false }, { mac: true });
+    const result = translateForPlatform(
+      { key: "p", ctrl: true, shift: true, meta: false, alt: false },
+      { mac: true },
+    );
     expect(result).toEqual({ key: "p", ctrl: false, shift: true, meta: true, alt: false });
   });
 });

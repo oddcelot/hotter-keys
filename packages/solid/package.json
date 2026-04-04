@@ -2,13 +2,18 @@
   "name": "@hotter-keys/solid",
   "version": "0.0.1",
   "description": "Solid.js primitives for hotter-keys — reactive keyboard shortcut management.",
+  "homepage": "https://oddcelot.github.io/hotter-keys",
+  "license": "GPL-3.0-only",
   "repository": {
     "type": "git",
     "url": "https://github.com/oddcelot/hotter-keys.git",
     "directory": "packages/solid"
   },
-  "homepage": "https://oddcelot.github.io/hotter-keys",
+  "files": [
+    "dist"
+  ],
   "type": "module",
+  "sideEffects": false,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -17,20 +22,17 @@
       "default": "./dist/index.js"
     }
   },
-  "files": ["dist"],
-  "sideEffects": false,
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"
-  },
-  "peerDependencies": {
-    "@hotter-keys/core": "workspace:*",
-    "solid-js": ">=1.8.0"
   },
   "devDependencies": {
     "@hotter-keys/core": "workspace:*",
     "solid-js": "catalog:default",
     "typescript": "catalog:default"
   },
-  "license": "GPL-3.0-only"
+  "peerDependencies": {
+    "@hotter-keys/core": "workspace:*",
+    "solid-js": ">=1.8.0"
+  }
 }

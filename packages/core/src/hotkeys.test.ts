@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vite-plus/test";
 import { Hotkeys, createHotkeys } from "./hotkeys";
 import { fireKey, fireKeyUp } from "./test-helpers";
 
@@ -161,7 +161,9 @@ describe("Hotkeys — remove()", () => {
     // In jsdom isMac() is false, so ctrl stays ctrl — no translation.
     // Use an explicit pre-translated shortcut to verify the lookup works.
     const handler = vi.fn();
-    hk.add({ key: "k", ctrl: true, shift: false, meta: false, alt: false }, handler, { crossPlatform: false });
+    hk.add({ key: "k", ctrl: true, shift: false, meta: false, alt: false }, handler, {
+      crossPlatform: false,
+    });
     hk.remove("ctrl+k");
     fireKey(target, "k", { ctrlKey: true });
     expect(handler).not.toHaveBeenCalled();
@@ -671,7 +673,7 @@ describe("Hotkeys — layers", () => {
     hk.destroy();
   });
 
-  it("defaults to [\"global\"]", () => {
+  it('defaults to ["global"]', () => {
     expect([...hk.getLayers()]).toEqual(["global"]);
   });
 
@@ -841,7 +843,7 @@ describe("Hotkeys — layers", () => {
     expect(handler).toHaveBeenCalledOnce();
   });
 
-  it("destroy resets layers to [\"global\"]", () => {
+  it('destroy resets layers to ["global"]', () => {
     hk.pushLayer("commandbar");
     hk.destroy();
     expect([...hk.getLayers()]).toEqual(["global"]);

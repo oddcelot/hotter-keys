@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vite-plus";
 import solidPlugin from "vite-plugin-solid";
 // import { DevTools } from "@vitejs/devtools";
 // import { hotterKeysViteDevtools } from "@hotter-keys/devtools/vite";
