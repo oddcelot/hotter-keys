@@ -14,19 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @hotter-keys/core test
-      - run: pnpm -r build
+          node-version: "22"
+          cache: true
+      - run: vp install
+      - run: vp run --filter @hotter-keys/core test
+      - run: vp run -r build
       - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: |
-            core/dist
+            packages/core/dist
             packages/solid/dist
             packages/vite-plugin-devtools/dist
 
@@ -35,13 +34,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: 22
-          cache: pnpm
-          registry-url: https://registry.npmjs.org
-      - run: pnpm install --frozen-lockfile
+          node-version: "22"
+          cache: true
+      - run: vp install
       - uses: actions/download-artifact@v4
         with:
           name: dist
@@ -55,14 +52,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: npx jsr publish --allow-dirty
-        working-directory: core
+          node-version: "22"
+          cache: true
+      - run: vp install
+      - run: vpx jsr publish --allow-dirty
+        working-directory: packages/core
 
   # Note: @hotter-keys/solid and @hotter-keys/devtools are npm-only.
   # They depend on npm packages (solid-js, astro, vite) that JSR can't resolve.

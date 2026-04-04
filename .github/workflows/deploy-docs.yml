@@ -20,19 +20,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-
-      - uses: actions/setup-node@v4
+      - uses: voidzero-dev/setup-vp@v1
         with:
-          node-version: 22
-          cache: pnpm
+          node-version: "22"
+          cache: true
 
-      - run: pnpm install --frozen-lockfile
+      - run: vp install
 
-      - run: pnpm --filter @hotter-keys/core build
-      - run: pnpm --filter @hotter-keys/devtools build
+      - run: vp run --filter @hotter-keys/core build
+      - run: vp run --filter @hotter-keys/devtools build
 
-      - run: pnpm --filter @hotter-keys/docs build
+      - run: vp run --filter @hotter-keys/docs build
         env:
           CI: true
 
