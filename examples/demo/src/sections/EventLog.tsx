@@ -1,4 +1,5 @@
 import { For } from "solid-js";
+import Badge from "../components/Badge";
 
 export interface LogEntry {
   id: number;
@@ -19,7 +20,7 @@ export default function EventLog(props: Props) {
       <div class="flex items-center justify-between mb-2">
         <h2 style={{ margin: "0" }}>Event Log</h2>
         {props.log.length > 0 && (
-          <button class="btn btn-ghost btn-sm" onClick={props.onClear}>
+          <button class="btn-ghost" onClick={props.onClear}>
             clear
           </button>
         )}
@@ -37,9 +38,9 @@ export default function EventLog(props: Props) {
             {(entry) => (
               <div class="row row-fired">
                 <kbd class="fired">{entry.shortcut}</kbd>
-                <span class="flex-1 min-w-0 text-xs">{entry.action}</span>
-                <span class="badge badge-purple">{entry.layer}</span>
-                {entry.scope && <span class="badge badge-green">{entry.scope}</span>}
+                <span class="flex-1 min-w-0 ">{entry.action}</span>
+                <Badge color="purple">{entry.layer}</Badge>
+                {entry.scope && <Badge color="green">{entry.scope}</Badge>}
               </div>
             )}
           </For>

@@ -1,5 +1,6 @@
 import { For, type Accessor } from "solid-js";
 import { displayShortcut as fmt } from "@hotter-keys/core";
+import Badge from "../components/Badge";
 
 interface Props {
   layers: string[];
@@ -12,17 +13,21 @@ export default function StateBar(props: Props) {
     <div class="layer-bar">
       <div class="flex gap-[0.4rem] items-center flex-wrap">
         <h2 style={{ margin: "0" }}>State</h2>
-        <span class="text-hk-gray-4 text-xs">Layers:</span>
+        <span class="text-hk-gray-4 ">Layers:</span>
         <For each={props.layers}>
-          {(l) => <span class="layer-pill layer-pill-active">{l}</span>}
+          {(l) => (
+            <Badge color="green" pill>
+              {l}
+            </Badge>
+          )}
         </For>
-        <span class="text-hk-gray-4 text-xs" style={{ "margin-left": "0.25rem" }}>
+        <span class="text-hk-gray-4 " style={{ "margin-left": "0.25rem" }}>
           Scope:
         </span>
-        <span class="badge badge-green">{props.activeScope()}</span>
+        <Badge color="green">{props.activeScope()}</Badge>
         <span class="flex-1 min-w-0" />
-        <button class="btn btn-sm" onClick={props.onOpenModal}>
-          Open Modal <kbd class="kbd-inline">{fmt("mod+p")}</kbd>
+        <button onClick={props.onOpenModal}>
+          Open Modal <kbd>{fmt("mod+p")}</kbd>
         </button>
       </div>
     </div>

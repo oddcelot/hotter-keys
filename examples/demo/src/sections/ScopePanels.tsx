@@ -1,6 +1,7 @@
 import { For, type Accessor } from "solid-js";
 import { displayShortcut as fmt } from "@hotter-keys/core";
 import { BINDINGS, scopeOf } from "../bindings";
+import Badge from "../components/Badge";
 
 interface Props {
   activeScope: Accessor<string>;
@@ -19,8 +20,8 @@ export default function ScopePanels(props: Props) {
         to switch scope.
       </p>
       <div class="flex gap-[0.4rem] items-center mb-2">
-        <span class="text-xs text-hk-gray-4">Active scope:</span>
-        <span class="badge badge-purple">{props.activeScope()}</span>
+        <span class=" text-hk-gray-4">Active scope:</span>
+        <Badge color="purple">{props.activeScope()}</Badge>
       </div>
       <div class="panel-grid">
         <section
@@ -38,7 +39,7 @@ export default function ScopePanels(props: Props) {
               {(b) => (
                 <div class="flex gap-[0.4rem] items-center">
                   <kbd>{fmt(b.raw)}</kbd>
-                  <span class="text-hk-gray-4 text-xs">{b.action}</span>
+                  <span class="text-hk-gray-4 ">{b.action}</span>
                 </div>
               )}
             </For>
@@ -55,7 +56,7 @@ export default function ScopePanels(props: Props) {
               {(b) => (
                 <div class="flex gap-[0.4rem] items-center">
                   <kbd>{fmt(b.raw)}</kbd>
-                  <span class="text-hk-gray-4 text-xs">{b.action}</span>
+                  <span class="text-hk-gray-4 ">{b.action}</span>
                 </div>
               )}
             </For>

@@ -1,6 +1,7 @@
 import { For } from "solid-js";
 import { displayShortcut as fmt } from "@hotter-keys/core";
 import { BINDINGS, layerOf } from "../bindings";
+import Badge from "../components/Badge";
 
 interface Props {
   ref: (el: HTMLDialogElement) => void;
@@ -20,7 +21,7 @@ export default function ModalDialog(props: Props) {
       <div class="modal-content">
         <div class="flex items-center justify-between mb-2">
           <h2 style={{ margin: "0", color: "var(--hk-canvas-text)" }}>Command Palette</h2>
-          <span class="badge badge-orange">modal layer</span>
+          <Badge color="orange">modal layer</Badge>
         </div>
         <p class="mb-2">
           The <strong style={{ color: "var(--hk-canvas-text)" }}>modal</strong> layer is pushed on
@@ -32,14 +33,14 @@ export default function ModalDialog(props: Props) {
             {(b) => (
               <div class="row">
                 <kbd>{fmt(b.raw)}</kbd>
-                <span class="flex-1 min-w-0 text-xs">{b.action}</span>
+                <span class="flex-1 min-w-0 ">{b.action}</span>
               </div>
             )}
           </For>
         </div>
         <div style={{ "margin-top": "0.75rem", "text-align": "right" }}>
           <button class="btn" onClick={props.onClose}>
-            Close <kbd class="kbd-inline">Esc</kbd>
+            Close <kbd>Esc</kbd>
           </button>
         </div>
       </div>

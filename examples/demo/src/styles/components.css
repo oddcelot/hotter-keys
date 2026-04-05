@@ -45,7 +45,7 @@
   gap: 0.5rem;
   padding: 0.4rem 0.75rem;
   border-bottom: 1px solid var(--hk-rule);
-  font-size: 0.8125rem;
+  /*font-size: 0.8125rem;*/
 }
 
 .row:last-child {
@@ -58,74 +58,13 @@
 
 /* ── Kbd variants ── */
 
-kbd.kbd-inline {
-  font-size: 0.55rem;
-  min-width: auto;
-  padding: 0 0.3rem;
-  margin-left: 0.3rem;
-}
-
 kbd.fired {
   background: var(--hk-green-low);
   border-color: oklch(from var(--hk-green) l c h / 0.3);
   color: var(--hk-green);
 }
 
-/* ── Badge ── */
-
-.badge {
-  display: inline-block;
-  padding: 0.1rem 0.4rem;
-  border-radius: 0.2rem;
-  font-size: 0.6rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.badge-green {
-  color: var(--hk-green);
-  border: 1px solid oklch(from var(--hk-green) l c h / 0.3);
-}
-
-.badge-blue {
-  color: var(--hk-blue);
-  border: 1px solid oklch(from var(--hk-blue) l c h / 0.3);
-}
-
-.badge-purple {
-  color: var(--hk-purple);
-  border: 1px solid oklch(from var(--hk-purple) l c h / 0.3);
-}
-
-.badge-orange {
-  color: var(--hk-orange);
-  border: 1px solid oklch(from var(--hk-orange) l c h / 0.3);
-}
-
 /* ── Button ── */
-
-.btn {
-  padding: 0.25rem 0.6rem;
-  border-radius: 3px;
-  border: 1px solid var(--hk-card-border);
-  background: transparent;
-  color: var(--hk-canvas-text);
-  cursor: pointer;
-  font-family: var(--hk-font);
-  font-size: 0.75rem;
-  transition: border-color 0.15s;
-}
-
-.btn:hover {
-  border-color: var(--hk-canvas-text);
-}
-
-.btn-sm {
-  padding: 0.15rem 0.4rem;
-  font-size: 0.65rem;
-  color: var(--hk-gray-text);
-}
 
 .btn-ghost {
   border-color: transparent;
@@ -134,30 +73,6 @@ kbd.fired {
 
 .btn-ghost:hover {
   color: var(--hk-canvas-text);
-}
-
-/* ── Layer pills ── */
-
-.layer-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.15rem 0.5rem;
-  border-radius: 100px;
-  font-size: 0.65rem;
-  font-weight: 600;
-  border: 1px solid;
-}
-
-.layer-pill-active {
-  color: var(--hk-green);
-  border-color: oklch(from var(--hk-green) l c h / 0.3);
-  background: oklch(from var(--hk-green) l c h / 0.08);
-}
-
-.layer-pill-inactive {
-  color: var(--hk-gray-3);
-  border-color: var(--hk-card-border);
 }
 
 /* ── Focus panels ── */
@@ -187,7 +102,6 @@ kbd.fired {
 }
 
 .focus-panel-label {
-  font-size: var(--hk-label-size);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: var(--hk-label-tracking);
@@ -210,7 +124,6 @@ kbd.fired {
 }
 
 .focus-panel-hint {
-  font-size: 0.7rem;
   color: var(--hk-gray-4);
 }
 
@@ -222,7 +135,6 @@ kbd.fired {
 }
 
 .focus-panel-shortcuts kbd {
-  font-size: 0.65rem;
   min-width: auto;
   padding: 0.05rem 0.35rem;
 }

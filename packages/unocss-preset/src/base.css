@@ -1,15 +1,11 @@
-/* ── Base ── */
-
 html {
   background: var(--hk-canvas);
   color: var(--hk-canvas-text);
   font-family: var(--hk-font);
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
-
-/* ── Typography ── */
 
 h1 {
   font-size: 1.25rem;
@@ -29,10 +25,7 @@ h2 {
 
 p {
   color: var(--hk-gray-3);
-  font-size: 0.8125rem;
 }
-
-/* ── Kbd ── */
 
 kbd {
   display: inline-block;
@@ -42,17 +35,31 @@ kbd {
   border-bottom-width: 2px;
   border-radius: 4px;
   font-family: var(--hk-font);
-  font-size: 0.75rem;
   line-height: 1.4;
   white-space: nowrap;
-  min-width: 5.5rem;
   text-align: center;
+
+  &:has(kbd) {
+    all: unset;
+  }
+
+  kbd {
+    min-width: auto;
+  }
 }
 
-kbd:has(kbd) {
-  all: unset;
-}
+button {
+  padding: 0.25em 0.6em;
+  border-radius: 3px;
+  border: 1px solid var(--hk-card-border);
+  background: transparent;
+  color: var(--hk-canvas-text);
+  cursor: pointer;
+  font-family: var(--hk-font);
+  font-size: 0.75em;
+  transition: border-color 0.15s;
 
-kbd kbd {
-  min-width: auto;
+  &:hover {
+    border-color: var(--hk-canvas-text);
+  }
 }
