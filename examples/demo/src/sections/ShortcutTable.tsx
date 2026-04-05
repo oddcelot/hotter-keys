@@ -14,7 +14,7 @@ export default function ShortcutTable(props: Props) {
     const layer = layerOf(b);
     if (!props.layers.includes(layer)) return false;
     const scope = scopeOf(b);
-    if (scope && props.activeScope() !== "*" && props.activeScope() !== scope) return false;
+    if (scope && props.activeScope() !== scope) return false;
     return true;
   };
 
