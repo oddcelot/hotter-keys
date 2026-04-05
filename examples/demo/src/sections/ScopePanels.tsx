@@ -4,6 +4,7 @@ import { BINDINGS, scopeOf } from "../bindings";
 import Badge from "../components/Badge";
 
 interface Props {
+  firedAction: Accessor<string | null>;
   activeScope: Accessor<string>;
   onSwitchScope: (scope: string) => void;
 }
@@ -38,7 +39,7 @@ export default function ScopePanels(props: Props) {
             <For each={BINDINGS.filter((b) => scopeOf(b) === "text-editor")}>
               {(b) => (
                 <div class="flex gap-[0.4rem] items-center">
-                  <kbd>{fmt(b.raw)}</kbd>
+                  <kbd class={props.firedAction() === b.action ? "fired" : ""}>{fmt(b.raw)}</kbd>
                   <span class="text-hk-gray-4 ">{b.action}</span>
                 </div>
               )}
@@ -55,7 +56,7 @@ export default function ScopePanels(props: Props) {
             <For each={BINDINGS.filter((b) => scopeOf(b) === "drawing")}>
               {(b) => (
                 <div class="flex gap-[0.4rem] items-center">
-                  <kbd>{fmt(b.raw)}</kbd>
+                  <kbd class={props.firedAction() === b.action ? "fired" : ""}>{fmt(b.raw)}</kbd>
                   <span class="text-hk-gray-4 ">{b.action}</span>
                 </div>
               )}

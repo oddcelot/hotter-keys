@@ -46,6 +46,7 @@
   padding: 0.4rem 0.75rem;
   border-bottom: 1px solid var(--hk-rule);
   /*font-size: 0.8125rem;*/
+  transition: background 0.3s ease-out;
 }
 
 .row:last-child {
