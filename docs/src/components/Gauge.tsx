@@ -8,8 +8,7 @@ const Gauge: Component<{ count: number }> = (props) => {
   // Needle sweeps from -120° (0 keys) to +120° (6 keys)
   const startAngle = -120;
   const endAngle = 120;
-  const needleAngle = () =>
-    startAngle + (props.count / 6) * (endAngle - startAngle);
+  const needleAngle = () => startAngle + (props.count / 6) * (endAngle - startAngle);
 
   const cx = 60;
   const cy = 60;
@@ -50,13 +49,7 @@ const Gauge: Component<{ count: number }> = (props) => {
       }}
     >
       {/* Dial arc */}
-      <path
-        d={arcPath}
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1"
-        opacity="0.3"
-      />
+      <path d={arcPath} fill="none" stroke="currentColor" stroke-width="1" opacity="0.3" />
 
       {/* Tick marks */}
       {ticks.map((t) => (
@@ -93,16 +86,8 @@ const Gauge: Component<{ count: number }> = (props) => {
       <line
         x1={cx}
         y1={cy}
-        x2={
-          cx +
-          32 *
-            Math.cos(((needleAngle() - 90) * Math.PI) / 180)
-        }
-        y2={
-          cy +
-          32 *
-            Math.sin(((needleAngle() - 90) * Math.PI) / 180)
-        }
+        x2={cx + 32 * Math.cos(((needleAngle() - 90) * Math.PI) / 180)}
+        y2={cy + 32 * Math.sin(((needleAngle() - 90) * Math.PI) / 180)}
         stroke="currentColor"
         stroke-width="1.5"
         stroke-linecap="round"

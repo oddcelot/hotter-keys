@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.lib.json",
+  "compilerOptions": {
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "rootDir": "src",
+    "lib": ["ES2022", "DOM"],
+    "types": ["node"]
+  },
+  "include": ["src", "../../env.d.ts"],
+  "references": [{ "path": "./tsconfig.node.json" }],
+  "exclude": ["dist"]
+}

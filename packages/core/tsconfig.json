@@ -1,18 +1,8 @@
 {
+  "extends": "../../tsconfig.lib.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ES2022",
-    "moduleResolution": "bundler",
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
     "outDir": "dist",
-    "rootDir": "src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "verbatimModuleSyntax": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+    "rootDir": "src"
   },
   "include": ["src"],
   "exclude": ["dist", "**/*.test.ts", "**/*.machine.ts"]

@@ -37,7 +37,7 @@ function comboToLabel(combo: string): string {
       chord
         .split("+")
         .map((p) => p.charAt(0).toUpperCase() + p.slice(1))
-        .join("+")
+        .join("+"),
     )
     .join(" ");
 }
@@ -56,6 +56,7 @@ export default function KeymapCreator() {
   const [fileName, setFileName] = createSignal<string | null>(null);
   const [firedId, setFiredId] = createSignal<string | null>(null);
 
+  // eslint-disable-next-line no-unassigned-vars -- assigned by Solid's ref={} JSX binding
   let containerRef!: HTMLDivElement;
   let hk: Hotkeys;
   const unbindMap = new Map<string, () => void>();
@@ -118,7 +119,11 @@ export default function KeymapCreator() {
   });
 
   const getExportJson = () =>
-    JSON.stringify(entries.map(({ id: _, ...rest }) => rest), null, 2);
+    JSON.stringify(
+      entries.map(({ id: _, ...rest }) => rest),
+      null,
+      2,
+    );
 
   // Write to a FileSystemFileHandle
   const writeToHandle = async (handle: FileSystemFileHandle, json: string) => {
@@ -211,16 +216,20 @@ export default function KeymapCreator() {
   };
 
   const addEntry = () => {
-    setEntries(produce((list) => {
-      list.push({ id: crypto.randomUUID(), name: "", description: "", shortcut: "" });
-    }));
+    setEntries(
+      produce((list) => {
+        list.push({ id: crypto.randomUUID(), name: "", description: "", shortcut: "" });
+      }),
+    );
   };
 
   const deleteEntry = (id: string) => {
-    setEntries(produce((list) => {
-      const idx = list.findIndex((e) => e.id === id);
-      if (idx !== -1) list.splice(idx, 1);
-    }));
+    setEntries(
+      produce((list) => {
+        const idx = list.findIndex((e) => e.id === id);
+        if (idx !== -1) list.splice(idx, 1);
+      }),
+    );
   };
 
   const updateField = (id: string, field: "name" | "description", value: string) => {
@@ -239,7 +248,10 @@ export default function KeymapCreator() {
     while (!done) {
       const ac = new AbortController();
       const onEscape = (e: KeyboardEvent) => {
-        if (e.key === "Escape") { ac.abort(); e.preventDefault(); }
+        if (e.key === "Escape") {
+          ac.abort();
+          e.preventDefault();
+        }
       };
       containerRef.addEventListener("keydown", onEscape, { capture: true });
       try {
@@ -272,10 +284,16 @@ export default function KeymapCreator() {
       {/* Status bar */}
       <div class={styles.statusBar}>
         <div class={styles.statusActions}>
-          <button onClick={addEntry} class="btn">+ Add Entry</button>
-          <button onClick={openFile} class="btn-sm">Open</button>
+          <button onClick={addEntry} class="btn">
+            + Add Entry
+          </button>
+          <button onClick={openFile} class="btn-sm">
+            Open
+          </button>
           <Show when={entries.length > 0}>
-            <button onClick={saveAs} class="btn-sm">Save as</button>
+            <button onClick={saveAs} class="btn-sm">
+              Save as
+            </button>
           </Show>
         </div>
         <Show
@@ -329,7 +347,9 @@ export default function KeymapCreator() {
                         <input
                           type="text"
                           value={entry.description}
-                          onInput={(e) => updateField(entry.id, "description", e.currentTarget.value)}
+                          onInput={(e) =>
+                            updateField(entry.id, "description", e.currentTarget.value)
+                          }
                           placeholder="e.g. Save current file"
                           class="input"
                         />
@@ -356,7 +376,9 @@ export default function KeymapCreator() {
                               ? pendingChords().length > 0
                                 ? "Next chord (Esc to finish)"
                                 : "Press key (Esc to cancel)"
-                              : entry.shortcut ? "Rebind" : "Record"}
+                              : entry.shortcut
+                                ? "Rebind"
+                                : "Record"}
                           </button>
                         </div>
                       </td>
@@ -382,9 +404,7 @@ export default function KeymapCreator() {
       <Show when={entries.length > 0}>
         <details class={styles.jsonOutput}>
           <summary class={styles.jsonSummary}>JSON output</summary>
-          <pre class={styles.jsonPre}>
-            {getExportJson()}
-          </pre>
+          <pre class={styles.jsonPre}>{getExportJson()}</pre>
         </details>
       </Show>
     </div>

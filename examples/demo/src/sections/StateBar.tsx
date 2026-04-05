@@ -1,5 +1,7 @@
 import { For, type Accessor } from "solid-js";
 import { displayShortcut as fmt } from "@hotter-keys/core";
+import { LAYER_COLORS, SCOPE_COLORS } from "../bindings";
+import { LayerBadge, ScopeBadge } from "../components/Badge";
 
 interface Props {
   layers: string[];
@@ -10,19 +12,23 @@ interface Props {
 export default function StateBar(props: Props) {
   return (
     <div class="layer-bar">
-      <div class="flex gap-sm items-center flex-wrap">
-        <h2 style={{ margin: "0" }}>State</h2>
-        <span class="muted text-sm">Layers:</span>
+      <div class="flex gap-[0.4rem] items-center flex-wrap">
+        <h2>State</h2>
+        <span class="text-hk-gray-4 ">Layers:</span>
         <For each={props.layers}>
-          {(l) => <span class="layer-pill layer-pill-active">{l}</span>}
+          {(l) => (
+            <LayerBadge color={LAYER_COLORS[l] ?? "purple"} pill>
+              {l}
+            </LayerBadge>
+          )}
         </For>
-        <span class="muted text-sm" style={{ "margin-left": "0.25rem" }}>
-          Scope:
-        </span>
-        <span class="badge badge-green">{props.activeScope()}</span>
-        <span class="flex-1" />
-        <button class="btn btn-sm" onClick={props.onOpenModal}>
-          Open Modal <kbd class="kbd-inline">{fmt("mod+p")}</kbd>
+        <span class="text-hk-gray-4 ">Scope:</span>
+        <ScopeBadge color={SCOPE_COLORS[props.activeScope()] ?? "green"}>
+          {props.activeScope() === "*" ? "global" : props.activeScope()}
+        </ScopeBadge>
+        <span class="flex-1 min-w-0" />
+        <button onClick={props.onOpenModal}>
+          Open Modal <kbd>{fmt("mod+p")}</kbd>
         </button>
       </div>
     </div>

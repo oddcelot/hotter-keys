@@ -7,8 +7,32 @@ export interface Modifiers {
 }
 
 type AlphaKey =
-  | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m"
-  | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "z";
+  | "a"
+  | "b"
+  | "c"
+  | "d"
+  | "e"
+  | "f"
+  | "g"
+  | "h"
+  | "i"
+  | "j"
+  | "k"
+  | "l"
+  | "m"
+  | "n"
+  | "o"
+  | "p"
+  | "q"
+  | "r"
+  | "s"
+  | "t"
+  | "u"
+  | "v"
+  | "w"
+  | "x"
+  | "y"
+  | "z";
 type DigitKey = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
 
 /** The set of keys that are safe to use across keyboard layouts. */
@@ -27,7 +51,7 @@ export interface Shortcut extends Modifiers {
  * A single shortcut like "ctrl+k" is a sequence of length 1.
  * A multi-step shortcut like "ctrl+k ctrl+c" is length 2.
  */
-export type ShortcutSequence = Shortcut[];
+export type ShortcutSequence = readonly Shortcut[];
 
 export type ShortcutHandler = (event: KeyboardEvent) => void;
 
@@ -105,13 +129,25 @@ export interface HotkeysOptions {
 // ---------------------------------------------------------------------------
 
 export type DevtoolsEvent =
-  | { type: 'binding:fired'; shortcut: ShortcutSequence; layer: string; scope: string | undefined; event: KeyboardEvent; timestamp: number }
-  | { type: 'binding:added'; shortcut: ShortcutSequence; options: BindingOptions; timestamp: number }
-  | { type: 'binding:removed'; shortcut: ShortcutSequence; timestamp: number }
-  | { type: 'layer:change'; layers: readonly string[]; timestamp: number }
-  | { type: 'scope:change'; scope: string; previous: string; timestamp: number }
-  | { type: 'held-keys:change'; keys: readonly string[]; timestamp: number }
-  | { type: 'lifecycle'; action: 'start' | 'stop' | 'destroy'; timestamp: number };
+  | {
+      type: "binding:fired";
+      shortcut: ShortcutSequence;
+      layer: string;
+      scope: string | undefined;
+      event: KeyboardEvent;
+      timestamp: number;
+    }
+  | {
+      type: "binding:added";
+      shortcut: ShortcutSequence;
+      options: BindingOptions;
+      timestamp: number;
+    }
+  | { type: "binding:removed"; shortcut: ShortcutSequence; timestamp: number }
+  | { type: "layer:change"; layers: readonly string[]; timestamp: number }
+  | { type: "scope:change"; scope: string; previous: string; timestamp: number }
+  | { type: "held-keys:change"; keys: readonly string[]; timestamp: number }
+  | { type: "lifecycle"; action: "start" | "stop" | "destroy"; timestamp: number };
 
 export type DevtoolsHook = (event: DevtoolsEvent) => void;
 

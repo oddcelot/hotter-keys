@@ -1,6 +1,7 @@
 /* @refresh reload */
 import { render } from "solid-js/web";
-import "./styles/tokens.css";
+import "@fontsource-variable/lilex";
+import "virtual:uno.css";
 import "./styles/components.css";
 import App from "./App";
 

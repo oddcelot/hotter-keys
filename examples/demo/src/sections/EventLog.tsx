@@ -1,4 +1,6 @@
 import { For } from "solid-js";
+import { LAYER_COLORS, SCOPE_COLORS } from "../bindings";
+import { LayerBadge, ScopeBadge } from "../components/Badge";
 
 export interface LogEntry {
   id: number;
@@ -15,18 +17,18 @@ interface Props {
 
 export default function EventLog(props: Props) {
   return (
-    <div class="section">
-      <div class="flex items-center justify-between mb-sm">
-        <h2 style={{ margin: "0" }}>Event Log</h2>
+    <div class="mb-6">
+      <div class="flex items-center justify-between mb-2">
+        <h2>Event Log</h2>
         {props.log.length > 0 && (
-          <button class="btn btn-ghost btn-sm" onClick={props.onClear}>
+          <button class="btn-ghost" onClick={props.onClear}>
             clear
           </button>
         )}
       </div>
       <div class="card log-scroll">
         {props.log.length === 0 ? (
-          <div class="row muted" style={{ "justify-content": "center", padding: "1.5rem" }}>
+          <div class="row text-hk-gray-4 justify-center p-2">
             Press a shortcut to see it here...
           </div>
         ) : (
@@ -34,9 +36,11 @@ export default function EventLog(props: Props) {
             {(entry) => (
               <div class="row row-fired">
                 <kbd class="fired">{entry.shortcut}</kbd>
-                <span class="flex-1 text-sm">{entry.action}</span>
-                <span class="badge badge-purple">{entry.layer}</span>
-                {entry.scope && <span class="badge badge-green">{entry.scope}</span>}
+                <span class="flex-1 min-w-0 ">{entry.action}</span>
+                <LayerBadge color={LAYER_COLORS[entry.layer] ?? "purple"}>{entry.layer}</LayerBadge>
+                {entry.scope && (
+                  <ScopeBadge color={SCOPE_COLORS[entry.scope]}>{entry.scope}</ScopeBadge>
+                )}
               </div>
             )}
           </For>

@@ -84,7 +84,7 @@ export function parseShortcut(raw: string, platform?: { mac: boolean }): Shortcu
     }
     if (key !== undefined) {
       throw new Error(
-        `Shortcut "${raw}" has more than one non-modifier key ("${key}" and "${part}")`
+        `Shortcut "${raw}" has more than one non-modifier key ("${key}" and "${part}")`,
       );
     }
     key = part;
@@ -96,14 +96,14 @@ export function parseShortcut(raw: string, platform?: { mac: boolean }): Shortcu
 
   if (!ALPHA.test(key) && !DIGIT.test(key)) {
     throw new Error(
-      `Shortcut key "${key}" is not a safe cross-layout key (only a-z and 0-9 are allowed)`
+      `Shortcut key "${key}" is not a safe cross-layout key (only a-z and 0-9 are allowed)`,
     );
   }
 
   // Rule 4: Shift is only safe with a-z
   if (mods.shift && !ALPHA.test(key)) {
     throw new Error(
-      `Shift+${key} is not safe cross-layout (Shift changes digit symbols per locale)`
+      `Shift+${key} is not safe cross-layout (Shift changes digit symbols per locale)`,
     );
   }
 
@@ -178,7 +178,13 @@ export function eventMatchesShortcut(e: KeyboardEvent, s: Shortcut): boolean {
 }
 
 export function shortcutEquals(a: Shortcut, b: Shortcut): boolean {
-  return a.key === b.key && a.ctrl === b.ctrl && a.shift === b.shift && a.meta === b.meta && a.alt === b.alt;
+  return (
+    a.key === b.key &&
+    a.ctrl === b.ctrl &&
+    a.shift === b.shift &&
+    a.meta === b.meta &&
+    a.alt === b.alt
+  );
 }
 
 /**

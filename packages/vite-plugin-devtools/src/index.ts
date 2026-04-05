@@ -1,13 +1,13 @@
-import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
-import type { AstroIntegration } from 'astro';
+import { fileURLToPath } from "node:url";
+import { dirname, resolve } from "node:path";
+import type { AstroIntegration } from "astro";
 
-import type { DevtoolsEventType } from './client/shared.js';
+import type { DevtoolsEventType } from "./client/shared.js";
 
 export type { DevtoolsEventType };
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const toolbarAppEntry = resolve(__dirname, 'client', 'toolbar-app.js');
+const toolbarAppEntry = resolve(__dirname, "client", "toolbar-app.js");
 
 const KEYBOARD_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01"/><path d="M10 8h.01"/><path d="M14 8h.01"/><path d="M18 8h.01"/><path d="M6 12h.01"/><path d="M10 12h.01"/><path d="M14 12h.01"/><path d="M18 12h.01"/><path d="M8 16h8"/></svg>`;
 
@@ -24,8 +24,9 @@ export interface DevtoolsOptions {
 function buildGlobalsScript(options?: DevtoolsOptions): string {
   const parts: string[] = [];
   if (options?.debug) parts.push(`globalThis.__HOTTER_KEYS_DEBUG__ = true;`);
-  if (options?.events) parts.push(`globalThis.__HOTTER_KEYS_EVENTS__ = ${JSON.stringify(options.events)};`);
-  return parts.join('');
+  if (options?.events)
+    parts.push(`globalThis.__HOTTER_KEYS_EVENTS__ = ${JSON.stringify(options.events)};`);
+  return parts.join("");
 }
 
 /**
@@ -35,18 +36,18 @@ export function hotterKeysDevtoolsIntegration(options?: DevtoolsOptions): AstroI
   const globals = buildGlobalsScript(options);
 
   return {
-    name: 'hotter-keys-devtools',
+    name: "hotter-keys-devtools",
     hooks: {
-      'astro:config:setup'({ command, addDevToolbarApp, injectScript }) {
-        if (command !== 'dev') return;
+      "astro:config:setup"({ command, addDevToolbarApp, injectScript }) {
+        if (command !== "dev") return;
 
         if (globals) {
-          injectScript('head-inline', globals);
+          injectScript("head-inline", globals);
         }
 
         addDevToolbarApp({
-          id: 'hotter-keys-devtools',
-          name: 'Hotter Keys',
+          id: "hotter-keys-devtools",
+          name: "Hotter Keys",
           icon: KEYBOARD_ICON,
           entrypoint: toolbarAppEntry,
         });

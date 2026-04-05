@@ -1,4 +1,5 @@
 import { type BindingOptions } from "@hotter-keys/core";
+import type { BadgeColor } from "./components/Badge";
 
 export interface Binding {
   raw: string;
@@ -7,11 +8,17 @@ export interface Binding {
   handler?: "openModal";
 }
 
-export const LAYER_COLORS: Record<string, string> = {
+export const LAYER_COLORS: Record<string, BadgeColor> = {
   global: "purple",
   editor: "green",
   canvas: "blue",
   modal: "orange",
+};
+
+export const SCOPE_COLORS: Record<string, BadgeColor> = {
+  "*": "purple",
+  "text-editor": "green",
+  drawing: "blue",
 };
 
 // prettier-ignore
@@ -45,5 +52,5 @@ export const BINDINGS: Binding[] = [
 ];
 
 export const layerOf = (b: Binding) => b.options?.layer ?? "global";
-export const layerColorOf = (b: Binding) => LAYER_COLORS[layerOf(b)] ?? "purple";
+export const layerColorOf = (b: Binding): BadgeColor => LAYER_COLORS[layerOf(b)] ?? "purple";
 export const scopeOf = (b: Binding) => b.options?.scope;

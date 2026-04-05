@@ -6,7 +6,12 @@ type KeyMods = Partial<{
   repeat: boolean;
 }>;
 
-function fire(type: "keydown" | "keyup", target: EventTarget, key: string, mods: KeyMods = {}): KeyboardEvent {
+function fire(
+  type: "keydown" | "keyup",
+  target: EventTarget,
+  key: string,
+  mods: KeyMods = {},
+): KeyboardEvent {
   const event = new KeyboardEvent(type, {
     key,
     ctrlKey: mods.ctrlKey ?? false,

@@ -1,21 +1,22 @@
-import { For } from "solid-js";
+import { For, type Accessor } from "solid-js";
 import { displayShortcut as fmt } from "@hotter-keys/core";
 import { BINDINGS, layerOf } from "../bindings";
 
 interface Props {
+  firedAction: Accessor<string | null>;
   onFocusLayer: (panel: string, layer: string) => void;
   onBlurLayer: (panel: string, layer: string) => void;
 }
 
 export default function LayerPanels(props: Props) {
   return (
-    <div class="section">
+    <div class="mb-6">
       <h2>Layers — Priority &amp; Override</h2>
-      <p class="mb-sm">
-        Layers form a <strong style={{ color: "var(--hk-ink)" }}>stack</strong>. Higher layers
-        consume key events first, preventing lower layers from firing. Use layers when UI regions
-        add <em>extra</em> shortcuts on top of a base set — like an editor toolbar or a modal
-        overlay. Click a panel to push its layer; blur to pop it.
+      <p class="mb-2">
+        Layers form a <strong class="text-hk-canvas-text">stack</strong>. Higher layers consume key
+        events first, preventing lower layers from firing. Use layers when UI regions add{" "}
+        <em>extra</em> shortcuts on top of a base set — like an editor toolbar or a modal overlay.
+        Click a panel to push its layer; blur to pop it.
       </p>
       <div class="panel-grid">
         <section
@@ -31,7 +32,9 @@ export default function LayerPanels(props: Props) {
           <span class="focus-panel-hint">Focus to activate editor layer</span>
           <div class="focus-panel-shortcuts">
             <For each={BINDINGS.filter((b) => layerOf(b) === "editor")}>
-              {(b) => <kbd>{fmt(b.raw)}</kbd>}
+              {(b) => (
+                <kbd class={props.firedAction() === b.action ? "fired" : ""}>{fmt(b.raw)}</kbd>
+              )}
             </For>
           </div>
         </section>
@@ -48,7 +51,9 @@ export default function LayerPanels(props: Props) {
           <span class="focus-panel-hint">Focus to activate canvas layer</span>
           <div class="focus-panel-shortcuts">
             <For each={BINDINGS.filter((b) => layerOf(b) === "canvas")}>
-              {(b) => <kbd>{fmt(b.raw)}</kbd>}
+              {(b) => (
+                <kbd class={props.firedAction() === b.action ? "fired" : ""}>{fmt(b.raw)}</kbd>
+              )}
             </For>
           </div>
         </section>

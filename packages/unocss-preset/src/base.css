@@ -1,0 +1,65 @@
+html {
+  background: var(--hk-canvas);
+  color: var(--hk-canvas-text);
+  font-family: var(--hk-font);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  margin-bottom: 0.25rem;
+}
+
+h2 {
+  font-size: var(--hk-label-size);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking);
+  color: var(--hk-gray-text);
+  margin-bottom: 0.5rem;
+}
+
+p {
+  color: var(--hk-gray-3);
+}
+
+kbd {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  background: var(--hk-gray-5);
+  border: 1px solid var(--hk-card-border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  font-family: var(--hk-font);
+  line-height: 1.4;
+  white-space: nowrap;
+  text-align: center;
+
+  &:has(kbd) {
+    all: unset;
+  }
+
+  kbd {
+    min-width: auto;
+  }
+}
+
+button {
+  padding: 0.25em 0.6em;
+  border-radius: 3px;
+  border: 1px solid var(--hk-card-border);
+  background: transparent;
+  color: var(--hk-canvas-text);
+  cursor: pointer;
+  font-family: var(--hk-font);
+  font-size: 0.75em;
+  transition: border-color 0.15s;
+
+  &:hover {
+    border-color: var(--hk-canvas-text);
+  }
+}

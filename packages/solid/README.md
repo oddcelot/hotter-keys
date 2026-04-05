@@ -34,15 +34,15 @@ function App() {
 
 **Returns:**
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `instance` | `Hotkeys` | The underlying core instance |
-| `layers` | `Accessor<readonly string[]>` | Reactive layer stack |
-| `heldKeys` | `Accessor<readonly string[]>` | Reactive held keys |
-| `scope` | `Accessor<string>` | Reactive current scope |
-| `setScope(s)` | `(string) => void` | Set scope (updates signal + instance) |
-| `pushLayer(name)` | `(string) => void` | Push a layer |
-| `popLayer(name?)` | `(string?) => ...` | Pop a layer |
+| Property          | Type                          | Description                           |
+| ----------------- | ----------------------------- | ------------------------------------- |
+| `instance`        | `Hotkeys`                     | The underlying core instance          |
+| `layers`          | `Accessor<readonly string[]>` | Reactive layer stack                  |
+| `heldKeys`        | `Accessor<readonly string[]>` | Reactive held keys                    |
+| `scope`           | `Accessor<string>`            | Reactive current scope                |
+| `setScope(s)`     | `(string) => void`            | Set scope (updates signal + instance) |
+| `pushLayer(name)` | `(string) => void`            | Push a layer                          |
+| `popLayer(name?)` | `(string?) => ...`            | Pop a layer                           |
 
 ### `createShortcut(hk, combo, handler, options?)`
 
@@ -93,11 +93,11 @@ function Modal(props: { onClose: () => void }) {
 
 **Returns:**
 
-| Property | Type | Description |
-|----------|------|-------------|
+| Property   | Type                | Description                        |
+| ---------- | ------------------- | ---------------------------------- |
 | `isActive` | `Accessor<boolean>` | Whether this layer is in the stack |
-| `push()` | `() => void` | Push the layer |
-| `pop()` | `() => void` | Pop the layer |
+| `push()`   | `() => void`        | Push the layer                     |
+| `pop()`    | `() => void`        | Pop the layer                      |
 
 ### `createKeyHold(instance, key)`
 
@@ -110,11 +110,7 @@ function App() {
   const hk = createHotkeys();
   const shiftHeld = createKeyHold(hk.instance, "shift");
 
-  return (
-    <div>
-      {shiftHeld() && <div class="shortcut-hints">...</div>}
-    </div>
-  );
+  return <div>{shiftHeld() && <div class="shortcut-hints">...</div>}</div>;
 }
 ```
 
@@ -134,7 +130,12 @@ function App() {
     <>
       <Hotkey hk={hk} combo="mod+s" onFire={() => save()} />
       <Hotkey hk={hk} combo="mod+z" onFire={() => undo()} options={{ layer: "editor" }} />
-      <Hotkey hk={hk} combo="mod+1" onFire={() => action()} options={{ layer: "modal", scope: "modal" }} />
+      <Hotkey
+        hk={hk}
+        combo="mod+1"
+        onFire={() => action()}
+        options={{ layer: "modal", scope: "modal" }}
+      />
     </>
   );
 }
@@ -142,12 +143,12 @@ function App() {
 
 **Props:**
 
-| Prop | Type | Description |
-|------|------|-------------|
-| `hk` | `HotkeysInstance` | From `createHotkeys()` |
-| `combo` | `string` | Shortcut string |
-| `onFire` | `ShortcutHandler` | Handler |
-| `options?` | `BindingOptions` | Layer, scope, etc. |
+| Prop       | Type              | Description            |
+| ---------- | ----------------- | ---------------------- |
+| `hk`       | `HotkeysInstance` | From `createHotkeys()` |
+| `combo`    | `string`          | Shortcut string        |
+| `onFire`   | `ShortcutHandler` | Handler                |
+| `options?` | `BindingOptions`  | Layer, scope, etc.     |
 
 ## Patterns
 
@@ -162,11 +163,7 @@ function EditorPanel() {
   createShortcut(hk, "mod+shift+z", () => redo(), { layer: "editor" });
 
   return (
-    <section
-      tabIndex={0}
-      onFocus={() => editor.push()}
-      onBlur={() => editor.pop()}
-    >
+    <section tabIndex={0} onFocus={() => editor.push()} onBlur={() => editor.pop()}>
       Editor — {editor.isActive() ? "active" : "inactive"}
     </section>
   );
@@ -184,8 +181,12 @@ function App() {
 
   return (
     <div>
-      <section tabIndex={0} onFocus={() => hk.setScope("text")}>Text Editor</section>
-      <section tabIndex={0} onFocus={() => hk.setScope("draw")}>Canvas</section>
+      <section tabIndex={0} onFocus={() => hk.setScope("text")}>
+        Text Editor
+      </section>
+      <section tabIndex={0} onFocus={() => hk.setScope("draw")}>
+        Canvas
+      </section>
       <p>Scope: {hk.scope()}</p>
     </div>
   );

@@ -56,13 +56,13 @@ Options passed to `hk.add()`.
 
 ```ts
 interface BindingOptions {
-  scope?: string;            // Only fires in this scope
-  preventDefault?: boolean;  // Default: true
+  scope?: string; // Only fires in this scope
+  preventDefault?: boolean; // Default: true
   stopPropagation?: boolean; // Default: false
-  enableInInput?: boolean;   // Default: false
-  requireReset?: boolean;    // Default: false
-  crossPlatform?: boolean;   // Default: true
-  layer?: string;            // Default: "global"
+  enableInInput?: boolean; // Default: false
+  requireReset?: boolean; // Default: false
+  crossPlatform?: boolean; // Default: true
+  layer?: string; // Default: "global"
 }
 ```
 
@@ -85,9 +85,9 @@ Options for `createHotkeys()`.
 
 ```ts
 interface HotkeysOptions {
-  target?: EventTarget;      // Default: document
-  scope?: string;            // Default: "*"
-  sequenceTimeout?: number;  // Default: 1000 (ms)
+  target?: EventTarget; // Default: document
+  scope?: string; // Default: "*"
+  sequenceTimeout?: number; // Default: 1000 (ms)
 }
 ```
 
@@ -121,14 +121,14 @@ Returned by `recordShortcut()`.
 
 ```ts
 interface RecordedShortcut {
-  key: string;           // Raw key, lowercased
+  key: string; // Raw key, lowercased
   ctrl: boolean;
   shift: boolean;
   meta: boolean;
   alt: boolean;
-  mod: boolean;          // Platform primary (Cmd on Mac, Ctrl elsewhere)
-  mod2: boolean;         // Platform secondary (Ctrl on Mac, Alt elsewhere)
-  safe: boolean;         // Whether the key is safe cross-layout
+  mod: boolean; // Platform primary (Cmd on Mac, Ctrl elsewhere)
+  mod2: boolean; // Platform secondary (Ctrl on Mac, Alt elsewhere)
+  safe: boolean; // Whether the key is safe cross-layout
   unsafeReason?: string; // Explanation if unsafe
 }
 ```
@@ -141,8 +141,20 @@ Discriminated union of all events emitted via the `__devtools` hook.
 
 ```ts
 type DevtoolsEvent =
-  | { type: "binding:fired"; shortcut: ShortcutSequence; layer: string; scope: string | undefined; event: KeyboardEvent; timestamp: number }
-  | { type: "binding:added"; shortcut: ShortcutSequence; options: BindingOptions; timestamp: number }
+  | {
+      type: "binding:fired";
+      shortcut: ShortcutSequence;
+      layer: string;
+      scope: string | undefined;
+      event: KeyboardEvent;
+      timestamp: number;
+    }
+  | {
+      type: "binding:added";
+      shortcut: ShortcutSequence;
+      options: BindingOptions;
+      timestamp: number;
+    }
   | { type: "binding:removed"; shortcut: ShortcutSequence; timestamp: number }
   | { type: "layer:change"; layers: readonly string[]; timestamp: number }
   | { type: "scope:change"; scope: string; previous: string; timestamp: number }

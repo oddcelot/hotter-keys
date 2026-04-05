@@ -1,8 +1,7 @@
-@import "@fontsource-variable/lilex";
-
 /* ── Design tokens — mirrors the docs site theme ── */
 
 :root {
+  color-scheme: dark;
   /* Hue palette */
   --hk-hue-warm: 95;
   --hk-hue-accent: 240;
@@ -37,22 +36,23 @@
   --hk-red: oklch(0.6 0.16 var(--hk-hue-red));
 
   /* Semantic */
-  --hk-bg: var(--hk-base-black);
-  --hk-ink: var(--hk-base-white);
-  --hk-ink-muted: var(--hk-gray-3);
+  --hk-canvas: var(--hk-base-black);
+  --hk-canvas-text: var(--hk-base-white);
+  --hk-gray-text: var(--hk-gray-3);
   --hk-card-bg: var(--hk-gray-6);
   --hk-card-border: oklch(from var(--hk-base-white) l c h / 0.1);
   --hk-rule: oklch(from var(--hk-base-white) l c h / 0.07);
-  --hk-accent: var(--hk-base-accent);
+  --hk-accent-color: var(--hk-base-accent);
 
   /* Typography */
   --hk-font: "Lilex Variable", ui-monospace, monospace;
-  --hk-label-size: 0.5rem;
+  --hk-label-size: 0.75rem;
   --hk-label-tracking: 0.16em;
 }
 
-/* ── Light mode ── */
+/* ── Light mode — explicit ── */
 [data-theme="light"] {
+  color-scheme: light;
   --hk-base-white: oklch(0.18 0.01 var(--hk-hue-warm));
   --hk-base-black: oklch(0.87 0.015 var(--hk-hue-warm));
 
@@ -64,11 +64,44 @@
   --hk-gray-6: oklch(0.91 0.012 var(--hk-hue-warm));
 
   --hk-green: oklch(0.55 0.1 var(--hk-hue-green));
+  --hk-green-low: oklch(0.85 0.04 var(--hk-hue-green));
   --hk-blue: oklch(0.52 0.1 var(--hk-hue-blue));
+  --hk-blue-low: oklch(0.85 0.04 var(--hk-hue-blue));
   --hk-purple: oklch(0.52 0.1 var(--hk-hue-purple));
+  --hk-purple-low: oklch(0.85 0.04 var(--hk-hue-purple));
   --hk-orange: oklch(0.62 0.1 var(--hk-hue-orange));
+  --hk-orange-low: oklch(0.85 0.04 var(--hk-hue-orange));
   --hk-red: oklch(0.58 0.14 var(--hk-hue-red));
 
   --hk-card-border: oklch(from var(--hk-base-white) l c h / 0.7);
   --hk-rule: oklch(from var(--hk-base-white) l c h / 0.7);
+}
+
+/* ── Light mode — system preference ── */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --hk-base-white: oklch(0.18 0.01 var(--hk-hue-warm));
+    --hk-base-black: oklch(0.87 0.015 var(--hk-hue-warm));
+
+    --hk-gray-1: oklch(0.24 0.008 var(--hk-hue-warm));
+    --hk-gray-2: oklch(0.38 0.008 var(--hk-hue-warm));
+    --hk-gray-3: oklch(0.5 0.008 var(--hk-hue-warm));
+    --hk-gray-4: oklch(0.62 0.01 var(--hk-hue-warm));
+    --hk-gray-5: oklch(0.8 0.012 var(--hk-hue-warm));
+    --hk-gray-6: oklch(0.91 0.012 var(--hk-hue-warm));
+
+    --hk-green: oklch(0.55 0.1 var(--hk-hue-green));
+    --hk-green-low: oklch(0.85 0.04 var(--hk-hue-green));
+    --hk-blue: oklch(0.52 0.1 var(--hk-hue-blue));
+    --hk-blue-low: oklch(0.85 0.04 var(--hk-hue-blue));
+    --hk-purple: oklch(0.52 0.1 var(--hk-hue-purple));
+    --hk-purple-low: oklch(0.85 0.04 var(--hk-hue-purple));
+    --hk-orange: oklch(0.62 0.1 var(--hk-hue-orange));
+    --hk-orange-low: oklch(0.85 0.04 var(--hk-hue-orange));
+    --hk-red: oklch(0.58 0.14 var(--hk-hue-red));
+
+    --hk-card-border: oklch(from var(--hk-base-white) l c h / 0.7);
+    --hk-rule: oklch(from var(--hk-base-white) l c h / 0.7);
+  }
 }

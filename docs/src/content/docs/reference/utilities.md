@@ -12,7 +12,7 @@ Parse a raw shortcut string and format it for the current platform. Auto-detects
 ```ts
 import { displayShortcut } from "@hotter-keys/core";
 
-displayShortcut("mod+k");       // "⌘K" on Mac, "Ctrl+K" elsewhere
+displayShortcut("mod+k"); // "⌘K" on Mac, "Ctrl+K" elsewhere
 displayShortcut("mod+k mod+c"); // "⌘K ⌘C" on Mac, "Ctrl+K Ctrl+C" elsewhere
 displayShortcut("mod+shift+p"); // "⌘⇧P" on Mac, "Ctrl+Shift+P" elsewhere
 ```
@@ -42,10 +42,13 @@ Serialize a `ShortcutSequence` (array of chords) to a human-readable string.
 ```ts
 import { formatSequence } from "@hotter-keys/core";
 
-formatSequence([
-  { key: "k", ctrl: false, meta: true, shift: false, alt: false },
-  { key: "c", ctrl: false, meta: true, shift: false, alt: false },
-], true);
+formatSequence(
+  [
+    { key: "k", ctrl: false, meta: true, shift: false, alt: false },
+    { key: "c", ctrl: false, meta: true, shift: false, alt: false },
+  ],
+  true,
+);
 // "⌘K ⌘C"
 ```
 

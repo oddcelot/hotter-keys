@@ -1,18 +1,6 @@
-import {
-  createSignal,
-  createMemo,
-  onCleanup,
-  onMount,
-  For,
-  Show,
-} from "solid-js";
+import { createSignal, createMemo, onCleanup, onMount, For, Show } from "solid-js";
 import { createSwitchTransition } from "@solid-primitives/transition-group";
-import {
-  createHotkeys,
-  isMac,
-  formatSequence,
-  parseSequence,
-} from "@hotter-keys/core";
+import { createHotkeys, isMac, formatSequence, parseSequence } from "@hotter-keys/core";
 import type { Hotkeys } from "@hotter-keys/core";
 import "../styles/demo.css";
 import styles from "./ShortcutLayers.module.css";
@@ -175,7 +163,6 @@ export default function ShortcutLayers() {
   } | null>(null);
 
   let hk: Hotkeys;
-  let resetTimer: ReturnType<typeof setTimeout> | undefined;
 
   function flash(label: string, desc: string) {
     setFired({ label, desc });
@@ -214,7 +201,6 @@ export default function ShortcutLayers() {
   function fireAction(sc: Shortcut, layerIdx: number) {
     if (sc.key === "escape") {
       if (depth() > 0) {
-        clearTimeout(resetTimer);
         setTrackOverride(null);
         goTo(depth() - 1);
         flash("Esc", "back");
@@ -226,7 +212,6 @@ export default function ShortcutLayers() {
     flash(label, sc.desc);
 
     if (sc.advances) {
-      clearTimeout(resetTimer);
       goTo(layerIdx + 1);
     } else if (layerIdx === LAYERS.length - 1) {
       setTrackOverride({ label, desc: sc.desc });
@@ -258,9 +243,7 @@ export default function ShortcutLayers() {
 
     LAYERS.forEach((layer, layerIdx) => {
       for (const sc of layer.shortcuts) {
-        const opts = layer.hkLayer
-          ? { layer: layer.hkLayer, preventDefault: false }
-          : undefined;
+        const opts = layer.hkLayer ? { layer: layer.hkLayer, preventDefault: false } : undefined;
         hk.add(sc.key, () => fireAction(sc, layerIdx), opts);
       }
     });
@@ -275,15 +258,12 @@ export default function ShortcutLayers() {
 
     const suppress = (e: KeyboardEvent) => {
       const k = e.key.toLowerCase();
-      if ((e.metaKey || e.ctrlKey) && ["k", "s", "z"].includes(k))
-        e.preventDefault();
-      if ((e.metaKey || e.ctrlKey) && e.shiftKey && k === "p")
-        e.preventDefault();
+      if ((e.metaKey || e.ctrlKey) && ["k", "s", "z"].includes(k)) e.preventDefault();
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && k === "p") e.preventDefault();
     };
     document.addEventListener("keydown", suppress, { capture: true });
 
     onCleanup(() => {
-      clearTimeout(resetTimer);
       hk.destroy();
       document.removeEventListener("keydown", onEscape);
       document.removeEventListener("keydown", suppress, { capture: true });
@@ -380,9 +360,7 @@ export default function ShortcutLayers() {
   const pillGroup = createMemo(() => {
     const d = depth();
     const layer = LAYERS[d];
-    const pills: Shortcut[] = layer.hkLayer
-      ? [...layer.shortcuts, ESC]
-      : layer.shortcuts;
+    const pills: Shortcut[] = layer.hkLayer ? [...layer.shortcuts, ESC] : layer.shortcuts;
 
     return (
       <div class={`not-content ${s.shortcuts}`}>
@@ -437,10 +415,7 @@ export default function ShortcutLayers() {
       <div class={s.split}>
         {/* 3D stage */}
         <div class={s.stage}>
-          <div
-            class={s.rig}
-            style={{ transform: `rotateX(55deg) rotateZ(${ROT_Z}deg)` }}
-          >
+          <div class={s.rig} style={{ transform: `rotateX(55deg) rotateZ(${ROT_Z}deg)` }}>
             <For each={LAYERS}>
               {(layer, i) => (
                 <div
@@ -491,9 +466,7 @@ export default function ShortcutLayers() {
                 return stickyLabel;
               };
               const showCmd = () =>
-                isLast
-                  ? !!(trackOverride() && depth() === LAYERS.length - 1)
-                  : depth() > i();
+                isLast ? !!(trackOverride() && depth() === LAYERS.length - 1) : depth() > i();
               return (
                 <>
                   <Show when={i() > 0}>
@@ -532,16 +505,13 @@ export default function ShortcutLayers() {
           </For>
         </div>
 
-        {/* Shortcut pills */}
-        <For each={pillTransition()}>{(el) => el}</For>
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+        {pillTransition() as any}
 
         {() => {
           const f = fired() ?? trackOverride();
           return (
-            <div
-              class={s.actionFeedback}
-              style={{ opacity: f ? 1 : 0 }}
-            >
+            <div class={s.actionFeedback} style={{ opacity: f ? 1 : 0 }}>
               {f ? `${f.label} \u2192 ${f.desc}` : "\u00A0"}
             </div>
           );

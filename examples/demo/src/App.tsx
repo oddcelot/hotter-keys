@@ -17,8 +17,10 @@ export default function App() {
   const [focusedPanel, setFocusedPanel] = createSignal<string | null>(null);
   const [modalOpen, setModalOpen] = createSignal(false);
   const [activeScope, setActiveScope] = createSignal("*");
+  const [firedAction, setFiredAction] = createSignal<string | null>(null);
   let hk: ReturnType<typeof createHotkeys>;
   let dialogRef: HTMLDialogElement | undefined;
+  let fireTimer: ReturnType<typeof setTimeout> | undefined;
 
   function addLog(shortcut: string, action: string, layer: string, scope?: string) {
     setLog(
@@ -61,6 +63,9 @@ export default function App() {
     for (const b of BINDINGS) {
       const handler = () => {
         addLog(fmt(b.raw), b.action, b.options?.layer ?? "global", b.options?.scope);
+        clearTimeout(fireTimer);
+        setFiredAction(b.action);
+        fireTimer = setTimeout(() => setFiredAction(null), 600);
         if (b.handler === "openModal") openModal();
       };
       hk.add(b.raw, handler, b.options);
@@ -92,16 +97,20 @@ export default function App() {
   return (
     <div class="container">
       <h1>Hotter Keys Demo</h1>
-      <p style={{ "margin-bottom": "1.5rem" }}>
-        Open <strong style={{ color: "var(--hk-ink)" }}>Vite DevTools</strong> and click the
-        keyboard icon to capture events.
+      <p>
+        Open <strong class="text-hk-canvas-text">Vite DevTools</strong> and click the keyboard icon
+        to capture events.
       </p>
 
-      <ShortcutTable />
-      <LayerPanels onFocusLayer={focusLayer} onBlurLayer={blurLayer} />
-      <ScopePanels activeScope={activeScope} onSwitchScope={switchScope} />
+      <ShortcutTable firedAction={firedAction} layers={layers} activeScope={activeScope} />
+      <LayerPanels firedAction={firedAction} onFocusLayer={focusLayer} onBlurLayer={blurLayer} />
+      <ScopePanels
+        firedAction={firedAction}
+        activeScope={activeScope}
+        onSwitchScope={switchScope}
+      />
       <EventLog log={log} onClear={() => setLog([])} />
-      <ModalDialog ref={(el) => (dialogRef = el)} onClose={closeModal} />
+      <ModalDialog firedAction={firedAction} ref={(el) => (dialogRef = el)} onClose={closeModal} />
       <StateBar layers={layers} activeScope={activeScope} onOpenModal={openModal} />
     </div>
   );

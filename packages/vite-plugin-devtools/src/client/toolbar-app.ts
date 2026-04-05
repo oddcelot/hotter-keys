@@ -1,14 +1,14 @@
-import { setupSentinel, formatTime, fmtSequence, hkLog, type DevtoolsLogEntry } from './shared.js';
+import { setupSentinel, formatTime, fmtSequence, hkLog, type DevtoolsLogEntry } from "./shared.js";
 
 const MAX_LOG_ENTRIES = 500;
 
 const KEYBOARD_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M6 8h.01"/><path d="M10 8h.01"/><path d="M14 8h.01"/><path d="M18 8h.01"/><path d="M6 12h.01"/><path d="M10 12h.01"/><path d="M14 12h.01"/><path d="M18 12h.01"/><path d="M8 16h8"/></svg>`;
 
-type Tab = 'bindings' | 'events' | 'settings';
+type Tab = "bindings" | "events" | "settings";
 
 export default {
-  id: 'hotter-keys-devtools',
-  name: 'Hotter Keys',
+  id: "hotter-keys-devtools",
+  name: "Hotter Keys",
   icon: KEYBOARD_ICON,
 
   init(canvas: ShadowRoot, app: any, _server: any) {
@@ -22,15 +22,14 @@ export default {
     }
 
     const registry = new Map<string, BindingRecord>();
-    let activeLayers: readonly string[] = ['global'];
+    let activeLayers: readonly string[] = ["global"];
     const logEntries: DevtoolsLogEntry[] = [];
     let panelOpen = false;
-    let activeTab: Tab = 'bindings';
     let notifyOnFired = true;
 
     // ── Styles ─────────────────────────────────────────────────────────────
 
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.textContent = `
       :host { font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace; }
 
@@ -73,34 +72,34 @@ export default {
 
     // ── Window ─────────────────────────────────────────────────────────────
 
-    const win = document.createElement('astro-dev-toolbar-window');
+    const win = document.createElement("astro-dev-toolbar-window");
     canvas.append(win);
 
     // ── Header with tabs ───────────────────────────────────────────────────
 
-    const header = document.createElement('div');
-    header.className = 'hk-header';
+    const header = document.createElement("div");
+    header.className = "hk-header";
 
-    const tabsEl = document.createElement('div');
-    tabsEl.className = 'hk-tabs';
+    const tabsEl = document.createElement("div");
+    tabsEl.className = "hk-tabs";
 
     const tabButtons: Record<Tab, HTMLElement> = {} as any;
-    for (const t of ['bindings', 'events', 'settings'] as Tab[]) {
-      const btn = document.createElement('astro-dev-toolbar-button');
-      btn.setAttribute('size', 'small');
-      btn.textContent = t === 'bindings' ? 'Bindings' : t === 'events' ? 'Events' : 'Settings';
-      btn.addEventListener('click', () => switchTab(t));
+    for (const t of ["bindings", "events", "settings"] as Tab[]) {
+      const btn = document.createElement("astro-dev-toolbar-button");
+      btn.setAttribute("size", "small");
+      btn.textContent = t === "bindings" ? "Bindings" : t === "events" ? "Events" : "Settings";
+      btn.addEventListener("click", () => switchTab(t));
       tabButtons[t] = btn;
       tabsEl.append(btn);
     }
 
-    const actions = document.createElement('div');
-    actions.className = 'hk-actions';
+    const actions = document.createElement("div");
+    actions.className = "hk-actions";
 
-    const clearBtn = document.createElement('astro-dev-toolbar-button');
-    clearBtn.setAttribute('size', 'small');
-    clearBtn.textContent = 'Clear';
-    clearBtn.style.display = 'none';
+    const clearBtn = document.createElement("astro-dev-toolbar-button");
+    clearBtn.setAttribute("size", "small");
+    clearBtn.textContent = "Clear";
+    clearBtn.style.display = "none";
     actions.append(clearBtn);
 
     header.append(tabsEl, actions);
@@ -108,40 +107,40 @@ export default {
 
     // ── Panels ──────────────────────────────────────────────────────────────
 
-    const bindingsPanel = document.createElement('div');
-    bindingsPanel.className = 'hk-panel';
+    const bindingsPanel = document.createElement("div");
+    bindingsPanel.className = "hk-panel";
 
-    const eventsPanel = document.createElement('div');
-    eventsPanel.className = 'hk-panel';
+    const eventsPanel = document.createElement("div");
+    eventsPanel.className = "hk-panel";
     eventsPanel.hidden = true;
 
-    const settingsPanel = document.createElement('div');
-    settingsPanel.className = 'hk-panel';
+    const settingsPanel = document.createElement("div");
+    settingsPanel.className = "hk-panel";
     settingsPanel.hidden = true;
 
-    const bindingsEmpty = document.createElement('div');
-    bindingsEmpty.className = 'hk-empty';
-    bindingsEmpty.textContent = 'No bindings registered\u2026';
+    const bindingsEmpty = document.createElement("div");
+    bindingsEmpty.className = "hk-empty";
+    bindingsEmpty.textContent = "No bindings registered\u2026";
     bindingsPanel.append(bindingsEmpty);
 
-    const eventsEmpty = document.createElement('div');
-    eventsEmpty.className = 'hk-empty';
-    eventsEmpty.textContent = 'No events captured yet\u2026';
+    const eventsEmpty = document.createElement("div");
+    eventsEmpty.className = "hk-empty";
+    eventsEmpty.textContent = "No events captured yet\u2026";
     eventsPanel.append(eventsEmpty);
 
     // Settings content
-    const notifySetting = document.createElement('div');
-    notifySetting.className = 'hk-setting';
-    const notifyLabel = document.createElement('span');
-    notifyLabel.className = 'hk-setting-label';
-    notifyLabel.textContent = 'Show notifications on fired shortcuts';
-    const notifyBtn = document.createElement('astro-dev-toolbar-button');
-    notifyBtn.setAttribute('size', 'small');
-    notifyBtn.textContent = 'On';
-    notifyBtn.addEventListener('click', () => {
+    const notifySetting = document.createElement("div");
+    notifySetting.className = "hk-setting";
+    const notifyLabel = document.createElement("span");
+    notifyLabel.className = "hk-setting-label";
+    notifyLabel.textContent = "Show notifications on fired shortcuts";
+    const notifyBtn = document.createElement("astro-dev-toolbar-button");
+    notifyBtn.setAttribute("size", "small");
+    notifyBtn.textContent = "On";
+    notifyBtn.addEventListener("click", () => {
       notifyOnFired = !notifyOnFired;
-      notifyBtn.textContent = notifyOnFired ? 'On' : 'Off';
-      notifyBtn.setAttribute('button-style', notifyOnFired ? 'purple' : 'ghost');
+      notifyBtn.textContent = notifyOnFired ? "On" : "Off";
+      notifyBtn.setAttribute("button-style", notifyOnFired ? "purple" : "ghost");
     });
     notifySetting.append(notifyLabel, notifyBtn);
     settingsPanel.append(notifySetting);
@@ -157,12 +156,11 @@ export default {
     };
 
     function switchTab(tab: Tab) {
-      activeTab = tab;
       for (const [t, panel] of Object.entries(panels)) {
         panel.hidden = t !== tab;
-        tabButtons[t as Tab].setAttribute('button-style', t === tab ? 'purple' : 'ghost');
+        tabButtons[t as Tab].setAttribute("button-style", t === tab ? "purple" : "ghost");
       }
-      clearBtn.style.display = tab === 'events' ? '' : 'none';
+      clearBtn.style.display = tab === "events" ? "" : "none";
     }
 
     // ── Toggle handling ────────────────────────────────────────────────────
@@ -174,30 +172,30 @@ export default {
 
     // ── Clear log ──────────────────────────────────────────────────────────
 
-    clearBtn.addEventListener('click', () => {
+    clearBtn.addEventListener("click", () => {
       logEntries.length = 0;
-      eventsPanel.innerHTML = '';
+      eventsPanel.innerHTML = "";
       eventsPanel.append(eventsEmpty);
     });
 
     // ── Bindings panel rendering ───────────────────────────────────────────
 
     function renderBindingsPanel() {
-      bindingsPanel.innerHTML = '';
+      bindingsPanel.innerHTML = "";
 
       // Layer stack
-      const stackEl = document.createElement('div');
-      stackEl.className = 'hk-layer-stack';
+      const stackEl = document.createElement("div");
+      stackEl.className = "hk-layer-stack";
 
-      const stackLabel = document.createElement('span');
-      stackLabel.className = 'hk-layer-stack-label';
-      stackLabel.textContent = 'Layer Stack:';
+      const stackLabel = document.createElement("span");
+      stackLabel.className = "hk-layer-stack-label";
+      stackLabel.textContent = "Layer Stack:";
       stackEl.append(stackLabel);
 
       for (const l of activeLayers) {
-        const badge = document.createElement('astro-dev-toolbar-badge');
-        badge.setAttribute('badge-style', 'green');
-        badge.setAttribute('size', 'small');
+        const badge = document.createElement("astro-dev-toolbar-badge");
+        badge.setAttribute("badge-style", "green");
+        badge.setAttribute("size", "small");
         badge.textContent = l;
         stackEl.append(badge);
       }
@@ -212,7 +210,10 @@ export default {
       const groups = new Map<string, BindingRecord[]>();
       for (const record of registry.values()) {
         let list = groups.get(record.layer);
-        if (!list) { list = []; groups.set(record.layer, list); }
+        if (!list) {
+          list = [];
+          groups.set(record.layer, list);
+        }
         list.push(record);
       }
 
@@ -229,40 +230,40 @@ export default {
         const bindings = groups.get(layerName)!;
         const isActive = activeSet.has(layerName);
 
-        const group = document.createElement('div');
-        group.className = 'hk-layer-group';
-        group.setAttribute('data-active', String(isActive));
+        const group = document.createElement("div");
+        group.className = "hk-layer-group";
+        group.setAttribute("data-active", String(isActive));
 
-        const layerHeader = document.createElement('div');
-        layerHeader.className = 'hk-layer-header';
+        const layerHeader = document.createElement("div");
+        layerHeader.className = "hk-layer-header";
 
-        const badge = document.createElement('astro-dev-toolbar-badge');
-        badge.setAttribute('badge-style', isActive ? 'green' : 'gray');
-        badge.setAttribute('size', 'small');
+        const badge = document.createElement("astro-dev-toolbar-badge");
+        badge.setAttribute("badge-style", isActive ? "green" : "gray");
+        badge.setAttribute("size", "small");
         badge.textContent = layerName;
 
-        const count = document.createElement('span');
-        count.className = 'hk-layer-count';
+        const count = document.createElement("span");
+        count.className = "hk-layer-count";
         count.textContent = `(${bindings.length})`;
 
         layerHeader.append(badge, count);
         group.append(layerHeader);
 
-        const list = document.createElement('div');
-        list.className = 'hk-binding-list';
+        const list = document.createElement("div");
+        list.className = "hk-binding-list";
 
         for (const record of bindings) {
-          const row = document.createElement('div');
-          row.className = 'hk-binding-row';
+          const row = document.createElement("div");
+          row.className = "hk-binding-row";
 
-          const shortcut = document.createElement('span');
-          shortcut.className = 'hk-shortcut';
+          const shortcut = document.createElement("span");
+          shortcut.className = "hk-shortcut";
           shortcut.textContent = record.formatted;
           row.append(shortcut);
 
           if (record.scope) {
-            const scope = document.createElement('span');
-            scope.className = 'hk-scope';
+            const scope = document.createElement("span");
+            scope.className = "hk-scope";
             scope.textContent = `scope: ${record.scope}`;
             row.append(scope);
           }
@@ -279,16 +280,16 @@ export default {
 
     function handleRawEvent(event: any) {
       switch (event.type) {
-        case 'binding:added': {
+        case "binding:added": {
           const formatted = fmtSequence(event.shortcut);
-          const layer = event.options?.layer ?? 'global';
+          const layer = event.options?.layer ?? "global";
           const scope = event.options?.scope;
-          const key = `${formatted}|${layer}|${scope ?? ''}`;
+          const key = `${formatted}|${layer}|${scope ?? ""}`;
           registry.set(key, { shortcut: event.shortcut, layer, scope, formatted });
           renderBindingsPanel();
           break;
         }
-        case 'binding:removed': {
+        case "binding:removed": {
           const formatted = fmtSequence(event.shortcut);
           for (const [k] of registry) {
             if (k.startsWith(`${formatted}|`)) registry.delete(k);
@@ -296,7 +297,7 @@ export default {
           renderBindingsPanel();
           break;
         }
-        case 'layer:change': {
+        case "layer:change": {
           activeLayers = event.layers;
           renderBindingsPanel();
           break;
@@ -307,20 +308,20 @@ export default {
     // ── Event log rendering ─────────────────────────────────────────────────
 
     function renderLogEntry(entry: DevtoolsLogEntry): HTMLElement {
-      const row = document.createElement('div');
-      row.className = 'hk-entry';
+      const row = document.createElement("div");
+      row.className = "hk-entry";
 
-      const time = document.createElement('span');
-      time.className = 'hk-time';
+      const time = document.createElement("span");
+      time.className = "hk-time";
       time.textContent = formatTime(entry.timestamp);
 
-      const badge = document.createElement('astro-dev-toolbar-badge');
-      badge.setAttribute('badge-style', entry.badgeColor);
-      badge.setAttribute('size', 'small');
+      const badge = document.createElement("astro-dev-toolbar-badge");
+      badge.setAttribute("badge-style", entry.badgeColor);
+      badge.setAttribute("size", "small");
       badge.textContent = entry.tag;
 
-      const detail = document.createElement('span');
-      detail.className = 'hk-detail';
+      const detail = document.createElement("span");
+      detail.className = "hk-detail";
       detail.textContent = entry.detail;
 
       row.append(time, badge, detail);
@@ -339,17 +340,18 @@ export default {
       const el = renderLogEntry(entry);
       eventsPanel.append(el);
 
-      const nearBottom = eventsPanel.scrollHeight - eventsPanel.scrollTop - eventsPanel.clientHeight < 60;
-      if (nearBottom) el.scrollIntoView({ block: 'end' });
+      const nearBottom =
+        eventsPanel.scrollHeight - eventsPanel.scrollTop - eventsPanel.clientHeight < 60;
+      if (nearBottom) el.scrollIntoView({ block: "end" });
 
       if (!panelOpen && notifyOnFired) {
-        app.toggleNotification({ state: true, level: 'info' });
+        app.toggleNotification({ state: true, level: "info" });
       }
     }
 
     // ── Wire up ────────────────────────────────────────────────────────────
 
-    hkLog('toolbar app init called');
+    hkLog("toolbar app init called");
     const events = (globalThis as any).__HOTTER_KEYS_EVENTS__ as string[] | undefined;
     setupSentinel(pushLogEntry, events ? { events: events as any } : undefined, handleRawEvent);
   },

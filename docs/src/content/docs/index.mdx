@@ -16,10 +16,10 @@ hero:
       icon: external
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
-import Playground from '../../components/Playground.tsx';
-import ShortcutLayers from '../../components/ShortcutLayers.tsx';
-import Kbd from '../../components/Kbd.tsx';
+import { Card, CardGrid } from "@astrojs/starlight/components";
+import Playground from "../../components/Playground.tsx";
+import ShortcutLayers from "../../components/ShortcutLayers.tsx";
+import Kbd from "../../components/Kbd.tsx";
 
 ## Shortcut Layers
 
@@ -33,13 +33,17 @@ import Kbd from '../../components/Kbd.tsx';
 
 <CardGrid>
   <Card title="Safe by default" icon="approve-check">
-    Matches on `key`, not `code` — only a-z and 0-9 are allowed as non-modifier keys. Shift+digit is rejected to avoid locale-dependent behavior. The `mod2` keyword provides a safe cross-platform secondary modifier (Ctrl on macOS, Alt on Windows/Linux).
+    Matches on `key`, not `code` — only a-z and 0-9 are allowed as non-modifier keys. Shift+digit is
+    rejected to avoid locale-dependent behavior. The `mod2` keyword provides a safe cross-platform
+    secondary modifier (Ctrl on macOS, Alt on Windows/Linux).
   </Card>
   <Card title="Key sequences" icon="list-format">
-    Multi-chord shortcuts like <Kbd client:only="solid-js" combo="mod+k mod+c" /> with configurable timeouts between chords.
+    Multi-chord shortcuts like <Kbd client:only="solid-js" combo="mod+k mod+c" /> with configurable
+    timeouts between chords.
   </Card>
   <Card title="Held-keys tracking" icon="puzzle">
-    Real-time tracking of pressed keys with stale-modifier recovery, blur reset, and single-key hold detection.
+    Real-time tracking of pressed keys with stale-modifier recovery, blur reset, and single-key hold
+    detection.
   </Card>
   <Card title="Shortcut recording" icon="setting">
     Built-in `recordShortcut()` utility for "press a key to rebind" UIs with safety validation.
