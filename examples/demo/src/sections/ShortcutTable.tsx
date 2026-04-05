@@ -4,7 +4,7 @@ import { BINDINGS, layerOf, layerColorOf, scopeOf } from "../bindings";
 
 export default function ShortcutTable() {
   return (
-    <div class="section">
+    <div class="mb-6">
       <h2>Registered Shortcuts</h2>
       <div class="card">
         <For each={BINDINGS}>

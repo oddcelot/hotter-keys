@@ -19,13 +19,6 @@ export function presetHotterKeys(): Preset {
         getCSS: () => `@layer hk-base {\n${baseCSS}\n}`,
       },
     ],
-    shortcuts: {
-      section: "mb-6",
-      muted: "text-hk-gray-4",
-      "mb-sm": "mb-2",
-      "gap-sm": "gap-[0.4rem]",
-      "gap-md": "gap-3",
-    },
   };
 }
 

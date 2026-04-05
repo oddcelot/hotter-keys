@@ -18,11 +18,11 @@ export default function ModalDialog(props: Props) {
       }}
     >
       <div class="modal-content">
-        <div class="flex items-center justify-between mb-sm">
+        <div class="flex items-center justify-between mb-2">
           <h2 style={{ margin: "0", color: "var(--hk-canvas-text)" }}>Command Palette</h2>
           <span class="badge badge-orange">modal layer</span>
         </div>
-        <p class="mb-sm">
+        <p class="mb-2">
           The <strong style={{ color: "var(--hk-canvas-text)" }}>modal</strong> layer is pushed on
           top of the stack. It consumes matching keys before lower layers see them. Close the dialog
           to pop it.

@@ -9,17 +9,17 @@ interface Props {
 
 export default function ScopePanels(props: Props) {
   return (
-    <div class="section">
+    <div class="mb-6">
       <h2>Scopes — Context Switching</h2>
-      <p class="mb-sm">
+      <p class="mb-2">
         Scopes <strong style={{ color: "var(--hk-canvas-text)" }}>filter</strong> which bindings are
         considered. Only the active scope's bindings fire — others are invisible. Use scopes when
         the <em>same</em> key combo should do different things depending on context, like{" "}
         {fmt("mod+z")} meaning "undo text" in an editor vs "undo stroke" on a canvas. Click a panel
         to switch scope.
       </p>
-      <div class="flex gap-sm items-center mb-sm">
-        <span class="text-xs muted">Active scope:</span>
+      <div class="flex gap-[0.4rem] items-center mb-2">
+        <span class="text-xs text-hk-gray-4">Active scope:</span>
         <span class="badge badge-purple">{props.activeScope()}</span>
       </div>
       <div class="panel-grid">
@@ -36,9 +36,9 @@ export default function ScopePanels(props: Props) {
           <div class="focus-panel-shortcuts">
             <For each={BINDINGS.filter((b) => scopeOf(b) === "text-editor")}>
               {(b) => (
-                <div class="flex gap-sm items-center">
+                <div class="flex gap-[0.4rem] items-center">
                   <kbd>{fmt(b.raw)}</kbd>
-                  <span class="muted text-xs">{b.action}</span>
+                  <span class="text-hk-gray-4 text-xs">{b.action}</span>
                 </div>
               )}
             </For>
@@ -53,9 +53,9 @@ export default function ScopePanels(props: Props) {
           <div class="focus-panel-shortcuts">
             <For each={BINDINGS.filter((b) => scopeOf(b) === "drawing")}>
               {(b) => (
-                <div class="flex gap-sm items-center">
+                <div class="flex gap-[0.4rem] items-center">
                   <kbd>{fmt(b.raw)}</kbd>
-                  <span class="muted text-xs">{b.action}</span>
+                  <span class="text-hk-gray-4 text-xs">{b.action}</span>
                 </div>
               )}
             </For>

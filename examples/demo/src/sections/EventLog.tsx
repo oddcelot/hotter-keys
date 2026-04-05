@@ -15,8 +15,8 @@ interface Props {
 
 export default function EventLog(props: Props) {
   return (
-    <div class="section">
-      <div class="flex items-center justify-between mb-sm">
+    <div class="mb-6">
+      <div class="flex items-center justify-between mb-2">
         <h2 style={{ margin: "0" }}>Event Log</h2>
         {props.log.length > 0 && (
           <button class="btn btn-ghost btn-sm" onClick={props.onClear}>
@@ -26,7 +26,10 @@ export default function EventLog(props: Props) {
       </div>
       <div class="card log-scroll">
         {props.log.length === 0 ? (
-          <div class="row muted" style={{ "justify-content": "center", padding: "1.5rem" }}>
+          <div
+            class="row text-hk-gray-4"
+            style={{ "justify-content": "center", padding: "1.5rem" }}
+          >
             Press a shortcut to see it here...
           </div>
         ) : (
