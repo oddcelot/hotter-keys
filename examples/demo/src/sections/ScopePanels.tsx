@@ -23,6 +23,11 @@ export default function ScopePanels(props: Props) {
       <div class="flex gap-[0.4rem] items-center mb-2">
         <span class=" text-hk-gray-4">Active scope:</span>
         <Badge color="purple">{props.activeScope()}</Badge>
+        {props.activeScope() !== "*" && (
+          <button class="btn-ghost" onClick={() => props.onSwitchScope("*")}>
+            clear
+          </button>
+        )}
       </div>
       <div class="panel-grid">
         <section

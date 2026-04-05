@@ -102,7 +102,7 @@ export default function App() {
         to capture events.
       </p>
 
-      <ShortcutTable firedAction={firedAction} />
+      <ShortcutTable firedAction={firedAction} layers={layers} activeScope={activeScope} />
       <LayerPanels firedAction={firedAction} onFocusLayer={focusLayer} onBlurLayer={blurLayer} />
       <ScopePanels
         firedAction={firedAction}
