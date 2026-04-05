@@ -14,7 +14,7 @@
   left: 0;
   right: 0;
   z-index: 10;
-  background: oklch(from var(--hk-bg) l c h / 0.85);
+  background: oklch(from var(--hk-canvas) l c h / 0.85);
   backdrop-filter: blur(10px);
   padding: 0.5rem 1.25rem;
   border-top: 1px solid var(--hk-rule);
@@ -110,7 +110,7 @@ kbd.fired {
   border-radius: 3px;
   border: 1px solid var(--hk-card-border);
   background: transparent;
-  color: var(--hk-ink);
+  color: var(--hk-canvas-text);
   cursor: pointer;
   font-family: var(--hk-font);
   font-size: 0.75rem;
@@ -118,22 +118,22 @@ kbd.fired {
 }
 
 .btn:hover {
-  border-color: var(--hk-ink);
+  border-color: var(--hk-canvas-text);
 }
 
 .btn-sm {
   padding: 0.15rem 0.4rem;
   font-size: 0.65rem;
-  color: var(--hk-ink-muted);
+  color: var(--hk-gray-text);
 }
 
 .btn-ghost {
   border-color: transparent;
-  color: var(--hk-ink-muted);
+  color: var(--hk-gray-text);
 }
 
 .btn-ghost:hover {
-  color: var(--hk-ink);
+  color: var(--hk-canvas-text);
 }
 
 /* ── Layer pills ── */
@@ -183,7 +183,7 @@ kbd.fired {
 }
 
 .focus-panel:focus-within {
-  border-color: var(--hk-accent);
+  border-color: var(--hk-accent-color);
 }
 
 .focus-panel-label {
@@ -191,7 +191,7 @@ kbd.fired {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: var(--hk-label-tracking);
-  color: var(--hk-ink-muted);
+  color: var(--hk-gray-text);
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -245,12 +245,12 @@ kbd.fired {
 }
 
 .modal-content {
-  background: var(--hk-bg);
+  background: var(--hk-canvas);
   border: 1px solid var(--hk-card-border);
   border-radius: 8px;
   padding: 1.25rem;
   font-family: var(--hk-font);
-  color: var(--hk-ink);
+  color: var(--hk-canvas-text);
 }
 
 .modal-content p {

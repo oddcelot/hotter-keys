@@ -93,7 +93,7 @@ export default function App() {
     <div class="container">
       <h1>Hotter Keys Demo</h1>
       <p style={{ "margin-bottom": "1.5rem" }}>
-        Open <strong style={{ color: "var(--hk-ink)" }}>Vite DevTools</strong> and click the
+        Open <strong style={{ color: "var(--hk-canvas-text)" }}>Vite DevTools</strong> and click the
         keyboard icon to capture events.
       </p>
 

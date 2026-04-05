@@ -36,13 +36,13 @@
   --hk-red: oklch(0.6 0.16 var(--hk-hue-red));
 
   /* Semantic */
-  --hk-bg: var(--hk-base-black);
-  --hk-ink: var(--hk-base-white);
-  --hk-ink-muted: var(--hk-gray-3);
+  --hk-canvas: var(--hk-base-black);
+  --hk-canvas-text: var(--hk-base-white);
+  --hk-gray-text: var(--hk-gray-3);
   --hk-card-bg: var(--hk-gray-6);
   --hk-card-border: oklch(from var(--hk-base-white) l c h / 0.1);
   --hk-rule: oklch(from var(--hk-base-white) l c h / 0.07);
-  --hk-accent: var(--hk-base-accent);
+  --hk-accent-color: var(--hk-base-accent);
 
   /* Typography */
   --hk-font: "Lilex Variable", ui-monospace, monospace;

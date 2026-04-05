@@ -1,8 +1,8 @@
 /* ── Base ── */
 
 html {
-  background: var(--hk-bg);
-  color: var(--hk-ink);
+  background: var(--hk-canvas);
+  color: var(--hk-canvas-text);
   font-family: var(--hk-font);
   font-size: 15px;
   line-height: 1.6;
@@ -23,7 +23,7 @@ h2 {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: var(--hk-label-tracking);
-  color: var(--hk-ink-muted);
+  color: var(--hk-gray-text);
   margin-bottom: 0.5rem;
 }
 
@@ -47,4 +47,12 @@ kbd {
   white-space: nowrap;
   min-width: 5.5rem;
   text-align: center;
+}
+
+kbd:has(kbd) {
+  all: unset;
+}
+
+kbd kbd {
+  min-width: auto;
 }

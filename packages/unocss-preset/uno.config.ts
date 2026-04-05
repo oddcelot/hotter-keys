@@ -1,5 +1,6 @@
+/// <reference types="node" />
 import { readFileSync } from "node:fs";
-import { defineConfig, presetWind, type Preset } from "unocss";
+import { defineConfig, presetWind4, type Preset } from "unocss";
 import { hotterKeysTheme } from "./src/theme.js";
 
 const read = (name: string) => readFileSync(new URL(`src/${name}`, import.meta.url), "utf-8");
@@ -27,5 +28,5 @@ function presetHotterKeysDev(): Preset {
 }
 
 export default defineConfig({
-  presets: [presetWind(), presetHotterKeysDev()],
+  presets: [presetWind4({ preflights: { reset: false } }), presetHotterKeysDev()],
 });

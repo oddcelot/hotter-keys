@@ -1,10 +1,10 @@
 export const hotterKeysTheme = {
   colors: {
     hk: {
-      bg: "var(--hk-bg)",
-      ink: "var(--hk-ink)",
-      "ink-muted": "var(--hk-ink-muted)",
-      accent: "var(--hk-accent)",
+      canvas: "var(--hk-canvas)",
+      "canvas-text": "var(--hk-canvas-text)",
+      "gray-text": "var(--hk-gray-text)",
+      "accent-color": "var(--hk-accent-color)",
       "card-bg": "var(--hk-card-bg)",
       "card-border": "var(--hk-card-border)",
       rule: "var(--hk-rule)",
