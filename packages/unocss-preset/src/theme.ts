@@ -28,6 +28,7 @@ export const hotterKeysTheme = {
     },
   },
   fontFamily: {
+    default: "var(--hk-font)",
     hk: "var(--hk-font)",
   },
 };
