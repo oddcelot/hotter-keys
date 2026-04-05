@@ -1,4 +1,3 @@
-// @ts-nocheck
 import "@fontsource-variable/lilex";
 import "virtual:uno.css";
 
