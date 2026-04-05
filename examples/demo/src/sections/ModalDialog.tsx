@@ -38,7 +38,7 @@ export default function ModalDialog(props: Props) {
           </For>
         </div>
         <div class="m-t-2 text-right">
-          <button class="btn" onClick={props.onClose}>
+          <button onClick={props.onClose}>
             Close <kbd>Esc</kbd>
           </button>
         </div>
