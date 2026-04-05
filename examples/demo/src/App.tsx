@@ -93,8 +93,8 @@ export default function App() {
     <div class="container">
       <h1>Hotter Keys Demo</h1>
       <p>
-        Open <strong style="color: var(--hk-canvas-text)">Vite DevTools</strong> and click the
-        keyboard icon to capture events.
+        Open <strong class="text-hk-canvas-text">Vite DevTools</strong> and click the keyboard icon
+        to capture events.
       </p>
 
       <ShortcutTable />

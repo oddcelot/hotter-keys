@@ -12,7 +12,7 @@ export default function StateBar(props: Props) {
   return (
     <div class="layer-bar">
       <div class="flex gap-[0.4rem] items-center flex-wrap">
-        <h2 style={{ margin: "0" }}>State</h2>
+        <h2>State</h2>
         <span class="text-hk-gray-4 ">Layers:</span>
         <For each={props.layers}>
           {(l) => (
@@ -21,9 +21,7 @@ export default function StateBar(props: Props) {
             </Badge>
           )}
         </For>
-        <span class="text-hk-gray-4 " style={{ "margin-left": "0.25rem" }}>
-          Scope:
-        </span>
+        <span class="text-hk-gray-4 ">Scope:</span>
         <Badge color="green">{props.activeScope()}</Badge>
         <span class="flex-1 min-w-0" />
         <button onClick={props.onOpenModal}>

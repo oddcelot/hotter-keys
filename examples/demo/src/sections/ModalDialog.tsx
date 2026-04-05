@@ -20,13 +20,12 @@ export default function ModalDialog(props: Props) {
     >
       <div class="modal-content">
         <div class="flex items-center justify-between mb-2">
-          <h2 style={{ margin: "0", color: "var(--hk-canvas-text)" }}>Command Palette</h2>
+          <h2 class="text-hk-canvas-text">Command Palette</h2>
           <Badge color="orange">modal layer</Badge>
         </div>
         <p class="mb-2">
-          The <strong style={{ color: "var(--hk-canvas-text)" }}>modal</strong> layer is pushed on
-          top of the stack. It consumes matching keys before lower layers see them. Close the dialog
-          to pop it.
+          The <strong class="text-hk-canvas-text">modal</strong> layer is pushed on top of the
+          stack. It consumes matching keys before lower layers see them. Close the dialog to pop it.
         </p>
         <div class="card">
           <For each={BINDINGS.filter((b) => layerOf(b) === "modal")}>
@@ -38,7 +37,7 @@ export default function ModalDialog(props: Props) {
             )}
           </For>
         </div>
-        <div style={{ "margin-top": "0.75rem", "text-align": "right" }}>
+        <div class="m-t-2 text-right">
           <button class="btn" onClick={props.onClose}>
             Close <kbd>Esc</kbd>
           </button>
