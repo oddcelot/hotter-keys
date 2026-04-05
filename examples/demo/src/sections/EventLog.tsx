@@ -1,5 +1,5 @@
 import { For } from "solid-js";
-import Badge from "../components/Badge";
+import { LayerBadge, ScopeBadge } from "../components/Badge";
 
 export interface LogEntry {
   id: number;
@@ -36,8 +36,8 @@ export default function EventLog(props: Props) {
               <div class="row row-fired">
                 <kbd class="fired">{entry.shortcut}</kbd>
                 <span class="flex-1 min-w-0 ">{entry.action}</span>
-                <Badge color="purple">{entry.layer}</Badge>
-                {entry.scope && <Badge color="green">{entry.scope}</Badge>}
+                <LayerBadge color="purple">{entry.layer}</LayerBadge>
+                {entry.scope && <ScopeBadge>{entry.scope}</ScopeBadge>}
               </div>
             )}
           </For>

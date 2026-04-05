@@ -1,7 +1,7 @@
 import { For, type Accessor } from "solid-js";
 import { displayShortcut as fmt } from "@hotter-keys/core";
 import { BINDINGS, scopeOf } from "../bindings";
-import Badge from "../components/Badge";
+import { ScopeBadge } from "../components/Badge";
 
 interface Props {
   firedAction: Accessor<string | null>;
@@ -22,7 +22,7 @@ export default function ScopePanels(props: Props) {
       </p>
       <div class="flex gap-[0.4rem] items-center mb-2">
         <span class=" text-hk-gray-4">Active scope:</span>
-        <Badge color="purple">{props.activeScope()}</Badge>
+        <ScopeBadge>{props.activeScope()}</ScopeBadge>
         {props.activeScope() !== "*" && (
           <button class="btn-ghost" onClick={() => props.onSwitchScope("*")}>
             clear

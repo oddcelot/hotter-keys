@@ -1,7 +1,7 @@
 import { For, type Accessor } from "solid-js";
 import { displayShortcut as fmt } from "@hotter-keys/core";
 import { type Binding, BINDINGS, layerOf, layerColorOf, scopeOf } from "../bindings";
-import Badge from "../components/Badge";
+import { LayerBadge, ScopeBadge } from "../components/Badge";
 
 interface Props {
   firedAction: Accessor<string | null>;
@@ -30,8 +30,8 @@ export default function ShortcutTable(props: Props) {
             >
               <kbd class={props.firedAction() === b.action ? "fired" : ""}>{fmt(b.raw)}</kbd>
               <span class="flex-1 min-w-0 ">{b.action}</span>
-              {scopeOf(b) && <Badge color="green">{scopeOf(b)}</Badge>}
-              <Badge color={layerColorOf(b)}>{layerOf(b)}</Badge>
+              {scopeOf(b) && <ScopeBadge>{scopeOf(b)}</ScopeBadge>}
+              <LayerBadge color={layerColorOf(b)}>{layerOf(b)}</LayerBadge>
             </div>
           )}
         </For>

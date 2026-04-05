@@ -1,7 +1,7 @@
 import { For, type Accessor } from "solid-js";
 import { displayShortcut as fmt } from "@hotter-keys/core";
 import { BINDINGS, layerOf } from "../bindings";
-import Badge from "../components/Badge";
+import { LayerBadge } from "../components/Badge";
 
 interface Props {
   firedAction: Accessor<string | null>;
@@ -22,7 +22,7 @@ export default function ModalDialog(props: Props) {
       <div class="modal-content">
         <div class="flex items-center justify-between mb-2">
           <h2 class="text-hk-canvas-text">Command Palette</h2>
-          <Badge color="orange">modal layer</Badge>
+          <LayerBadge color="orange">modal layer</LayerBadge>
         </div>
         <p class="mb-2">
           The <strong class="text-hk-canvas-text">modal</strong> layer is pushed on top of the

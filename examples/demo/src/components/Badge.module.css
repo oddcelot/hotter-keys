@@ -1,5 +1,7 @@
 .badge {
-  display: inline-block;
+  display: inline-flex;
+  place-items: center;
+  gap: 0.5em;
   padding: 0.1em 0.4em;
   border-radius: 0.2rem;
   font-size: 0.65em;
