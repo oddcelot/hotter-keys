@@ -15,6 +15,9 @@ catalogs:
     '@types/node':
       specifier: 25.5.2
       version: 25.5.2
+    '@unocss/astro':
+      specifier: 66.6.7
+      version: 66.6.7
     '@unocss/core':
       specifier: 66.6.7
       version: 66.6.7
@@ -59,10 +62,10 @@ importers:
     dependencies:
       '@astrojs/solid-js':
         specifier: 'catalog:'
-        version: 6.0.1(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(solid-js@1.9.12)(typescript@5.8.3)
+        version: 6.0.1(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(solid-js@1.9.12)(typescript@5.8.3)
       '@astrojs/starlight':
         specifier: 'catalog:'
-        version: 0.38.2(astro@6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3))
+        version: 0.38.2(astro@6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3))
       '@hotter-keys/core':
         specifier: workspace:*
         version: link:../packages/core
@@ -72,18 +75,27 @@ importers:
       '@hotter-keys/starlight-theme':
         specifier: workspace:*
         version: link:../packages/starlight-theme-hotter-keys
+      '@hotter-keys/unocss-preset':
+        specifier: workspace:*
+        version: link:../packages/unocss-preset
       '@solid-primitives/transition-group':
         specifier: 1.1.2
         version: 1.1.2(solid-js@1.9.12)
+      '@unocss/astro':
+        specifier: 'catalog:'
+        version: 66.6.7(vite@8.0.3)
       astro:
         specifier: 'catalog:'
-        version: 6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3)
+        version: 6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3)
       sharp:
         specifier: 'catalog:'
         version: 0.34.5
       solid-js:
         specifier: 'catalog:'
         version: 1.9.12
+      unocss:
+        specifier: 'catalog:'
+        version: 66.6.7(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.1)(@unocss/astro@66.6.7(vite@8.0.3))(vite@8.0.3)
 
   packages/core:
     devDependencies:
@@ -138,7 +150,7 @@ importers:
         version: 6.0.2
       unocss:
         specifier: 'catalog:'
-        version: 66.6.7(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.1)(vite@8.0.3)
+        version: 66.6.7(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.1)(@unocss/astro@66.6.7(vite@8.0.3))(vite@8.0.3)
       vite-plus:
         specifier: 'catalog:'
         version: 0.1.15(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(esbuild@0.27.7)(jiti@2.6.1)(jsdom@29.0.1)(publint@0.3.18)(typescript@6.0.2)(vite@8.0.3)
@@ -1648,6 +1660,14 @@ packages:
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
 
+  '@unocss/astro@66.6.7':
+    resolution: {integrity: sha512-Vk/4sZWGgusROqL4eMgp3uZVYDDdfknNPyn1ij1dNPw2HV/m79U4QKpjpZvnr9XwrX9i4CMgc1TcZdC9T4gzuA==}
+    peerDependencies:
+      vite: ^2.9.0 || ^3.0.0-0 || ^4.0.0 || ^5.0.0-0 || ^6.0.0-0 || ^7.0.0-0 || ^8.0.0-0
+    peerDependenciesMeta:
+      vite:
+        optional: true
+
   '@unocss/cli@66.6.7':
     resolution: {integrity: sha512-m/yW5HMVyxfAOeyO4OyA4JB9dY+/gTsk25ucI8xVCFVDEENPEGr+vEqTDOA+vfe6pdURtyDYS7OrhikIRU1WNA==}
     engines: {node: '>=14'}
@@ -1695,6 +1715,9 @@ packages:
 
   '@unocss/preset-wind@66.6.7':
     resolution: {integrity: sha512-jxtAN96jljd+KglbhPv6Y/ujceI5rVdrLQimj4KUTPoYBPEiWadzsGKN3o8Q07hlPRg+hBlO0r4tGSUWl+/EZQ==}
+
+  '@unocss/reset@66.6.7':
+    resolution: {integrity: sha512-+OjpLDEaPmhTQ3Gj7EaKApNM92TM9f9gLgHNa79+66wIll9IfhKfEmJXnF9y1SE725n4PmPIQgC9k313HztMLA==}
 
   '@unocss/rule-utils@66.6.7':
     resolution: {integrity: sha512-4PT/s8yKIShSqP9XPSw4EjbZopcu3wlIB9i3kbGbzQwF91H+0Yy10guK3kHDGtkmWVN6Np6VvaGIj2UcbmaivA==}
@@ -3928,25 +3951,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@astrojs/mdx@5.0.3(astro@6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3))':
-    dependencies:
-      '@astrojs/markdown-remark': 7.1.0
-      '@mdx-js/mdx': 3.1.1
-      acorn: 8.16.0
-      astro: 6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3)
-      es-module-lexer: 2.0.0
-      estree-util-visit: 2.0.0
-      hast-util-to-html: 9.0.5
-      piccolore: 0.1.3
-      rehype-raw: 7.0.0
-      remark-gfm: 4.0.1
-      remark-smartypants: 3.0.2
-      source-map: 0.7.6
-      unist-util-visit: 5.1.0
-      vfile: 6.0.3
-    transitivePeerDependencies:
-      - supports-color
-
   '@astrojs/mdx@5.0.3(astro@6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3))':
     dependencies:
       '@astrojs/markdown-remark': 7.1.0
@@ -3976,11 +3980,11 @@ snapshots:
       stream-replace-string: 2.0.0
       zod: 4.3.6
 
-  '@astrojs/solid-js@6.0.1(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(solid-js@1.9.12)(typescript@5.8.3)':
+  '@astrojs/solid-js@6.0.1(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(solid-js@1.9.12)(typescript@5.8.3)':
     dependencies:
       solid-js: 1.9.12
-      vite: '@voidzero-dev/vite-plus-core@0.1.15(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(typescript@5.8.3)'
-      vite-plugin-solid: 2.11.11(@voidzero-dev/vite-plus-core@0.1.15)(solid-js@1.9.12)
+      vite: '@voidzero-dev/vite-plus-core@0.1.15(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(typescript@5.8.3)'
+      vite-plugin-solid: 2.11.11(@voidzero-dev/vite-plus-core@0.1.15(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(typescript@5.8.3))(solid-js@1.9.12)
     transitivePeerDependencies:
       - '@arethetypeswrong/core'
       - '@testing-library/jest-dom'
@@ -4002,40 +4006,6 @@ snapshots:
       - typescript
       - unplugin-unused
       - yaml
-
-  '@astrojs/starlight@0.38.2(astro@6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3))':
-    dependencies:
-      '@astrojs/markdown-remark': 7.1.0
-      '@astrojs/mdx': 5.0.3(astro@6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3))
-      '@astrojs/sitemap': 3.7.2
-      '@pagefind/default-ui': 1.4.0
-      '@types/hast': 3.0.4
-      '@types/js-yaml': 4.0.9
-      '@types/mdast': 4.0.4
-      astro: 6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3)
-      astro-expressive-code: 0.41.7(astro@6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3))
-      bcp-47: 2.1.0
-      hast-util-from-html: 2.0.3
-      hast-util-select: 6.0.4
-      hast-util-to-string: 3.0.1
-      hastscript: 9.0.1
-      i18next: 23.16.8
-      js-yaml: 4.1.1
-      klona: 2.0.6
-      magic-string: 0.30.21
-      mdast-util-directive: 3.1.0
-      mdast-util-to-markdown: 2.1.2
-      mdast-util-to-string: 4.0.0
-      pagefind: 1.4.0
-      rehype: 13.0.2
-      rehype-format: 5.0.1
-      remark-directive: 3.0.1
-      ultrahtml: 1.6.0
-      unified: 11.0.5
-      unist-util-visit: 5.1.0
-      vfile: 6.0.3
-    transitivePeerDependencies:
-      - supports-color
 
   '@astrojs/starlight@0.38.2(astro@6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3))':
     dependencies:
@@ -5325,6 +5295,14 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
+  '@unocss/astro@66.6.7(vite@8.0.3)':
+    dependencies:
+      '@unocss/core': 66.6.7
+      '@unocss/reset': 66.6.7
+      '@unocss/vite': 66.6.7(vite@8.0.3)
+    optionalDependencies:
+      vite: 8.0.3(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.1)(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(esbuild@0.27.7)(jiti@2.6.1)
+
   '@unocss/cli@66.6.7':
     dependencies:
       '@jridgewell/remapping': 2.3.5
@@ -5416,6 +5394,8 @@ snapshots:
       '@unocss/core': 66.6.7
       '@unocss/preset-wind3': 66.6.7
 
+  '@unocss/reset@66.6.7': {}
+
   '@unocss/rule-utils@66.6.7':
     dependencies:
       '@unocss/core': 66.6.7
@@ -5457,17 +5437,6 @@ snapshots:
       unplugin-utils: 0.3.1
       vite: 8.0.3(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.1)(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(esbuild@0.27.7)(jiti@2.6.1)
 
-  '@vitejs/devtools-kit@0.1.13(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3)(ws@8.20.0)':
-    dependencies:
-      '@vitejs/devtools-rpc': 0.1.13(typescript@5.8.3)(ws@8.20.0)
-      birpc: 4.0.0
-      ohash: 2.0.11
-      vite: '@voidzero-dev/vite-plus-core@0.1.15(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(typescript@5.8.3)'
-    transitivePeerDependencies:
-      - typescript
-      - ws
-    optional: true
-
   '@vitejs/devtools-kit@0.1.13(@voidzero-dev/vite-plus-core@0.1.15)(typescript@6.0.2)(ws@8.20.0)':
     dependencies:
       '@vitejs/devtools-rpc': 0.1.13(typescript@6.0.2)(ws@8.20.0)
@@ -5498,62 +5467,6 @@ snapshots:
     transitivePeerDependencies:
       - typescript
       - ws
-    optional: true
-
-  '@vitejs/devtools-rolldown@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3)(vue@3.5.32(typescript@6.0.2))':
-    dependencies:
-      '@floating-ui/dom': 1.7.6
-      '@pnpm/read-project-manifest': 1001.2.6(@pnpm/logger@1001.0.1)
-      '@rolldown/debug': 1.0.0-rc.13
-      '@vitejs/devtools-kit': 0.1.13(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3)(ws@8.20.0)
-      '@vitejs/devtools-rpc': 0.1.13(typescript@5.8.3)(ws@8.20.0)
-      ansis: 4.2.0
-      birpc: 4.0.0
-      cac: 7.0.0
-      d3-shape: 3.2.0
-      diff: 8.0.4
-      get-port-please: 3.2.0
-      h3: 1.15.11
-      mlly: 1.8.2
-      mrmime: 2.0.1
-      ohash: 2.0.11
-      p-limit: 7.3.0
-      pathe: 2.0.3
-      publint: 0.3.18
-      sirv: 3.0.2
-      split2: 4.2.0
-      structured-clone-es: 2.0.0
-      tinyglobby: 0.2.15
-      unconfig: 7.5.0
-      unstorage: 1.17.5
-      vue-virtual-scroller: 2.0.0(vue@3.5.32(typescript@6.0.2))
-      ws: 8.20.0
-    transitivePeerDependencies:
-      - '@azure/app-configuration'
-      - '@azure/cosmos'
-      - '@azure/data-tables'
-      - '@azure/identity'
-      - '@azure/keyvault-secrets'
-      - '@azure/storage-blob'
-      - '@capacitor/preferences'
-      - '@deno/kv'
-      - '@netlify/blobs'
-      - '@planetscale/database'
-      - '@pnpm/logger'
-      - '@upstash/redis'
-      - '@vercel/blob'
-      - '@vercel/functions'
-      - '@vercel/kv'
-      - aws4fetch
-      - bufferutil
-      - db0
-      - idb-keyval
-      - ioredis
-      - typescript
-      - uploadthing
-      - utf-8-validate
-      - vite
-      - vue
     optional: true
 
   '@vitejs/devtools-rolldown@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@6.0.2)(vue@3.5.32(typescript@6.0.2))':
@@ -5749,52 +5662,6 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3)':
-    dependencies:
-      '@vitejs/devtools-kit': 0.1.13(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3)(ws@8.20.0)
-      '@vitejs/devtools-rolldown': 0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3)(vue@3.5.32(typescript@6.0.2))
-      '@vitejs/devtools-rpc': 0.1.13(typescript@5.8.3)(ws@8.20.0)
-      birpc: 4.0.0
-      cac: 7.0.0
-      h3: 1.15.11
-      immer: 11.1.4
-      launch-editor: 2.13.2
-      mlly: 1.8.2
-      obug: 2.1.1
-      open: 11.0.0
-      pathe: 2.0.3
-      perfect-debounce: 2.1.0
-      sirv: 3.0.2
-      tinyexec: 1.0.4
-      vite: '@voidzero-dev/vite-plus-core@0.1.15(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(typescript@5.8.3)'
-      vue: 3.5.32(typescript@5.8.3)
-      ws: 8.20.0
-    transitivePeerDependencies:
-      - '@azure/app-configuration'
-      - '@azure/cosmos'
-      - '@azure/data-tables'
-      - '@azure/identity'
-      - '@azure/keyvault-secrets'
-      - '@azure/storage-blob'
-      - '@capacitor/preferences'
-      - '@deno/kv'
-      - '@netlify/blobs'
-      - '@planetscale/database'
-      - '@pnpm/logger'
-      - '@upstash/redis'
-      - '@vercel/blob'
-      - '@vercel/functions'
-      - '@vercel/kv'
-      - aws4fetch
-      - bufferutil
-      - db0
-      - idb-keyval
-      - ioredis
-      - typescript
-      - uploadthing
-      - utf-8-validate
-    optional: true
-
   '@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@6.0.2)':
     dependencies:
       '@vitejs/devtools-kit': 0.1.13(@voidzero-dev/vite-plus-core@0.1.15)(typescript@6.0.2)(ws@8.20.0)
@@ -5932,21 +5799,6 @@ snapshots:
       - uploadthing
       - utf-8-validate
     optional: true
-
-  '@voidzero-dev/vite-plus-core@0.1.15(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(typescript@5.8.3)':
-    dependencies:
-      '@oxc-project/runtime': 0.122.0
-      '@oxc-project/types': 0.122.0
-      lightningcss: 1.32.0
-      postcss: 8.5.8
-    optionalDependencies:
-      '@types/node': 25.5.2
-      '@vitejs/devtools': 0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3)
-      esbuild: 0.27.7
-      fsevents: 2.3.3
-      jiti: 2.6.1
-      publint: 0.3.18
-      typescript: 5.8.3
 
   '@voidzero-dev/vite-plus-core@0.1.15(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@6.0.2))(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(typescript@6.0.2)':
     dependencies:
@@ -6196,114 +6048,10 @@ snapshots:
 
   astring@1.9.0: {}
 
-  astro-expressive-code@0.41.7(astro@6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3)):
-    dependencies:
-      astro: 6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3)
-      rehype-expressive-code: 0.41.7
-
   astro-expressive-code@0.41.7(astro@6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3)):
     dependencies:
       astro: 6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3)
       rehype-expressive-code: 0.41.7
-
-  astro@6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3):
-    dependencies:
-      '@astrojs/compiler': 3.0.1
-      '@astrojs/internal-helpers': 0.8.0
-      '@astrojs/markdown-remark': 7.1.0
-      '@astrojs/telemetry': 3.3.0
-      '@capsizecss/unpack': 4.0.0
-      '@clack/prompts': 1.2.0
-      '@oslojs/encoding': 1.1.0
-      '@rollup/pluginutils': 5.3.0(rollup@4.60.0)
-      aria-query: 5.3.2
-      axobject-query: 4.1.0
-      ci-info: 4.4.0
-      clsx: 2.1.1
-      common-ancestor-path: 2.0.0
-      cookie: 1.1.1
-      devalue: 5.6.4
-      diff: 8.0.4
-      dlv: 1.1.3
-      dset: 3.1.4
-      es-module-lexer: 2.0.0
-      esbuild: 0.27.7
-      flattie: 1.1.1
-      fontace: 0.4.1
-      github-slugger: 2.0.0
-      html-escaper: 3.0.3
-      http-cache-semantics: 4.2.0
-      js-yaml: 4.1.1
-      magic-string: 0.30.21
-      magicast: 0.5.2
-      mrmime: 2.0.1
-      neotraverse: 0.6.18
-      obug: 2.1.1
-      p-limit: 7.3.0
-      p-queue: 9.1.1
-      package-manager-detector: 1.6.0
-      piccolore: 0.1.3
-      picomatch: 4.0.4
-      rehype: 13.0.2
-      semver: 7.7.4
-      shiki: 4.0.2
-      smol-toml: 1.6.1
-      svgo: 4.0.1
-      tinyclip: 0.1.12
-      tinyexec: 1.0.4
-      tinyglobby: 0.2.15
-      tsconfck: 3.1.6(typescript@5.8.3)
-      ultrahtml: 1.6.0
-      unifont: 0.7.4
-      unist-util-visit: 5.1.0
-      unstorage: 1.17.5
-      vfile: 6.0.3
-      vite: '@voidzero-dev/vite-plus-core@0.1.15(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(typescript@5.8.3)'
-      vitefu: 1.1.3(@voidzero-dev/vite-plus-core@0.1.15)
-      xxhash-wasm: 1.1.0
-      yargs-parser: 22.0.0
-      zod: 4.3.6
-    optionalDependencies:
-      sharp: 0.34.5
-    transitivePeerDependencies:
-      - '@arethetypeswrong/core'
-      - '@azure/app-configuration'
-      - '@azure/cosmos'
-      - '@azure/data-tables'
-      - '@azure/identity'
-      - '@azure/keyvault-secrets'
-      - '@azure/storage-blob'
-      - '@capacitor/preferences'
-      - '@deno/kv'
-      - '@netlify/blobs'
-      - '@planetscale/database'
-      - '@tsdown/css'
-      - '@tsdown/exe'
-      - '@types/node'
-      - '@upstash/redis'
-      - '@vercel/blob'
-      - '@vercel/functions'
-      - '@vercel/kv'
-      - '@vitejs/devtools'
-      - aws4fetch
-      - db0
-      - idb-keyval
-      - ioredis
-      - jiti
-      - less
-      - publint
-      - rollup
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-      - tsx
-      - typescript
-      - unplugin-unused
-      - uploadthing
-      - yaml
 
   astro@6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@6.0.2))(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@6.0.2):
     dependencies:
@@ -8748,7 +8496,7 @@ snapshots:
 
   universalify@0.1.2: {}
 
-  unocss@66.6.7(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.1)(vite@8.0.3):
+  unocss@66.6.7(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.1)(@unocss/astro@66.6.7(vite@8.0.3))(vite@8.0.3):
     dependencies:
       '@unocss/cli': 66.6.7
       '@unocss/core': 66.6.7
@@ -8767,6 +8515,8 @@ snapshots:
       '@unocss/transformer-directives': 66.6.7
       '@unocss/transformer-variant-group': 66.6.7
       '@unocss/vite': 66.6.7(vite@8.0.3)
+    optionalDependencies:
+      '@unocss/astro': 66.6.7(vite@8.0.3)
     transitivePeerDependencies:
       - '@emnapi/core'
       - '@emnapi/runtime'
@@ -8827,7 +8577,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite-plugin-solid@2.11.11(@voidzero-dev/vite-plus-core@0.1.15)(solid-js@1.9.12):
+  vite-plugin-solid@2.11.11(@voidzero-dev/vite-plus-core@0.1.15(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(typescript@5.8.3))(solid-js@1.9.12):
     dependencies:
       '@babel/core': 7.29.0
       '@types/babel__core': 7.20.5
@@ -8835,8 +8585,8 @@ snapshots:
       merge-anything: 5.1.7
       solid-js: 1.9.12
       solid-refresh: 0.6.3(solid-js@1.9.12)
-      vite: '@voidzero-dev/vite-plus-core@0.1.15(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(typescript@5.8.3)'
-      vitefu: 1.1.3(@voidzero-dev/vite-plus-core@0.1.15)
+      vite: '@voidzero-dev/vite-plus-core@0.1.15(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(typescript@5.8.3)'
+      vitefu: 1.1.3(@voidzero-dev/vite-plus-core@0.1.15(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(typescript@5.8.3))
     transitivePeerDependencies:
       - supports-color
 
@@ -8961,7 +8711,7 @@ snapshots:
 
   vitefu@1.1.3(@voidzero-dev/vite-plus-core@0.1.15):
     optionalDependencies:
-      vite: '@voidzero-dev/vite-plus-core@0.1.15(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@5.8.3))(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(typescript@5.8.3)'
+      vite: '@voidzero-dev/vite-plus-core@0.1.15(@types/node@25.5.2)(@vitejs/devtools@0.1.13(@pnpm/logger@1001.0.1)(@voidzero-dev/vite-plus-core@0.1.15)(typescript@6.0.2))(esbuild@0.27.7)(jiti@2.6.1)(publint@0.3.18)(typescript@6.0.2)'
 
   vue-virtual-scroller@2.0.0(vue@3.5.32(typescript@6.0.2)):
     dependencies:

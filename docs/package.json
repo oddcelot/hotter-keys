@@ -16,9 +16,12 @@
     "@hotter-keys/core": "workspace:*",
     "@hotter-keys/devtools": "workspace:*",
     "@hotter-keys/starlight-theme": "workspace:*",
+    "@hotter-keys/unocss-preset": "workspace:*",
     "@solid-primitives/transition-group": "1.1.2",
+    "@unocss/astro": "catalog:",
     "astro": "catalog:",
     "sharp": "catalog:",
-    "solid-js": "catalog:"
+    "solid-js": "catalog:",
+    "unocss": "catalog:"
   }
 }

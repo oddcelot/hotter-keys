@@ -2,6 +2,7 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import solidJs from "@astrojs/solid-js";
+import UnoCSS from "@unocss/astro";
 import starlightThemeHotterKeys from "@hotter-keys/starlight-theme";
 import { hotterKeysDevtoolsIntegration } from "@hotter-keys/devtools";
 
@@ -48,6 +49,7 @@ export default defineConfig({
         },
       ],
     }),
+    UnoCSS(),
     solidJs(),
     hotterKeysDevtoolsIntegration({ debug: true }),
   ],
