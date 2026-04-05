@@ -1,8 +1,6 @@
 import { createSignal, onCleanup, onMount, For, Show } from "solid-js";
 import { createHotkeys, formatSequence, parseSequence, isMac } from "@hotter-keys/core";
 import type { Hotkeys } from "@hotter-keys/core";
-import "../styles/demo.css";
-import styles from "./CommandBarDemo.module.css";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -187,10 +185,10 @@ export default function CommandBarDemo() {
 
       {/* ---- COMMAND BAR OVERLAY ---- */}
       <Show when={commandBarOpen()}>
-        <div class={styles.overlay}>
-          <div class={styles.overlayHeader}>
-            <span class={styles.overlayTitle}>Command Bar</span>
-            <span class={styles.overlayHint}>Esc to close</span>
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[min(24rem,90%)] z-10 bg-hk-card-bg border border-hk-card-border rounded-[6px] p-5 shadow-none mt-2">
+          <div class="flex items-center justify-between mb-2">
+            <span class="font-bold hk-label">Command Bar</span>
+            <span class="text-hk-gray-4 hk-label">Esc to close</span>
           </div>
           <div class="stack">
             <For each={COMMANDBAR_ACTIONS}>
@@ -199,7 +197,7 @@ export default function CommandBarDemo() {
                 return (
                   <div class={`row ${fired() ? "row-fired-blue" : ""}`}>
                     <span>
-                      <kbd class={`kbd kbd-accent ${styles.actionKey}`}>{action.key}</kbd>{" "}
+                      <kbd class="kbd kbd-accent min-w-[1.2rem] text-center">{action.key}</kbd>{" "}
                       <span class="row-desc">{action.label}</span>
                     </span>
                     <Show when={fired()}>
@@ -216,7 +214,7 @@ export default function CommandBarDemo() {
       {/* ---- LAYER VISUALIZER ---- */}
       <div class="section">
         <h4 class="section-title">Layer Stack</h4>
-        <div class="stack" style={{ "flex-direction": "column-reverse" }}>
+        <div class="stack flex-col-reverse">
           <For each={[...layers()]}>
             {(layer) => {
               const isActive = () => layer === layers()[layers().length - 1];
@@ -225,23 +223,18 @@ export default function CommandBarDemo() {
                   ? COMMANDBAR_ACTIONS.map((a) => `${a.key}: ${a.label}`)
                   : GLOBAL_SHORTCUTS.map((s) => `${comboLabel(s.key)}: ${s.label}`);
               return (
-                <div class={`${styles.layerBlock} ${isActive() ? styles.layerBlockActive : ""}`}>
-                  <div
-                    style={{
-                      display: "flex",
-                      "align-items": "center",
-                      gap: "0.5rem",
-                      "margin-bottom": "0.3rem",
-                    }}
-                  >
-                    <span class={styles.layerName}>{layer}</span>
+                <div
+                  class={`py-3 px-4 rounded-[6px] border border-hk-card-border bg-transparent transition-all duration-200 ${isActive() ? "border-hk-ink opacity-100" : "opacity-40"}`}
+                >
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="font-bold hk-label">{layer}</span>
                     <Show when={isActive()}>
                       <span class="badge badge-accent">ACTIVE</span>
                     </Show>
                   </div>
-                  <div class={styles.layerShortcuts}>
+                  <div class="flex flex-wrap gap-1">
                     <For each={layerShortcuts()}>
-                      {(s) => <span class={styles.layerShortcut}>{s}</span>}
+                      {(s) => <span class="hk-label text-hk-gray-3">{s}</span>}
                     </For>
                   </div>
                 </div>
@@ -253,8 +246,8 @@ export default function CommandBarDemo() {
 
       {/* ---- EVENT LOG ---- */}
       <div class="section">
-        <div class="section-header">
-          <h4 class="section-title">Event Log</h4>
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="section-title mb-0">Event Log</h4>
           <button onClick={() => setEventLog([])} class="btn-sm">
             Clear
           </button>

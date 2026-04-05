@@ -10,8 +10,6 @@ import {
 import type { Hotkeys, RecordedShortcut, Shortcut } from "@hotter-keys/core";
 import Gauge from "./Gauge";
 import FireCounter from "./FireCounter";
-import "../styles/demo.css";
-import styles from "./Playground.module.css";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -272,7 +270,7 @@ export default function Playground() {
     `row ${isRec ? "row-recording" : isFired ? (color === "green" ? "row-fired-green" : "row-fired-blue") : ""}`;
 
   return (
-    <div ref={containerRef} tabIndex={0} class={`demo ${styles.container}`}>
+    <div ref={containerRef} tabIndex={0} class="demo outline-none cursor-default">
       <p class="demo-hint">
         Click anywhere in the playground to focus, then start pressing keys. Use the record buttons
         to rebind shortcuts.
@@ -281,22 +279,24 @@ export default function Playground() {
       {/* ---- HELD KEYS ---- */}
       <div class="section">
         <h4 class="section-title">Held Keys</h4>
-        <div class={styles.instrumentRow}>
+        <div class="flex items-center gap-6">
           <Gauge count={Math.min(heldKeys().length, 6)} />
-          <div style={{ flex: "1" }}>
-            <div class={styles.heldKeysRow}>
+          <div class="flex-1">
+            <div class="flex items-center gap-2 flex-wrap min-h-8">
               <Show when={heldKeys().length > 0} fallback={<span class="muted">No keys held</span>}>
                 <For each={[...heldKeys()]}>
                   {(key, i) => (
                     <span>
-                      <span class={styles.heldKeysOrdinal}>{String(i() + 1).padStart(2, "0")}</span>
+                      <span class="font-mono text-[length:var(--hk-label-size,0.5rem)] text-hk-gray-4 mr-[0.15rem] tabular-nums">
+                        {String(i() + 1).padStart(2, "0")}
+                      </span>
                       <kbd class="kbd kbd-accent">{key}</kbd>
                     </span>
                   )}
                 </For>
               </Show>
               <Show when={shiftHeld()}>
-                <span class={`badge badge-yellow ${styles.shiftBadge}`}>SHIFT HELD ALONE</span>
+                <span class="badge badge-yellow ml-auto">SHIFT HELD ALONE</span>
               </Show>
             </div>
           </div>
@@ -338,7 +338,7 @@ export default function Playground() {
       {/* ---- SEQUENCES ---- */}
       <div class="section">
         <h4 class="section-title">Sequences</h4>
-        <p class={styles.seqHint}>
+        <p class="hk-label text-hk-gray-3 m-0 mb-2">
           Press the first chord, then the second within 1 second. Rebinding replaces the full
           sequence with a single chord.
         </p>
@@ -373,11 +373,11 @@ export default function Playground() {
       {/* ---- KEY RECORDER ---- */}
       <div class="section">
         <h4 class="section-title">Key Recorder</h4>
-        <div class={styles.recordArea}>
+        <div class="flex items-center gap-4 flex-wrap">
           <button
             onClick={doRecord}
             disabled={isRecording()}
-            class={`${styles.recordBtn} ${recording() ? styles.recordBtnActive : ""}`}
+            class={`py-[0.4rem] px-3 rounded-[3px] border border-hk-card-border bg-transparent text-hk-ink font-mono hk-label disabled:cursor-default ${recording() ? "text-hk-danger border-hk-danger" : ""}`}
           >
             {recording() ? "Press any key (Esc to cancel)" : "Record Shortcut"}
           </button>
@@ -386,7 +386,7 @@ export default function Playground() {
               <Show
                 when={r().safe}
                 fallback={
-                  <span class={styles.unsafeResult}>
+                  <span class="text-hk-danger">
                     <span class="badge badge-red log-badge">UNSAFE</span>
                     {r().unsafeReason}
                   </span>
@@ -404,8 +404,8 @@ export default function Playground() {
 
       {/* ---- EVENT LOG ---- */}
       <div class="section">
-        <div class="section-header">
-          <h4 class="section-title">Event Log</h4>
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="section-title mb-0">Event Log</h4>
           <button onClick={() => setEventLog([])} class="btn-sm">
             Clear
           </button>
@@ -470,13 +470,13 @@ export default function Playground() {
                 <kbd class="kbd">{String(ev().metaKey)}</kbd>
               </span>
 
-              <span class={ev().altKey ? styles.altWarning : "muted-light"}>altKey</span>
+              <span class={ev().altKey ? "text-hk-danger font-bold" : "muted-light"}>altKey</span>
               <span>
                 <kbd class="kbd">{String(ev().altKey)}</kbd>
                 <Show when={ev().altKey}>
                   {" "}
                   <span class="badge badge-yellow">CAUTION</span>
-                  <span class={styles.altNote}>
+                  <span class="text-hk-danger hk-label ml-[0.3rem]">
                     Alt transforms key values on macOS — use <code>mod2</code> for cross-platform
                   </span>
                 </Show>
