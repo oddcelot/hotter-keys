@@ -1,5 +1,6 @@
 import { For, type Accessor } from "solid-js";
 import { displayShortcut as fmt } from "@hotter-keys/core";
+import { LAYER_COLORS, SCOPE_COLORS } from "../bindings";
 import { LayerBadge, ScopeBadge } from "../components/Badge";
 
 interface Props {
@@ -16,13 +17,15 @@ export default function StateBar(props: Props) {
         <span class="text-hk-gray-4 ">Layers:</span>
         <For each={props.layers}>
           {(l) => (
-            <LayerBadge color="green" pill>
+            <LayerBadge color={LAYER_COLORS[l] ?? "purple"} pill>
               {l}
             </LayerBadge>
           )}
         </For>
         <span class="text-hk-gray-4 ">Scope:</span>
-        <ScopeBadge>{props.activeScope()}</ScopeBadge>
+        <ScopeBadge color={SCOPE_COLORS[props.activeScope()] ?? "green"}>
+          {props.activeScope() === "*" ? "global" : props.activeScope()}
+        </ScopeBadge>
         <span class="flex-1 min-w-0" />
         <button onClick={props.onOpenModal}>
           Open Modal <kbd>{fmt("mod+p")}</kbd>

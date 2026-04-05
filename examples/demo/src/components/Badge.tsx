@@ -27,9 +27,9 @@ export function LayerBadge(props: { color: BadgeColor; pill?: boolean; children:
   );
 }
 
-export function ScopeBadge(props: { children: JSX.Element }) {
+export function ScopeBadge(props: { color?: BadgeColor; children: JSX.Element }) {
   return (
-    <Badge color="green" icon="i-ph:target">
+    <Badge color={props.color ?? "green"} icon="i-ph:target">
       {props.children}
     </Badge>
   );

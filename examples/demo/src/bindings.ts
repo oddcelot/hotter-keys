@@ -15,6 +15,12 @@ export const LAYER_COLORS: Record<string, BadgeColor> = {
   modal: "orange",
 };
 
+export const SCOPE_COLORS: Record<string, BadgeColor> = {
+  "*": "purple",
+  "text-editor": "green",
+  drawing: "blue",
+};
+
 // prettier-ignore
 export const BINDINGS: Binding[] = [
   // Global (always active)
