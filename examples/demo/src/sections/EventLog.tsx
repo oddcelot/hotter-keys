@@ -1,4 +1,5 @@
 import { For } from "solid-js";
+import { LAYER_COLORS, SCOPE_COLORS } from "../bindings";
 import { LayerBadge, ScopeBadge } from "../components/Badge";
 
 export interface LogEntry {
@@ -36,8 +37,10 @@ export default function EventLog(props: Props) {
               <div class="row row-fired">
                 <kbd class="fired">{entry.shortcut}</kbd>
                 <span class="flex-1 min-w-0 ">{entry.action}</span>
-                <LayerBadge color="purple">{entry.layer}</LayerBadge>
-                {entry.scope && <ScopeBadge>{entry.scope}</ScopeBadge>}
+                <LayerBadge color={LAYER_COLORS[entry.layer] ?? "purple"}>{entry.layer}</LayerBadge>
+                {entry.scope && (
+                  <ScopeBadge color={SCOPE_COLORS[entry.scope]}>{entry.scope}</ScopeBadge>
+                )}
               </div>
             )}
           </For>
