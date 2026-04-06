@@ -71,6 +71,12 @@ nav.sidebar {
   font-weight: 600;
 }
 
+.sl-markdown-content
+  :not(a, strong, em, del, span, input, code, br)
+  + :not(a, strong, em, del, span, input, code, br, :where(.not-content *)) {
+  /*margin-top: auto;*/
+}
+
 /* Page title (outside markdown) */
 h1#_top {
   font-weight: 500;

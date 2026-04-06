@@ -1,8 +1,9 @@
-/* ── Demo component style overrides ──
-   Overrides classes from docs/src/styles/demo.css to match
-   the instrument-minimal aesthetic. */
+/* ── Refined demo component styles ──
+   Global CSS equivalents of the CSS module classes used by the
+   interactive demo. Class names use kebab-case. */
 
 /* ── Base demo container ── */
+
 .demo {
   font-family: var(--sl-font-mono);
   font-size: 0.8125rem;
@@ -16,7 +17,246 @@
   color: var(--sl-color-gray-3);
 }
 
-/* ── Sections → Cards ── */
+/* ── Card ── */
+
+.card {
+  background: var(--hk-card-bg);
+  border: 1px solid var(--hk-card-border);
+  border-radius: 6px;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* ── Rows ── */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid var(--hk-rule);
+  transition: background 0.3s ease-out;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.row-fired {
+  background: oklch(from var(--hk-green) l c h / 0.12);
+}
+
+/* ── Keyboard keys ── */
+
+kbd.kbd {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  background: transparent;
+  border: 1px solid var(--hk-card-border);
+  border-radius: 3px;
+  font-family: var(--sl-font-mono);
+  font-size: var(--hk-label-size);
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking);
+  line-height: 1.6;
+  white-space: nowrap;
+  color: var(--hk-ink);
+}
+
+kbd.kbd-fired {
+  background: var(--hk-green-low);
+  border-color: oklch(from var(--hk-green) l c h / 0.3);
+  color: var(--hk-green);
+}
+
+kbd.kbd-accent {
+  background: transparent;
+  color: var(--hk-danger);
+  border-color: var(--hk-danger);
+}
+
+kbd.kbd-dim {
+  opacity: 0.4;
+}
+
+/* ── Badges ── */
+
+.badge {
+  display: inline-flex;
+  place-items: center;
+  gap: 0.5em;
+  padding: 0.1em 0.4em;
+  border-radius: 0.2rem;
+  font-size: 0.65em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1px solid oklch(from currentColor l c h / 0.3);
+}
+
+.badge-green {
+  color: var(--hk-green);
+}
+
+.badge-blue {
+  color: var(--hk-blue);
+}
+
+.badge-purple {
+  color: var(--hk-purple);
+}
+
+.badge-orange {
+  color: var(--hk-orange);
+}
+
+.badge-pill {
+  border-radius: 10e5px;
+  background: oklch(from currentColor l c h / 0.08);
+}
+
+/* ── Buttons ── */
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--hk-gray-text);
+}
+
+.btn-ghost:hover {
+  color: var(--hk-canvas-text);
+}
+
+/* ── Focus panels ── */
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.focus-panel {
+  background: var(--hk-card-bg);
+  border: 1px solid var(--hk-card-border);
+  border-radius: 6px;
+  padding: 0.75rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+  min-height: 7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.focus-panel:focus-within {
+  border-color: var(--hk-accent-color);
+}
+
+.focus-panel-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking);
+  color: var(--hk-gray-text);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.focus-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--hk-gray-4);
+  transition: background 0.15s;
+}
+
+.focus-panel:focus-within .focus-dot {
+  background: var(--hk-green);
+}
+
+.focus-panel-hint {
+  color: var(--hk-gray-4);
+}
+
+.focus-panel-shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: auto;
+}
+
+.focus-panel-shortcuts kbd {
+  min-width: auto;
+  padding: 0.05rem 0.35rem;
+}
+
+/* ── Modal dialog ── */
+
+.modal-dialog {
+  background: transparent;
+  border: none;
+  padding: 0;
+  max-width: 420px;
+  width: 90%;
+  overflow: visible;
+  margin: auto;
+}
+
+.modal-dialog::backdrop {
+  background: oklch(from var(--hk-base-black) l c h / 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: var(--hk-canvas);
+  border: 1px solid var(--hk-card-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  font-family: var(--sl-font-mono);
+  color: var(--hk-canvas-text);
+}
+
+.modal-content p {
+  font-size: 0.75rem;
+}
+
+/* ── State bar ── */
+
+.state-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: oklch(from var(--hk-canvas) l c h / 0.85);
+  backdrop-filter: blur(10px);
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--hk-rule);
+  margin-top: 1rem;
+}
+
+/* ── Scrollable log ── */
+
+.log-scroll {
+  max-height: 14rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--hk-gray-5) transparent;
+}
+
+/* ── Muted text ── */
+
+.muted {
+  color: var(--sl-color-gray-4);
+}
+
+.muted-light {
+  color: var(--sl-color-gray-3);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Legacy compat — used by CommandBarDemo & Playground.
+   Remove once those components are migrated.
+   ═══════════════════════════════════════════════════════ */
+
 .section {
   background: var(--hk-card-bg);
   border: 1px solid var(--hk-card-border);
@@ -34,83 +274,18 @@
   color: var(--sl-color-gray-3);
 }
 
-/* ── Keyboard keys ── */
-kbd.kbd {
-  display: inline-block;
-  padding: 0.15rem 0.5rem;
-  background: transparent;
-  border: 1px solid var(--hk-card-border);
-  border-radius: 3px;
-  font-family: var(--sl-font-mono);
-  font-size: var(--hk-label-size);
-  text-transform: uppercase;
-  letter-spacing: var(--hk-label-tracking);
-  line-height: 1.6;
-  white-space: nowrap;
-  color: var(--hk-ink);
-}
-
-kbd.kbd-accent {
-  background: transparent;
-  color: var(--hk-danger);
-  border-color: var(--hk-danger);
-}
-
-kbd.kbd-dim {
-  opacity: 0.4;
-}
-
-/* ── Badges ── */
-.badge {
-  display: inline-block;
-  padding: 0.1rem 0.5rem;
-  border-radius: 100px;
-  font-size: var(--hk-label-size);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: var(--hk-label-tracking);
-  background: transparent;
-  border: 1px solid var(--hk-card-border);
-  color: var(--sl-color-gray-3);
-}
-
-.badge-green {
-  background: transparent;
-  color: var(--hk-ink);
-  border-color: var(--hk-ink);
-}
-
-.badge-blue {
-  background: transparent;
-  color: var(--sl-color-gray-3);
-  border-color: var(--sl-color-gray-3);
-}
-
-.badge-purple {
-  background: transparent;
-  color: var(--sl-color-gray-3);
-  border-color: var(--sl-color-gray-3);
-}
-
 .badge-red {
-  background: transparent;
   color: var(--hk-danger);
-  border-color: var(--hk-danger);
 }
 
 .badge-yellow {
-  background: transparent;
   color: var(--sl-color-gray-3);
-  border-color: var(--sl-color-gray-3);
 }
 
 .badge-accent {
-  background: transparent;
   color: var(--hk-danger);
-  border-color: var(--hk-danger);
 }
 
-/* ── Buttons ── */
 .btn {
   padding: 0.35rem 0.75rem;
   border-radius: 3px;
@@ -165,7 +340,6 @@ kbd.kbd-dim {
   border-color: var(--hk-danger);
 }
 
-/* ── Inputs ── */
 .input {
   padding: 0.35rem 0.5rem;
   border-radius: 3px;
@@ -184,24 +358,6 @@ kbd.kbd-dim {
   border-color: var(--hk-ink);
 }
 
-/* ── Rows ── */
-.row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0;
-  border-radius: 0;
-  background: transparent;
-  border-bottom: 1px solid var(--hk-rule);
-  transition: opacity 0.15s;
-  gap: 0.4rem;
-  margin: 0;
-}
-
-.row:last-child {
-  border-bottom: none;
-}
-
 .row-label {
   flex: 1;
   min-width: 0;
@@ -209,7 +365,6 @@ kbd.kbd-dim {
   transition: opacity 0.3s;
 }
 
-/* Fired states — dot indicator instead of colored background */
 .row-fired-green,
 .row-fired-blue {
   background: transparent;
@@ -243,12 +398,6 @@ kbd.kbd-dim {
   letter-spacing: var(--hk-label-tracking);
 }
 
-/* ── Event log ── */
-.log-scroll {
-  max-height: 10rem;
-  overflow-y: auto;
-}
-
 .log-entry {
   padding: 0.25rem 0;
   border-bottom: 1px solid var(--hk-rule);
@@ -265,16 +414,6 @@ kbd.kbd-dim {
   margin-right: 0.3rem;
 }
 
-/* ── Muted text ── */
-.muted {
-  color: var(--sl-color-gray-4);
-}
-
-.muted-light {
-  color: var(--sl-color-gray-3);
-}
-
-/* ── Grid layouts ── */
 .grid-2col {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -287,7 +426,6 @@ kbd.kbd-dim {
   gap: 0;
 }
 
-/* ── Inspector grid ── */
 .inspector-grid {
   display: grid;
   grid-template-columns: auto 1fr;

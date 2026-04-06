@@ -17,8 +17,6 @@ import {
 import Playground from "../../../../src/components/Playground.tsx";
 import CommandBarDemo from "../../../../src/components/CommandBarDemo.tsx";
 import KeymapCreator from "../../../../src/components/KeymapCreator.tsx";
-import Gauge from "../../../../src/components/Gauge.tsx";
-import FireCounter from "../../../../src/components/FireCounter.tsx";
 
 ## Typography
 
@@ -245,42 +243,6 @@ The <abbr title="Application Programming Interface">API</abbr> uses <abbr title=
 ### Superscript and subscript
 
 E = mc<sup>2</sup> and H<sub>2</sub>O.
-
----
-
-## Custom Components
-
-### Gauge
-
-A standalone gauge at different values:
-
-<div style="display: flex; gap: 2rem; align-items: center; flex-wrap: wrap;">
-  <div style="text-align: center;">
-    <Gauge client:load count={0} />
-    <small>0 keys</small>
-  </div>
-  <div style="text-align: center;">
-    <Gauge client:load count={2} />
-    <small>2 keys</small>
-  </div>
-  <div style="text-align: center;">
-    <Gauge client:load count={4} />
-    <small>4 keys</small>
-  </div>
-  <div style="text-align: center;">
-    <Gauge client:load count={6} />
-    <small>6 keys</small>
-  </div>
-</div>
-
-### Fire Counter
-
-<div style="display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap;">
-  <FireCounter client:load count={0} />
-  <FireCounter client:load count={7} />
-  <FireCounter client:load count={42} />
-  <FireCounter client:load count={128} label="total" />
-</div>
 
 ---
 

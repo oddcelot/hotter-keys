@@ -13,9 +13,9 @@
   "dependencies": {
     "@astrojs/solid-js": "catalog:",
     "@astrojs/starlight": "catalog:",
+    "@fontsource-variable/lilex": "5.2.1",
     "@hotter-keys/core": "workspace:*",
     "@hotter-keys/devtools": "workspace:*",
-    "@hotter-keys/starlight-theme": "workspace:*",
     "@hotter-keys/unocss-preset": "workspace:*",
     "@iconify-json/ph": "catalog:",
     "@solid-primitives/transition-group": "1.1.2",

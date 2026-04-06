@@ -8,8 +8,6 @@ import {
   isMac,
 } from "@hotter-keys/core";
 import type { Hotkeys, RecordedShortcut, Shortcut } from "@hotter-keys/core";
-import Gauge from "./Gauge";
-import FireCounter from "./FireCounter";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -117,7 +115,7 @@ export default function Playground() {
   const [recording, setRecording] = createSignal(false);
   const [recorded, setRecorded] = createSignal<RecordedShortcut | null>(null);
   const [recordingRowId, setRecordingRowId] = createSignal<number | null>(null);
-  const [fireCount, setFireCount] = createSignal(0);
+  const [, setFireCount] = createSignal(0);
 
   // eslint-disable-next-line no-unassigned-vars -- assigned by Solid's ref={} JSX binding
   let containerRef!: HTMLDivElement;
@@ -279,28 +277,22 @@ export default function Playground() {
       {/* ---- HELD KEYS ---- */}
       <div class="section">
         <h4 class="section-title">Held Keys</h4>
-        <div class="flex items-center gap-6">
-          <Gauge count={Math.min(heldKeys().length, 6)} />
-          <div class="flex-1">
-            <div class="flex items-center gap-2 flex-wrap min-h-8">
-              <Show when={heldKeys().length > 0} fallback={<span class="muted">No keys held</span>}>
-                <For each={[...heldKeys()]}>
-                  {(key, i) => (
-                    <span>
-                      <span class="font-mono text-[length:var(--hk-label-size,0.5rem)] text-hk-gray-4 mr-[0.15rem] tabular-nums">
-                        {String(i() + 1).padStart(2, "0")}
-                      </span>
-                      <kbd class="kbd kbd-accent">{key}</kbd>
-                    </span>
-                  )}
-                </For>
-              </Show>
-              <Show when={shiftHeld()}>
-                <span class="badge badge-yellow ml-auto">SHIFT HELD ALONE</span>
-              </Show>
-            </div>
-          </div>
-          <FireCounter count={fireCount()} />
+        <div class="flex items-center gap-2 flex-wrap min-h-8">
+          <Show when={heldKeys().length > 0} fallback={<span class="muted">No keys held</span>}>
+            <For each={[...heldKeys()]}>
+              {(key, i) => (
+                <span>
+                  <span class="font-mono text-[length:var(--hk-label-size,0.5rem)] text-hk-gray-4 mr-[0.15rem] tabular-nums">
+                    {String(i() + 1).padStart(2, "0")}
+                  </span>
+                  <kbd class="kbd kbd-accent">{key}</kbd>
+                </span>
+              )}
+            </For>
+          </Show>
+          <Show when={shiftHeld()}>
+            <span class="badge badge-yellow ml-auto">SHIFT HELD ALONE</span>
+          </Show>
         </div>
       </div>
 

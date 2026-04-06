@@ -3,7 +3,7 @@ import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import solidJs from "@astrojs/solid-js";
 import UnoCSS from "@unocss/astro";
-import starlightThemeHotterKeys from "@hotter-keys/starlight-theme";
+
 import { hotterKeysDevtoolsIntegration } from "@hotter-keys/devtools";
 
 // https://astro.build/config
@@ -17,7 +17,16 @@ export default defineConfig({
       logo: {
         src: "./public/logo.svg",
       },
-      plugins: [starlightThemeHotterKeys()],
+      customCss: [
+        "./src/styles/layers.css",
+        "./src/styles/theme.css",
+        "./src/styles/base.css",
+        "./src/styles/demo.css",
+      ],
+      components: {
+        Head: "./src/overrides/Head.astro",
+        Footer: "./src/overrides/Footer.astro",
+      },
       social: [
         {
           icon: "github",
