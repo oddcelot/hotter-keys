@@ -42,6 +42,7 @@ export default defineConfig({
         {
           label: "Tools",
           items: [
+            { label: "Interactive Demo", slug: "tools/interactive-demo" },
             { label: "Keymap Creator", slug: "tools/keymap-creator" },
             { label: "Layers Demo", slug: "tools/layers-demo" },
             { label: "Kitchen Sink", slug: "tools/kitchen-sink" },

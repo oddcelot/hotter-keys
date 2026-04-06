@@ -12,6 +12,9 @@ catalogs:
     '@astrojs/starlight':
       specifier: 0.38.2
       version: 0.38.2
+    '@iconify-json/ph':
+      specifier: 1.2.2
+      version: 1.2.2
     '@types/node':
       specifier: 25.5.2
       version: 25.5.2
@@ -19,6 +22,9 @@ catalogs:
       specifier: 66.6.7
       version: 66.6.7
     '@unocss/core':
+      specifier: 66.6.7
+      version: 66.6.7
+    '@unocss/preset-icons':
       specifier: 66.6.7
       version: 66.6.7
     astro:
@@ -78,12 +84,18 @@ importers:
       '@hotter-keys/unocss-preset':
         specifier: workspace:*
         version: link:../packages/unocss-preset
+      '@iconify-json/ph':
+        specifier: 'catalog:'
+        version: 1.2.2
       '@solid-primitives/transition-group':
         specifier: 1.1.2
         version: 1.1.2(solid-js@1.9.12)
       '@unocss/astro':
         specifier: 'catalog:'
         version: 66.6.7(vite@8.0.3)
+      '@unocss/preset-icons':
+        specifier: 'catalog:'
+        version: 66.6.7
       astro:
         specifier: 'catalog:'
         version: 6.1.3(@types/node@25.5.2)(@vitejs/devtools@0.1.13)(jiti@2.6.1)(publint@0.3.18)(rollup@4.60.0)(typescript@5.8.3)
@@ -626,6 +638,9 @@ packages:
   '@gwhitney/detect-indent@7.0.1':
     resolution: {integrity: sha512-7bQW+gkKa2kKZPeJf6+c6gFK9ARxQfn+FKy9ScTBppyKRWH2KzsmweXUoklqeEiHiNVWaeP5csIdsNq6w7QhzA==}
     engines: {node: '>=12.20'}
+
+  '@iconify-json/ph@1.2.2':
+    resolution: {integrity: sha512-PgkEZNtqa8hBGjHXQa4pMwZa93hmfu8FUSjs/nv4oUU6yLsgv+gh9nu28Kqi8Fz9CCVu4hj1MZs9/60J57IzFw==}
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -4494,6 +4509,10 @@ snapshots:
 
   '@gwhitney/detect-indent@7.0.1':
     optional: true
+
+  '@iconify-json/ph@1.2.2':
+    dependencies:
+      '@iconify/types': 2.0.0
 
   '@iconify/types@2.0.0': {}
 

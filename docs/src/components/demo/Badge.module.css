@@ -1,0 +1,33 @@
+.badge {
+  display: inline-flex;
+  place-items: center;
+  gap: 0.5em;
+  padding: 0.1em 0.4em;
+  border-radius: 0.2rem;
+  font-size: 0.65em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1px solid oklch(from currentColor l c h / 0.3);
+}
+
+.green {
+  color: var(--hk-green);
+}
+
+.blue {
+  color: var(--hk-blue);
+}
+
+.purple {
+  color: var(--hk-purple);
+}
+
+.orange {
+  color: var(--hk-orange);
+}
+
+.pill {
+  border-radius: 10e5px;
+  background: oklch(from currentColor l c h / 0.08);
+}

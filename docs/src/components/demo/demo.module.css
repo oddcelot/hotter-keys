@@ -1,0 +1,143 @@
+/* ── Card ── */
+
+.card {
+  background: var(--hk-card-bg);
+  border: 1px solid var(--hk-card-border);
+  border-radius: 6px;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* ── Rows ── */
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid var(--hk-rule);
+  transition: background 0.3s ease-out;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.rowFired {
+  background: oklch(from var(--hk-green) l c h / 0.12);
+}
+
+/* ── Kbd fired state ── */
+
+.kbdFired {
+  background: var(--hk-green-low);
+  border-color: oklch(from var(--hk-green) l c h / 0.3);
+  color: var(--hk-green);
+}
+
+/* ── Ghost button ── */
+
+.btnGhost {
+  border-color: transparent;
+  color: var(--hk-gray-text);
+}
+
+.btnGhost:hover {
+  color: var(--hk-canvas-text);
+}
+
+/* ── Focus panels ── */
+
+.focusPanel {
+  background: var(--hk-card-bg);
+  border: 1px solid var(--hk-card-border);
+  border-radius: 6px;
+  padding: 0.75rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+  min-height: 7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.focusPanel:focus-within {
+  border-color: var(--hk-accent-color);
+}
+
+.focusPanelLabel {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking);
+  color: var(--hk-gray-text);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.focusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sl-color-gray-4);
+  transition: background 0.15s;
+}
+
+.focusPanel:focus-within .focusDot {
+  background: var(--hk-green);
+}
+
+.focusPanel:focus-within .kbdFired,
+.focusPanel kbd {
+  min-width: auto;
+  padding: 0.05rem 0.35rem;
+}
+
+/* ── Modal dialog ── */
+
+.modalDialog {
+  background: transparent;
+  border: none;
+  padding: 0;
+  max-width: 420px;
+  width: 90%;
+  overflow: visible;
+  margin: auto;
+}
+
+.modalDialog::backdrop {
+  background: oklch(from var(--hk-base-black) l c h / 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.modalContent {
+  background: var(--hk-canvas);
+  border: 1px solid var(--hk-card-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  font-family: var(--sl-font-mono);
+  color: var(--hk-canvas-text);
+}
+
+/* ── State bar ── */
+
+.stateBar {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: oklch(from var(--hk-canvas) l c h / 0.85);
+  backdrop-filter: blur(10px);
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--hk-rule);
+  margin-top: 1rem;
+}
+
+/* ── Scrollable log ── */
+
+.logScroll {
+  max-height: 14rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--sl-color-gray-5) transparent;
+}
