@@ -1,6 +1,7 @@
 import type { JSX } from "solid-js";
-import type { BadgeColor } from "./bindings";
 import styles from "./Badge.module.css";
+
+export type BadgeColor = "green" | "blue" | "purple" | "orange";
 
 interface Props {
   color: BadgeColor;

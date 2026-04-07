@@ -1,7 +1,7 @@
 import { For, type Accessor } from "solid-js";
 import { displayShortcut as fmt } from "@hotter-keys/core";
 import { BINDINGS, SCOPE_COLORS, scopeOf } from "./bindings";
-import { ScopeBadge } from "./Badge";
+import { ScopeBadge } from "../Badge";
 import s from "./demo.module.css";
 
 interface Props {

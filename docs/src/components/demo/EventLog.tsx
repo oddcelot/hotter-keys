@@ -1,6 +1,6 @@
 import { For } from "solid-js";
 import { LAYER_COLORS, SCOPE_COLORS } from "./bindings";
-import { LayerBadge, ScopeBadge } from "./Badge";
+import { LayerBadge, ScopeBadge } from "../Badge";
 import s from "./demo.module.css";
 
 export interface LogEntry {

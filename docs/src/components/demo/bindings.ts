@@ -1,6 +1,7 @@
 import type { BindingOptions } from "@hotter-keys/core";
+import type { BadgeColor } from "../Badge";
 
-export type BadgeColor = "green" | "blue" | "purple" | "orange";
+export type { BadgeColor };
 
 export interface Binding {
   raw: string;

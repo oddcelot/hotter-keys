@@ -1,7 +1,7 @@
 import { For, type Accessor } from "solid-js";
 import { displayShortcut as fmt } from "@hotter-keys/core";
 import { BINDINGS, layerOf } from "./bindings";
-import { LayerBadge } from "./Badge";
+import { LayerBadge } from "../Badge";
 import s from "./demo.module.css";
 
 interface Props {

@@ -425,28 +425,3 @@ kbd.kbd-dim {
   flex-direction: column;
   gap: 0;
 }
-
-.inspector-grid {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.2rem 0.75rem;
-  align-items: center;
-}
-
-.inspector-correct {
-  color: var(--hk-ink);
-  font-weight: 700;
-}
-
-.inspector-deprecated {
-  color: var(--hk-danger);
-  text-decoration: line-through;
-}
-
-.inspector-note {
-  font-size: var(--hk-label-size);
-  letter-spacing: var(--hk-label-tracking);
-  text-transform: uppercase;
-  margin-left: 0.3rem;
-  color: var(--sl-color-gray-3);
-}

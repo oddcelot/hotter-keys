@@ -1,4 +1,4 @@
-import { createSignal, onCleanup, onMount, For, Show } from "solid-js";
+import { createSignal, onCleanup, onMount } from "solid-js";
 import {
   createHotkeys,
   recordShortcut,
@@ -8,35 +8,10 @@ import {
   isMac,
 } from "@hotter-keys/core";
 import type { Hotkeys, RecordedShortcut, Shortcut } from "@hotter-keys/core";
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
-interface LogEntry {
-  id: number;
-  time: string;
-  text: string;
-  type: "shortcut" | "sequence" | "record";
-}
-
-interface ShortcutRow {
-  id: number;
-  combo: string;
-  description: string;
-}
-
-interface RawEvent {
-  key: string;
-  code: string;
-  keyCode: number;
-  which: number;
-  ctrlKey: boolean;
-  shiftKey: boolean;
-  metaKey: boolean;
-  altKey: boolean;
-  repeat: boolean;
-}
+import HeldKeys, { type RawEvent } from "./HeldKeys";
+import ShortcutRows, { type ShortcutRow } from "./ShortcutRows";
+import KeyRecorder from "./KeyRecorder";
+import PlaygroundEventLog, { type LogEntry } from "./PlaygroundEventLog";
 
 // ---------------------------------------------------------------------------
 // Initial data
@@ -91,12 +66,6 @@ function comboLabel(combo: string): string {
   return formatSequence(parseSequence(combo, { mac }), mac);
 }
 
-const LOG_BADGE_CLASS: Record<string, string> = {
-  shortcut: "badge badge-green",
-  sequence: "badge badge-blue",
-  record: "badge badge-purple",
-};
-
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -115,7 +84,6 @@ export default function Playground() {
   const [recording, setRecording] = createSignal(false);
   const [recorded, setRecorded] = createSignal<RecordedShortcut | null>(null);
   const [recordingRowId, setRecordingRowId] = createSignal<number | null>(null);
-  const [, setFireCount] = createSignal(0);
 
   // eslint-disable-next-line no-unassigned-vars -- assigned by Solid's ref={} JSX binding
   let containerRef!: HTMLDivElement;
@@ -135,7 +103,6 @@ export default function Playground() {
 
   const flash = (setter: typeof setFiredShortcuts, combo: string) => {
     setter((prev) => ({ ...prev, [combo]: Date.now() }));
-    setFireCount((c) => c + 1);
     setTimeout(() => {
       setter((prev) => {
         const next = { ...prev };
@@ -217,8 +184,6 @@ export default function Playground() {
     setRawEvent({
       key: ev.key,
       code: ev.code,
-      keyCode: ev.keyCode,
-      which: ev.which,
       ctrlKey: ev.ctrlKey,
       shiftKey: ev.shiftKey,
       metaKey: ev.metaKey,
@@ -264,9 +229,6 @@ export default function Playground() {
 
   const isRecording = () => recordingRowId() !== null || recording();
 
-  const rowClass = (isRec: boolean, isFired: boolean, color: "green" | "blue") =>
-    `row ${isRec ? "row-recording" : isFired ? (color === "green" ? "row-fired-green" : "row-fired-blue") : ""}`;
-
   return (
     <div ref={containerRef} tabIndex={0} class="demo outline-none cursor-default">
       <p class="demo-hint">
@@ -274,214 +236,40 @@ export default function Playground() {
         to rebind shortcuts.
       </p>
 
-      {/* ---- HELD KEYS ---- */}
-      <div class="section">
-        <h4 class="section-title">Held Keys</h4>
-        <div class="flex items-center gap-2 flex-wrap min-h-8">
-          <Show when={heldKeys().length > 0} fallback={<span class="muted">No keys held</span>}>
-            <For each={[...heldKeys()]}>
-              {(key, i) => (
-                <span>
-                  <span class="font-mono text-[length:var(--hk-label-size,0.5rem)] text-hk-gray-4 mr-[0.15rem] tabular-nums">
-                    {String(i() + 1).padStart(2, "0")}
-                  </span>
-                  <kbd class="kbd kbd-accent">{key}</kbd>
-                </span>
-              )}
-            </For>
-          </Show>
-          <Show when={shiftHeld()}>
-            <span class="badge badge-yellow ml-auto">SHIFT HELD ALONE</span>
-          </Show>
-        </div>
-      </div>
+      <HeldKeys keys={heldKeys} shiftHeld={shiftHeld} rawEvent={rawEvent} />
 
-      {/* ---- SHORTCUTS ---- */}
-      <div class="section">
-        <h4 class="section-title">Shortcuts</h4>
-        <div class="grid-2col">
-          <For each={shortcuts()}>
-            {(s) => {
-              const fired = () => s.combo in firedShortcuts();
-              const isThisRec = () => recordingRowId() === s.id;
-              return (
-                <div class={rowClass(isThisRec(), fired(), "green")}>
-                  <span class="row-label">
-                    <kbd class="kbd">{comboLabel(s.combo)}</kbd>{" "}
-                    <span class="row-desc">{s.description}</span>
-                  </span>
-                  <Show when={fired()}>
-                    <span class="badge badge-green">FIRED</span>
-                  </Show>
-                  <button
-                    onClick={() => rebindRow(s.id, setShortcuts, "shortcut")}
-                    disabled={isRecording()}
-                    class={`btn-sm ${isThisRec() ? "btn-recording" : ""}`}
-                  >
-                    {isThisRec() ? "Press key (Esc to cancel)" : "Rebind"}
-                  </button>
-                </div>
-              );
-            }}
-          </For>
-        </div>
-      </div>
+      <ShortcutRows
+        title="Shortcuts"
+        rows={shortcuts}
+        firedMap={firedShortcuts}
+        color="green"
+        formatCombo={comboLabel}
+        recordingRowId={recordingRowId}
+        isRecording={isRecording}
+        onRebind={(id) => rebindRow(id, setShortcuts, "shortcut")}
+        layout="grid"
+      />
 
-      {/* ---- SEQUENCES ---- */}
-      <div class="section">
-        <h4 class="section-title">Sequences</h4>
-        <p class="hk-label text-hk-gray-3 m-0 mb-2">
-          Press the first chord, then the second within 1 second. Rebinding replaces the full
-          sequence with a single chord.
-        </p>
-        <div class="stack">
-          <For each={sequences()}>
-            {(s) => {
-              const fired = () => s.combo in firedSequences();
-              const isThisRec = () => recordingRowId() === s.id;
-              return (
-                <div class={rowClass(isThisRec(), fired(), "blue")}>
-                  <span class="row-label">
-                    <kbd class="kbd">{comboLabel(s.combo)}</kbd>{" "}
-                    <span class="row-desc">{s.description}</span>
-                  </span>
-                  <Show when={fired()}>
-                    <span class="badge badge-blue">FIRED</span>
-                  </Show>
-                  <button
-                    onClick={() => rebindRow(s.id, setSequences, "sequence")}
-                    disabled={isRecording()}
-                    class={`btn-sm ${isThisRec() ? "btn-recording" : ""}`}
-                  >
-                    {isThisRec() ? "Press key (Esc to cancel)" : "Rebind"}
-                  </button>
-                </div>
-              );
-            }}
-          </For>
-        </div>
-      </div>
+      <ShortcutRows
+        title="Sequences"
+        hint="Press the first chord, then the second within 1 second. Rebinding replaces the full sequence with a single chord."
+        rows={sequences}
+        firedMap={firedSequences}
+        color="blue"
+        formatCombo={comboLabel}
+        recordingRowId={recordingRowId}
+        isRecording={isRecording}
+        onRebind={(id) => rebindRow(id, setSequences, "sequence")}
+      />
 
-      {/* ---- KEY RECORDER ---- */}
-      <div class="section">
-        <h4 class="section-title">Key Recorder</h4>
-        <div class="flex items-center gap-4 flex-wrap">
-          <button
-            onClick={doRecord}
-            disabled={isRecording()}
-            class={`py-[0.4rem] px-3 rounded-[3px] border border-hk-card-border bg-transparent text-hk-ink font-mono hk-label disabled:cursor-default ${recording() ? "text-hk-danger border-hk-danger" : ""}`}
-          >
-            {recording() ? "Press any key (Esc to cancel)" : "Record Shortcut"}
-          </button>
-          <Show when={recorded()}>
-            {(r) => (
-              <Show
-                when={r().safe}
-                fallback={
-                  <span class="text-hk-danger">
-                    <span class="badge badge-red log-badge">UNSAFE</span>
-                    {r().unsafeReason}
-                  </span>
-                }
-              >
-                <span>
-                  <span class="badge badge-green log-badge">SAFE</span>
-                  <kbd class="kbd">{formatShortcut(recordedToShortcut(r()))}</kbd>
-                </span>
-              </Show>
-            )}
-          </Show>
-        </div>
-      </div>
+      <KeyRecorder
+        recording={recording}
+        recorded={recorded}
+        isRecording={isRecording}
+        onRecord={doRecord}
+      />
 
-      {/* ---- EVENT LOG ---- */}
-      <div class="section">
-        <div class="flex items-center justify-between mb-3">
-          <h4 class="section-title mb-0">Event Log</h4>
-          <button onClick={() => setEventLog([])} class="btn-sm">
-            Clear
-          </button>
-        </div>
-        <div class="log-scroll">
-          <Show when={eventLog().length > 0} fallback={<span class="muted">No events yet</span>}>
-            <For each={eventLog()}>
-              {(entry) => (
-                <div class="log-entry">
-                  <span class="log-time">{entry.time}</span>{" "}
-                  <span class={`${LOG_BADGE_CLASS[entry.type]} log-badge`}>{entry.type}</span>
-                  {entry.text}
-                </div>
-              )}
-            </For>
-          </Show>
-        </div>
-      </div>
-
-      {/* ---- RAW EVENT INSPECTOR ---- */}
-      <div class="section">
-        <h4 class="section-title">Raw Event Inspector</h4>
-        <Show when={rawEvent()} fallback={<span class="muted">Press a key to inspect</span>}>
-          {(ev) => (
-            <div class="inspector-grid">
-              <span class="inspector-correct">key</span>
-              <span>
-                <kbd class="kbd">{ev().key}</kbd> <span class="badge badge-green">CORRECT</span>
-              </span>
-
-              <span class="inspector-deprecated">code</span>
-              <span>
-                <kbd class="kbd kbd-dim">{ev().code}</kbd>{" "}
-                <span class="badge badge-red">WRONG</span>
-                <span class="muted inspector-note">layout-dependent</span>
-              </span>
-
-              <span class="inspector-deprecated">keyCode</span>
-              <span>
-                <kbd class="kbd kbd-dim">{ev().keyCode}</kbd>{" "}
-                <span class="badge badge-red">DEPRECATED</span>
-              </span>
-
-              <span class="inspector-deprecated">which</span>
-              <span>
-                <kbd class="kbd kbd-dim">{ev().which}</kbd>{" "}
-                <span class="badge badge-red">DEPRECATED</span>
-              </span>
-
-              <span class="muted-light">ctrlKey</span>
-              <span>
-                <kbd class="kbd">{String(ev().ctrlKey)}</kbd>
-              </span>
-
-              <span class="muted-light">shiftKey</span>
-              <span>
-                <kbd class="kbd">{String(ev().shiftKey)}</kbd>
-              </span>
-
-              <span class="muted-light">metaKey</span>
-              <span>
-                <kbd class="kbd">{String(ev().metaKey)}</kbd>
-              </span>
-
-              <span class={ev().altKey ? "text-hk-danger font-bold" : "muted-light"}>altKey</span>
-              <span>
-                <kbd class="kbd">{String(ev().altKey)}</kbd>
-                <Show when={ev().altKey}>
-                  {" "}
-                  <span class="badge badge-yellow">CAUTION</span>
-                  <span class="text-hk-danger hk-label ml-[0.3rem]">
-                    Alt transforms key values on macOS — use <code>mod2</code> for cross-platform
-                  </span>
-                </Show>
-              </span>
-
-              <span class="muted-light">repeat</span>
-              <span>
-                <kbd class="kbd">{String(ev().repeat)}</kbd>
-              </span>
-            </div>
-          )}
-        </Show>
-      </div>
+      <PlaygroundEventLog log={eventLog} onClear={() => setEventLog([])} />
     </div>
   );
 }

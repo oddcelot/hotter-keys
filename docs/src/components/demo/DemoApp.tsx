@@ -1,8 +1,8 @@
 import { createSignal, onMount, onCleanup } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { createHotkeys, displayShortcut as fmt } from "@hotter-keys/core";
-import { BINDINGS } from "./bindings";
-import ShortcutTable from "./ShortcutTable";
+import { BINDINGS, SCOPE_COLORS, layerOf, layerColorOf, scopeOf } from "./bindings";
+import ShortcutTable, { type ShortcutEntry } from "../ShortcutTable";
 import LayerPanels from "./LayerPanels";
 import ScopePanels from "./ScopePanels";
 import EventLog, { type LogEntry } from "./EventLog";
@@ -91,9 +91,23 @@ export default function DemoApp() {
     }
   }
 
+  const shortcuts: ShortcutEntry[] = BINDINGS.map((b) => ({
+    raw: b.raw,
+    action: b.action,
+    layer: layerOf(b),
+    layerColor: layerColorOf(b),
+    scope: scopeOf(b),
+    scopeColor: scopeOf(b) ? SCOPE_COLORS[scopeOf(b)!] : undefined,
+  }));
+
   return (
     <>
-      <ShortcutTable firedAction={firedAction} layers={layers} activeScope={activeScope} />
+      <ShortcutTable
+        shortcuts={shortcuts}
+        firedAction={firedAction}
+        layers={layers}
+        activeScope={activeScope}
+      />
       <LayerPanels firedAction={firedAction} onFocusLayer={focusLayer} onBlurLayer={blurLayer} />
       <ScopePanels
         firedAction={firedAction}
