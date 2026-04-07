@@ -17,7 +17,12 @@ hero:
 ---
 
 import { Card, CardGrid } from "@astrojs/starlight/components";
-import Playground from "../../components/Playground.tsx";
+import Container from "../../components/Container.tsx";
+import HeldKeys from "../../components/HeldKeys.tsx";
+import Shortcuts from "../../components/Shortcuts.tsx";
+import Sequences from "../../components/Sequences.tsx";
+import KeyRecorder from "../../components/KeyRecorder.tsx";
+import RecordLog from "../../components/RecordLog.tsx";
 import ShortcutLayers from "../../components/ShortcutLayers.tsx";
 import Kbd from "../../components/Kbd.tsx";
 
@@ -25,9 +30,12 @@ import Kbd from "../../components/Kbd.tsx";
 
 <ShortcutLayers client:only="solid-js" />
 
-## Playground
-
-<Playground client:only="solid-js" />
+<Container client:only="solid-js" />
+<HeldKeys client:only="solid-js" />
+<Shortcuts client:only="solid-js" />
+<Sequences client:only="solid-js" />
+<KeyRecorder client:only="solid-js" />
+<RecordLog client:only="solid-js" />
 
 ---
 

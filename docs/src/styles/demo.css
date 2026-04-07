@@ -1,213 +1,248 @@
-/* Shared styles for all interactive demo components */
+/* ── Refined demo component styles ──
+   Global CSS equivalents of the CSS module classes used by the
+   interactive demo. Class names use kebab-case. */
+
+/* ── Base demo container ── */
 
 .demo {
-  font-family: var(--sl-font-mono, monospace);
+  font-family: var(--sl-font-mono);
   font-size: 0.8125rem;
+  color: var(--hk-ink);
 }
 
 .demo-hint {
-  font-size: 0.8rem;
-  color: var(--sl-color-gray-3);
-  margin-top: 0;
-}
-
-/* --- Sections --- */
-
-.section {
-  border: 1px solid var(--sl-color-gray-5);
-  border-radius: 0.5rem;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.section-title {
-  margin: 0 0 0.75rem;
-  font-size: 0.9rem;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 0.75rem;
-}
-
-.section-header .section-title {
-  margin-bottom: 0;
-}
-
-/* --- Keyboard keys --- */
-
-kbd.kbd {
-  display: inline-block;
-  padding: 0.15rem 0.4rem;
-  background: var(--sl-color-gray-6);
-  border-radius: 0.2rem;
-  font-family: var(--sl-font-mono, monospace);
-  font-size: 0.8rem;
-  line-height: 1.4;
-  white-space: nowrap;
-}
-
-kbd.kbd-accent {
-  background: var(--sl-color-accent);
-  color: var(--sl-color-accent-high);
-}
-
-kbd.kbd-dim {
-  opacity: 0.6;
-}
-
-/* --- Badges --- */
-
-.badge {
-  display: inline-block;
-  padding: 0.1rem 0.4rem;
-  border-radius: 0.2rem;
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-size: var(--hk-label-size);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.badge-green {
-  background: #22c55e;
-  color: #000;
-}
-
-.badge-blue {
-  background: #3b82f6;
-  color: #fff;
-}
-
-.badge-purple {
-  background: #a855f7;
-  color: #000;
-}
-
-.badge-red {
-  background: #ef4444;
-  color: #fff;
-}
-
-.badge-yellow {
-  background: #f59e0b;
-  color: #000;
-}
-
-.badge-accent {
-  background: var(--sl-color-accent);
-  color: var(--sl-color-accent-high);
-}
-
-/* --- Buttons --- */
-
-.btn {
-  padding: 0.3rem 0.6rem;
-  border-radius: 0.25rem;
-  border: 1px solid var(--sl-color-gray-5);
-  background: var(--sl-color-bg-nav);
-  color: var(--sl-color-white);
-  cursor: pointer;
-  font-family: var(--sl-font-mono, monospace);
-  font-size: 0.8rem;
-}
-
-.btn-sm {
-  padding: 0.15rem 0.4rem;
-  border-radius: 0.2rem;
-  border: 1px solid var(--sl-color-gray-5);
-  background: var(--sl-color-bg-nav);
+  letter-spacing: var(--hk-label-tracking);
   color: var(--sl-color-gray-3);
-  cursor: pointer;
-  font-family: var(--sl-font-mono, monospace);
-  font-size: 0.65rem;
-  white-space: nowrap;
-  margin: 0;
 }
 
-.btn-recording {
-  background: var(--sl-color-accent);
-  color: var(--sl-color-accent-high);
-  border-color: var(--sl-color-accent);
+/* ── Card ── */
+
+.card {
+  background: var(--hk-card-bg);
+  border: 1px solid var(--hk-card-border);
+  border-radius: 6px;
+  padding: 0;
+  overflow: hidden;
 }
 
-.btn-danger {
-  color: #ef4444;
-  border-color: transparent;
-}
-
-/* --- Inputs --- */
-
-.input {
-  padding: 0.3rem 0.5rem;
-  border-radius: 0.25rem;
-  border: 1px solid var(--sl-color-gray-5);
-  background: var(--sl-color-gray-7, var(--sl-color-gray-6));
-  color: var(--sl-color-white);
-  font-family: var(--sl-font-mono, monospace);
-  font-size: 0.8rem;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* --- Rows (shortcut/action display) --- */
+/* ── Rows ── */
 
 .row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.35rem 0.5rem;
-  border-radius: 0.25rem;
-  background: var(--sl-color-gray-6);
-  transition: background 0.15s;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid var(--hk-rule);
+  transition: background 0.3s ease-out;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.row-fired {
+  background: oklch(from var(--hk-green) l c h / 0.12);
+}
+
+/* ── Keyboard keys ── */
+
+kbd.kbd {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  background: transparent;
+  border: 1px solid var(--hk-card-border);
+  border-radius: 3px;
+  font-family: var(--sl-font-mono);
+  font-size: var(--hk-label-size);
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking);
+  line-height: 1.6;
+  white-space: nowrap;
+  color: var(--hk-ink);
+}
+
+kbd.kbd-fired {
+  background: var(--hk-green-low);
+  border-color: oklch(from var(--hk-green) l c h / 0.3);
+  color: var(--hk-green);
+}
+
+kbd.kbd-accent {
+  background: transparent;
+  color: var(--hk-danger);
+  border-color: var(--hk-danger);
+}
+
+kbd.kbd-dim {
+  opacity: 0.4;
+}
+
+/* ── Badges ── */
+
+.badge {
+  display: inline-flex;
+  place-items: center;
+  gap: 0.5em;
+  padding: 0.1em 0.4em;
+  border-radius: 0.2rem;
+  font-size: 0.65em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1px solid oklch(from currentColor l c h / 0.3);
+}
+
+.badge-green {
+  color: var(--hk-green);
+}
+
+.badge-blue {
+  color: var(--hk-blue);
+}
+
+.badge-purple {
+  color: var(--hk-purple);
+}
+
+.badge-orange {
+  color: var(--hk-orange);
+}
+
+.badge-pill {
+  border-radius: 10e5px;
+  background: oklch(from currentColor l c h / 0.08);
+}
+
+/* ── Buttons ── */
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--hk-gray-text);
+}
+
+.btn-ghost:hover {
+  color: var(--hk-canvas-text);
+}
+
+/* ── Focus panels ── */
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.focus-panel {
+  background: var(--hk-card-bg);
+  border: 1px solid var(--hk-card-border);
+  border-radius: 6px;
+  padding: 0.75rem;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+  min-height: 7rem;
+  display: flex;
+  flex-direction: column;
   gap: 0.4rem;
-  margin: 0;
 }
 
-.row-fired-green {
-  background: rgba(34, 197, 94, 0.15);
+.focus-panel:focus-within {
+  border-color: var(--hk-accent-color);
 }
 
-.row-fired-blue {
-  background: rgba(59, 130, 246, 0.15);
+.focus-panel-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking);
+  color: var(--hk-gray-text);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
 }
 
-.row-recording {
-  background: rgba(168, 85, 247, 0.15);
+.focus-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--hk-gray-4);
+  transition: background 0.15s;
 }
 
-.row-label {
-  flex: 1;
-  min-width: 0;
+.focus-panel:focus-within .focus-dot {
+  background: var(--hk-green);
 }
 
-.row-desc {
-  color: var(--sl-color-gray-3);
+.focus-panel-hint {
+  color: var(--hk-gray-4);
+}
+
+.focus-panel-shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: auto;
+}
+
+.focus-panel-shortcuts kbd {
+  min-width: auto;
+  padding: 0.05rem 0.35rem;
+}
+
+/* ── Modal dialog ── */
+
+.modal-dialog {
+  background: transparent;
+  border: none;
+  padding: 0;
+  max-width: 420px;
+  width: 90%;
+  overflow: visible;
+  margin: auto;
+}
+
+.modal-dialog::backdrop {
+  background: oklch(from var(--hk-base-black) l c h / 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: var(--hk-canvas);
+  border: 1px solid var(--hk-card-border);
+  border-radius: 8px;
+  padding: 1.25rem;
+  font-family: var(--sl-font-mono);
+  color: var(--hk-canvas-text);
+}
+
+.modal-content p {
   font-size: 0.75rem;
 }
 
-/* --- Event log --- */
+/* ── State bar ── */
+
+.state-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background: oklch(from var(--hk-canvas) l c h / 0.85);
+  backdrop-filter: blur(10px);
+  padding: 0.5rem 0;
+  border-top: 1px solid var(--hk-rule);
+  margin-top: 1rem;
+}
+
+/* ── Scrollable log ── */
 
 .log-scroll {
-  max-height: 10rem;
+  max-height: 14rem;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--hk-gray-5) transparent;
 }
 
-.log-entry {
-  padding: 0.15rem 0;
-  border-bottom: 1px solid var(--sl-color-gray-6);
-}
-
-.log-time {
-  color: var(--sl-color-gray-4);
-}
-
-.log-badge {
-  margin-right: 0.3rem;
-}
-
-/* --- Muted text --- */
+/* ── Muted text ── */
 
 .muted {
   color: var(--sl-color-gray-4);
@@ -217,40 +252,176 @@ kbd.kbd-dim {
   color: var(--sl-color-gray-3);
 }
 
-/* --- Grid layouts --- */
+/* ═══════════════════════════════════════════════════════
+   Legacy compat — used by CommandBarDemo & Playground.
+   Remove once those components are migrated.
+   ═══════════════════════════════════════════════════════ */
+
+.section {
+  background: var(--hk-card-bg);
+  border: 1px solid var(--hk-card-border);
+  border-radius: 6px;
+  padding: 20px;
+  margin-bottom: 1.5rem;
+}
+
+.section-title {
+  font-size: var(--hk-label-size);
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking);
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+  color: var(--sl-color-gray-3);
+}
+
+.badge-red {
+  color: var(--hk-danger);
+}
+
+.badge-yellow {
+  color: var(--sl-color-gray-3);
+}
+
+.badge-accent {
+  color: var(--hk-danger);
+}
+
+.btn {
+  padding: 0.35rem 0.75rem;
+  border-radius: 3px;
+  border: 1px solid var(--hk-card-border);
+  background: transparent;
+  color: var(--hk-ink);
+  cursor: pointer;
+  font-family: var(--sl-font-mono);
+  font-size: var(--hk-label-size);
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking);
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.btn:hover {
+  border-color: var(--hk-ink);
+}
+
+.btn-sm {
+  padding: 0.15rem 0.5rem;
+  border-radius: 3px;
+  border: 1px solid var(--hk-card-border);
+  background: transparent;
+  color: var(--sl-color-gray-3);
+  cursor: pointer;
+  font-family: var(--sl-font-mono);
+  font-size: var(--hk-label-size);
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking);
+  white-space: nowrap;
+  margin: 0;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.btn-sm:hover {
+  border-color: var(--hk-ink);
+  color: var(--hk-ink);
+}
+
+.btn-recording {
+  background: transparent;
+  color: var(--hk-danger);
+  border-color: var(--hk-danger);
+}
+
+.btn-danger {
+  color: var(--hk-danger);
+  border-color: var(--hk-danger);
+}
+
+.input {
+  padding: 0.35rem 0.5rem;
+  border-radius: 3px;
+  border: 1px solid var(--hk-card-border);
+  background: transparent;
+  color: var(--hk-ink);
+  font-family: var(--sl-font-mono);
+  font-size: 0.8rem;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--hk-ink);
+}
+
+.row-label {
+  flex: 1;
+  min-width: 0;
+  opacity: 0.4;
+  transition: opacity 0.3s;
+}
+
+.row-fired-green,
+.row-fired-blue {
+  background: transparent;
+}
+
+.row-fired-green .row-label,
+.row-fired-blue .row-label {
+  opacity: 1;
+}
+
+.row-fired-green::before,
+.row-fired-blue::before {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--hk-ink);
+  flex-shrink: 0;
+}
+
+.row-recording {
+  background: transparent;
+  border-color: var(--hk-danger);
+}
+
+.row-desc {
+  color: var(--sl-color-gray-3);
+  font-size: var(--hk-label-size);
+  text-transform: uppercase;
+  letter-spacing: var(--hk-label-tracking);
+}
+
+.log-entry {
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--hk-rule);
+  font-size: 0.75rem;
+}
+
+.log-time {
+  color: var(--sl-color-gray-4);
+  font-size: var(--hk-label-size);
+  letter-spacing: var(--hk-label-tracking);
+}
+
+.log-badge {
+  margin-right: 0.3rem;
+}
 
 .grid-2col {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.4rem;
+  gap: 12px;
 }
 
 .stack {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-}
-
-/* --- Raw event inspector --- */
-
-.inspector-grid {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.2rem 0.75rem;
-  align-items: center;
-}
-
-.inspector-correct {
-  color: #22c55e;
-  font-weight: 700;
-}
-
-.inspector-deprecated {
-  color: #ef4444;
-  text-decoration: line-through;
-}
-
-.inspector-note {
-  font-size: 0.7rem;
-  margin-left: 0.3rem;
+  gap: 0;
 }

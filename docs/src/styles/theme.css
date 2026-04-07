@@ -80,6 +80,19 @@
   --hk-label-size: 0.5rem;
   --hk-ink: var(--hk-base-white);
   --hk-ink-inverse: var(--hk-base-black);
+  --hk-green: var(--sl-color-green);
+  --hk-green-low: var(--sl-color-green-low);
+  --hk-blue: var(--sl-color-blue);
+  --hk-purple: var(--sl-color-purple);
+  --hk-orange: var(--sl-color-orange);
+  --hk-red: var(--hk-danger);
+  --hk-gray-4: var(--sl-color-gray-4);
+  --hk-gray-5: var(--sl-color-gray-5);
+  --hk-canvas: var(--sl-color-black);
+  --hk-canvas-text: var(--hk-base-white);
+  --hk-gray-text: var(--sl-color-gray-3);
+  --hk-accent-color: var(--hk-base-accent);
+  --hk-font: var(--sl-font);
 }
 
 /* ── Light mode ── */
@@ -141,4 +154,6 @@
   --hk-rule: oklch(from var(--hk-base-black) l c h / 0.7);
   --hk-ink: var(--hk-base-black);
   --hk-ink-inverse: var(--hk-base-white);
+  --hk-canvas-text: var(--hk-base-black);
+  --hk-gray-text: var(--sl-color-gray-3);
 }

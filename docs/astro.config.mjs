@@ -2,7 +2,8 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import solidJs from "@astrojs/solid-js";
-import starlightThemeHotterKeys from "@hotter-keys/starlight-theme";
+import UnoCSS from "@unocss/astro";
+
 import { hotterKeysDevtoolsIntegration } from "@hotter-keys/devtools";
 
 // https://astro.build/config
@@ -16,7 +17,16 @@ export default defineConfig({
       logo: {
         src: "./public/logo.svg",
       },
-      plugins: [starlightThemeHotterKeys()],
+      customCss: [
+        "./src/styles/layers.css",
+        "./src/styles/theme.css",
+        "./src/styles/base.css",
+        "./src/styles/demo.css",
+      ],
+      components: {
+        Head: "./src/overrides/Head.astro",
+        Footer: "./src/overrides/Footer.astro",
+      },
       social: [
         {
           icon: "github",
@@ -41,6 +51,7 @@ export default defineConfig({
         {
           label: "Tools",
           items: [
+            { label: "Interactive Demo", slug: "tools/interactive-demo" },
             { label: "Keymap Creator", slug: "tools/keymap-creator" },
             { label: "Layers Demo", slug: "tools/layers-demo" },
             { label: "Kitchen Sink", slug: "tools/kitchen-sink" },
@@ -48,6 +59,7 @@ export default defineConfig({
         },
       ],
     }),
+    UnoCSS(),
     solidJs(),
     hotterKeysDevtoolsIntegration({ debug: true }),
   ],

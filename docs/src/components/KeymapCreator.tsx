@@ -4,8 +4,6 @@ import { createHotkeys, recordShortcut } from "@hotter-keys/core";
 import type { Hotkeys, RecordedShortcut } from "@hotter-keys/core";
 import { loadKeymap, saveKeymap, isOpfsAvailable } from "../lib/opfs";
 import type { KeymapEntry } from "../lib/opfs";
-import "../styles/demo.css";
-import styles from "./KeymapCreator.module.css";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -280,10 +278,10 @@ export default function KeymapCreator() {
   };
 
   return (
-    <div ref={containerRef} tabIndex={0} class="demo" style={{ outline: "none" }}>
+    <div ref={containerRef} tabIndex={0} class="demo outline-none">
       {/* Status bar */}
-      <div class={styles.statusBar}>
-        <div class={styles.statusActions}>
+      <div class="flex items-center justify-between mb-4 gap-2">
+        <div class="flex items-center gap-2">
           <button onClick={addEntry} class="btn">
             + Add Entry
           </button>
@@ -304,7 +302,7 @@ export default function KeymapCreator() {
             </Show>
           }
         >
-          <span class={styles.storageHint}>{fileName()}</span>
+          <span class="text-hk-gray-4 hk-label">{fileName()}</span>
         </Show>
       </div>
 
@@ -312,19 +310,25 @@ export default function KeymapCreator() {
       <Show
         when={entries.length > 0}
         fallback={
-          <div class={styles.emptyState}>
+          <div class="border border-dashed border-hk-card-border rounded-[6px] p-8 text-center text-hk-gray-4">
             No entries yet. Click <strong>+ Add Entry</strong> to get started.
           </div>
         }
       >
-        <div style={{ "overflow-x": "auto" }}>
-          <table class={styles.table}>
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse">
             <thead>
-              <tr class={styles.thead}>
-                <th class={styles.th}>Name</th>
-                <th class={styles.th}>Description</th>
-                <th class={`${styles.th} ${styles.shortcutCol}`}>Shortcut</th>
-                <th class={`${styles.th} ${styles.deleteCol}`}></th>
+              <tr class="border-b border-hk-card-border">
+                <th class="py-3 px-2 text-left hk-label text-hk-gray-3 font-bold border-b border-hk-rule align-middle">
+                  Name
+                </th>
+                <th class="py-3 px-2 text-left hk-label text-hk-gray-3 font-bold border-b border-hk-rule align-middle">
+                  Description
+                </th>
+                <th class="py-3 px-2 text-left hk-label text-hk-gray-3 font-bold border-b border-hk-rule align-middle min-w-40">
+                  Shortcut
+                </th>
+                <th class="py-3 px-2 text-left hk-label text-hk-gray-3 font-bold border-b border-hk-rule align-middle w-12 text-center"></th>
               </tr>
             </thead>
             <tbody>
@@ -334,7 +338,7 @@ export default function KeymapCreator() {
                   const isFired = () => firedId() === entry.id;
                   return (
                     <tr class={isFired() ? "row-fired-green" : ""}>
-                      <td class={styles.td}>
+                      <td class="py-3 px-2 border-b border-hk-rule align-middle transition-opacity duration-150">
                         <input
                           type="text"
                           value={entry.name}
@@ -343,7 +347,7 @@ export default function KeymapCreator() {
                           class="input"
                         />
                       </td>
-                      <td class={styles.td}>
+                      <td class="py-3 px-2 border-b border-hk-rule align-middle transition-opacity duration-150">
                         <input
                           type="text"
                           value={entry.description}
@@ -354,8 +358,8 @@ export default function KeymapCreator() {
                           class="input"
                         />
                       </td>
-                      <td class={styles.td}>
-                        <div class={styles.shortcutCell}>
+                      <td class="py-3 px-2 border-b border-hk-rule align-middle transition-opacity duration-150">
+                        <div class="flex items-center gap-1 flex-wrap">
                           <Show when={isThisRecording() && pendingChords().length > 0}>
                             <For each={pendingChords()}>
                               {(chord) => <kbd class="kbd kbd-accent">{comboToLabel(chord)}</kbd>}
@@ -382,7 +386,7 @@ export default function KeymapCreator() {
                           </button>
                         </div>
                       </td>
-                      <td class={`${styles.td} ${styles.deleteCol}`}>
+                      <td class="py-3 px-2 border-b border-hk-rule align-middle transition-opacity duration-150 w-12 text-center">
                         <button
                           onClick={() => deleteEntry(entry.id)}
                           class="btn-sm btn-danger"
@@ -402,9 +406,11 @@ export default function KeymapCreator() {
 
       {/* JSON preview */}
       <Show when={entries.length > 0}>
-        <details class={styles.jsonOutput}>
-          <summary class={styles.jsonSummary}>JSON output</summary>
-          <pre class={styles.jsonPre}>{getExportJson()}</pre>
+        <details class="mt-6">
+          <summary class="cursor-pointer text-hk-gray-3 hk-label">JSON output</summary>
+          <pre class="mt-2 p-5 bg-hk-card-bg border border-hk-card-border rounded-[6px] overflow-x-auto text-xs">
+            {getExportJson()}
+          </pre>
         </details>
       </Show>
     </div>

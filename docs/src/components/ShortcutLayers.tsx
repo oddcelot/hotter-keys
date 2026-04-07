@@ -2,7 +2,6 @@ import { createSignal, createMemo, onCleanup, onMount, For, Show } from "solid-j
 import { createSwitchTransition } from "@solid-primitives/transition-group";
 import { createHotkeys, isMac, formatSequence, parseSequence } from "@hotter-keys/core";
 import type { Hotkeys } from "@hotter-keys/core";
-import "../styles/demo.css";
 import styles from "./ShortcutLayers.module.css";
 
 const s = styles as Record<string, string>;
