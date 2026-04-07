@@ -1,4 +1,5 @@
-import { For, Show, type Accessor } from "solid-js";
+import { For, Show } from "solid-js";
+import { eventLog, clearLog } from "./state";
 
 export interface LogEntry {
   id: number;
@@ -13,23 +14,18 @@ const LOG_BADGE_CLASS: Record<string, string> = {
   record: "badge badge-purple",
 };
 
-interface Props {
-  log: Accessor<LogEntry[]>;
-  onClear: () => void;
-}
-
-export default function PlaygroundEventLog(props: Props) {
+export default function EventLog() {
   return (
     <div class="section">
       <div class="flex items-center justify-between mb-3">
         <h4 class="section-title mb-0">Event Log</h4>
-        <button onClick={props.onClear} class="btn-sm">
+        <button onClick={clearLog} class="btn-sm">
           Clear
         </button>
       </div>
       <div class="log-scroll">
-        <Show when={props.log().length > 0} fallback={<span class="muted">No events yet</span>}>
-          <For each={props.log()}>
+        <Show when={eventLog().length > 0} fallback={<span class="muted">No events yet</span>}>
+          <For each={eventLog()}>
             {(entry) => (
               <div class="log-entry">
                 <span class="log-time">{entry.time}</span>{" "}

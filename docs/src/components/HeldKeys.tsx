@@ -1,6 +1,7 @@
-import { For, Show, type Accessor } from "solid-js";
+import { For, Show } from "solid-js";
+import { heldKeys, shiftHeld, rawEvent } from "./state";
 
-interface RawEvent {
+export interface RawEvent {
   key: string;
   code: string;
   ctrlKey: boolean;
@@ -10,21 +11,13 @@ interface RawEvent {
   repeat: boolean;
 }
 
-interface Props {
-  keys: Accessor<readonly string[]>;
-  shiftHeld: Accessor<boolean>;
-  rawEvent: Accessor<RawEvent | null>;
-}
-
-export type { RawEvent };
-
-export default function HeldKeys(props: Props) {
+export default function HeldKeys() {
   return (
     <div class="section">
       <h4 class="section-title">Held Keys</h4>
       <div class="flex items-center gap-2 flex-wrap min-h-8">
-        <Show when={props.keys().length > 0} fallback={<span class="muted">No keys held</span>}>
-          <For each={[...props.keys()]}>
+        <Show when={heldKeys().length > 0} fallback={<span class="muted">No keys held</span>}>
+          <For each={[...heldKeys()]}>
             {(key, i) => (
               <span>
                 <span class="font-mono text-[length:var(--hk-label-size,0.5rem)] text-hk-gray-4 mr-[0.15rem] tabular-nums">
@@ -35,12 +28,12 @@ export default function HeldKeys(props: Props) {
             )}
           </For>
         </Show>
-        <Show when={props.shiftHeld()}>
+        <Show when={shiftHeld()}>
           <span class="badge badge-yellow ml-auto">SHIFT HELD ALONE</span>
         </Show>
       </div>
 
-      <Show when={props.rawEvent()}>
+      <Show when={rawEvent()}>
         {(ev) => (
           <div
             class="flex items-center gap-2 flex-wrap mt-3 pt-3"

@@ -1,6 +1,8 @@
-import { For, Show, type Accessor } from "solid-js";
+import { For, Show } from "solid-js";
+import type { Accessor } from "solid-js";
+import { comboLabel, recordingRowId, isRecording } from "./state";
 
-interface ShortcutRow {
+export interface ShortcutRow {
   id: number;
   combo: string;
   description: string;
@@ -12,14 +14,9 @@ interface Props {
   rows: Accessor<ShortcutRow[]>;
   firedMap: Accessor<Record<string, number>>;
   color: "green" | "blue";
-  formatCombo: (combo: string) => string;
-  recordingRowId: Accessor<number | null>;
-  isRecording: Accessor<boolean>;
   onRebind: (rowId: number) => void;
   layout?: "grid" | "stack";
 }
-
-export type { ShortcutRow };
 
 export default function ShortcutRows(props: Props) {
   const rowClass = (isRec: boolean, isFired: boolean) =>
@@ -35,11 +32,11 @@ export default function ShortcutRows(props: Props) {
         <For each={props.rows()}>
           {(s) => {
             const fired = () => s.combo in props.firedMap();
-            const isThisRec = () => props.recordingRowId() === s.id;
+            const isThisRec = () => recordingRowId() === s.id;
             return (
               <div class={rowClass(isThisRec(), fired())}>
                 <span class="row-label">
-                  <kbd class="kbd">{props.formatCombo(s.combo)}</kbd>{" "}
+                  <kbd class="kbd">{comboLabel(s.combo)}</kbd>{" "}
                   <span class="row-desc">{s.description}</span>
                 </span>
                 <Show when={fired()}>
@@ -47,7 +44,7 @@ export default function ShortcutRows(props: Props) {
                 </Show>
                 <button
                   onClick={() => props.onRebind(s.id)}
-                  disabled={props.isRecording()}
+                  disabled={isRecording()}
                   class={`btn-sm ${isThisRec() ? "btn-recording" : ""}`}
                 >
                   {isThisRec() ? "Press key (Esc to cancel)" : "Rebind"}
