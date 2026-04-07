@@ -1,40 +1,51 @@
-import { For, Show } from "solid-js";
-import { eventLog, clearLog } from "./state";
+import { For } from "solid-js";
+import { LAYER_COLORS, SCOPE_COLORS } from "./bindings";
+import { LayerBadge, ScopeBadge } from "./Badge";
+import s from "./demo.module.css";
 
 export interface LogEntry {
   id: number;
-  time: string;
-  text: string;
-  type: "shortcut" | "sequence" | "record";
+  shortcut: string;
+  action: string;
+  layer: string;
+  scope?: string;
 }
 
-const LOG_BADGE_CLASS: Record<string, string> = {
-  shortcut: "badge badge-green",
-  sequence: "badge badge-blue",
-  record: "badge badge-purple",
-};
+interface Props {
+  log: LogEntry[];
+  onClear: () => void;
+}
 
-export default function EventLog() {
+export default function EventLog(props: Props) {
   return (
-    <div class="section">
-      <div class="flex items-center justify-between mb-3">
-        <h4 class="section-title mb-0">Event Log</h4>
-        <button onClick={clearLog} class="btn-sm">
-          Clear
-        </button>
+    <div class="mb-6">
+      <div class="flex items-center justify-between mb-2">
+        <h2>Event Log</h2>
+        {props.log.length > 0 && (
+          <button class={s.btnGhost} onClick={props.onClear}>
+            clear
+          </button>
+        )}
       </div>
-      <div class="log-scroll">
-        <Show when={eventLog().length > 0} fallback={<span class="muted">No events yet</span>}>
-          <For each={eventLog()}>
+      <div class={`${s.card} ${s.logScroll}`}>
+        {props.log.length === 0 ? (
+          <div class={`${s.row} text-hk-gray-4 justify-center p-2`}>
+            Press a shortcut to see it here...
+          </div>
+        ) : (
+          <For each={props.log}>
             {(entry) => (
-              <div class="log-entry">
-                <span class="log-time">{entry.time}</span>{" "}
-                <span class={`${LOG_BADGE_CLASS[entry.type]} log-badge`}>{entry.type}</span>
-                {entry.text}
+              <div class={`${s.row} ${s.rowFired}`}>
+                <kbd class={s.kbdFired}>{entry.shortcut}</kbd>
+                <span class="flex-1 min-w-0">{entry.action}</span>
+                <LayerBadge color={LAYER_COLORS[entry.layer] ?? "purple"}>{entry.layer}</LayerBadge>
+                {entry.scope && (
+                  <ScopeBadge color={SCOPE_COLORS[entry.scope]}>{entry.scope}</ScopeBadge>
+                )}
               </div>
             )}
           </For>
-        </Show>
+        )}
       </div>
     </div>
   );

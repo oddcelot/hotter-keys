@@ -10,7 +10,7 @@ import {
 import type { Hotkeys, RecordedShortcut, Shortcut } from "@hotter-keys/core";
 import type { RawEvent } from "./HeldKeys";
 import type { ShortcutRow } from "./ShortcutRows";
-import type { LogEntry } from "./EventLog";
+import type { LogEntry } from "./RecordLog";
 
 // ---------------------------------------------------------------------------
 // Initial data

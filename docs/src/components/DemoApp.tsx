@@ -2,7 +2,7 @@ import { createSignal, onMount, onCleanup } from "solid-js";
 import { createStore, produce } from "solid-js/store";
 import { createHotkeys, displayShortcut as fmt } from "@hotter-keys/core";
 import { BINDINGS, SCOPE_COLORS, layerOf, layerColorOf, scopeOf } from "./bindings";
-import ShortcutTable, { type ShortcutEntry } from "../ShortcutTable";
+import ShortcutTable, { type ShortcutEntry } from "./ShortcutTable";
 import LayerPanels from "./LayerPanels";
 import ScopePanels from "./ScopePanels";
 import EventLog, { type LogEntry } from "./EventLog";

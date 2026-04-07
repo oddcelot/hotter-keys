@@ -1,5 +1,5 @@
 import type { BindingOptions } from "@hotter-keys/core";
-import type { BadgeColor } from "../Badge";
+import type { BadgeColor } from "./Badge";
 
 export type { BadgeColor };
 

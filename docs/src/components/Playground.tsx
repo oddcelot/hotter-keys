@@ -3,7 +3,7 @@ import HeldKeys from "./HeldKeys";
 import Shortcuts from "./Shortcuts";
 import Sequences from "./Sequences";
 import KeyRecorder from "./KeyRecorder";
-import EventLog from "./EventLog";
+import RecordLog from "./RecordLog";
 
 /**
  * Convenience wrapper that renders the full playground.
@@ -17,7 +17,7 @@ export default function Playground() {
       <Shortcuts />
       <Sequences />
       <KeyRecorder />
-      <EventLog />
+      <RecordLog />
     </>
   );
 }
