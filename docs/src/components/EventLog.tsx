@@ -20,7 +20,6 @@ export default function EventLog(props: Props) {
   return (
     <div class="mb-6">
       <div class="flex items-center justify-between mb-2">
-        <h2>Event Log</h2>
         {props.log.length > 0 && (
           <button class={s.btnGhost} onClick={props.onClear}>
             clear

@@ -9,7 +9,6 @@ export interface ShortcutRow {
 }
 
 interface Props {
-  title: string;
   hint?: string;
   rows: Accessor<ShortcutRow[]>;
   firedMap: Accessor<Record<string, number>>;
@@ -24,7 +23,6 @@ export default function ShortcutRows(props: Props) {
 
   return (
     <div class="section">
-      <h4 class="section-title">{props.title}</h4>
       <Show when={props.hint}>
         <p class="hk-label text-hk-gray-3 m-0 mb-2">{props.hint}</p>
       </Show>

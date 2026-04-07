@@ -10,7 +10,6 @@ function recordedToShortcut(r: RecordedShortcut): Shortcut {
 export default function KeyRecorder() {
   return (
     <div class="section">
-      <h4 class="section-title">Key Recorder</h4>
       <div class="flex items-center gap-4 flex-wrap">
         <button
           onClick={doRecord}

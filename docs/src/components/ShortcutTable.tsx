@@ -28,7 +28,6 @@ export default function ShortcutTable(props: Props) {
 
   return (
     <div class="mb-6">
-      <h2>Registered Shortcuts</h2>
       <div class="card">
         <For each={props.shortcuts}>
           {(s) => (

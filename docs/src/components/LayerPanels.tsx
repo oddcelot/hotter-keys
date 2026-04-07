@@ -12,7 +12,6 @@ interface Props {
 export default function LayerPanels(props: Props) {
   return (
     <div class="mb-6">
-      <h2>Layers — Priority &amp; Override</h2>
       <p class="mb-2">
         Layers form a <strong class="text-hk-canvas-text">stack</strong>. Higher layers consume key
         events first, preventing lower layers from firing. Use layers when UI regions add{" "}

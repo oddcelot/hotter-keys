@@ -14,7 +14,6 @@ export default function StateBar(props: Props) {
   return (
     <div class={s.stateBar}>
       <div class="flex gap-[0.4rem] items-center flex-wrap">
-        <h2>State</h2>
         <span class="text-hk-gray-4">Layers:</span>
         <For each={props.layers}>
           {(l) => (

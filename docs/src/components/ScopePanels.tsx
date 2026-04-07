@@ -13,7 +13,6 @@ interface Props {
 export default function ScopePanels(props: Props) {
   return (
     <div class="mb-6">
-      <h2>Scopes — Context Switching</h2>
       <p class="mb-2">
         Scopes <strong class="text-hk-canvas-text">filter</strong> which bindings are considered.
         Only the active scope's bindings fire — others are invisible. Use scopes when the{" "}

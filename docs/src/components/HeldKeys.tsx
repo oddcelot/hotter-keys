@@ -14,7 +14,6 @@ export interface RawEvent {
 export default function HeldKeys() {
   return (
     <div class="section">
-      <h4 class="section-title">Held Keys</h4>
       <div class="flex items-center gap-2 flex-wrap min-h-8">
         <Show when={heldKeys().length > 0} fallback={<span class="muted">No keys held</span>}>
           <For each={[...heldKeys()]}>

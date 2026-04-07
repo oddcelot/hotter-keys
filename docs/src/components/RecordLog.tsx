@@ -18,7 +18,6 @@ export default function RecordLog() {
   return (
     <div class="section">
       <div class="flex items-center justify-between mb-3">
-        <h4 class="section-title mb-0">Event Log</h4>
         <button onClick={clearLog} class="btn-sm">
           Clear
         </button>
