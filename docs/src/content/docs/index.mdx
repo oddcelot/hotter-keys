@@ -5,15 +5,16 @@ template: splash
 hero:
   image:
     file: ../../../public/logo.svg
-  tagline: A correct, cross-browser, layout-aware keyboard shortcut library for the web.
+  tagline: Keyboard shortcuts for the web that fire on every browser and every keyboard layout.
   actions:
     - text: Get started
       link: guides/getting-started/
       icon: right-arrow
       variant: primary
     - text: View on GitHub
-      link: https://github.com/withastro/starlight
-      icon: external
+      link: https://github.com/oddcelot/hotter-keys
+      icon: github
+      variant: secondary
 ---
 
 import { Card, CardGrid } from "@astrojs/starlight/components";
@@ -27,6 +28,9 @@ import ShortcutLayers from "../../components/ShortcutLayers.tsx";
 import Kbd from "../../components/Kbd.tsx";
 
 ## Shortcut Layers
+
+Press <Kbd client:only="solid-js" combo="mod+k" /> and follow the keys. Each layer you open takes
+over the keyboard until <kbd>Esc</kbd> drops you back to the one beneath it.
 
 <ShortcutLayers client:only="solid-js" />
 

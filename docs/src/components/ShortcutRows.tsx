@@ -24,7 +24,7 @@ export default function ShortcutRows(props: Props) {
   return (
     <div class="section">
       <Show when={props.hint}>
-        <p class="hk-label text-hk-gray-3 m-0 mb-2">{props.hint}</p>
+        <p class="text-sm text-hk-gray-2 m-0 mb-3">{props.hint}</p>
       </Show>
       <div class={props.layout === "grid" ? "grid-2col" : "stack"}>
         <For each={props.rows()}>

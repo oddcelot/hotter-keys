@@ -2,28 +2,38 @@
 
 .split {
   display: grid;
-  grid-template-columns: max-content 20rem;
+  grid-template-columns: minmax(0, 1fr) 20rem;
   gap: 1rem;
+  margin-top: 2rem;
 }
 
+.split > * {
+  margin-top: 0;
+}
+
+/* The stage is a framed "desk": dotted grid, soft glow under the rig */
 .stage {
   perspective: 900px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-block: 2rem;
-  padding-inline: 10rem;
-
+  min-height: 30rem;
+  padding: 2rem 1rem;
   overflow: hidden;
-  flex: 0 0 auto;
+  border: 1px solid var(--hk-card-border);
+  border-radius: 14px;
+  background:
+    radial-gradient(24rem 14rem at 50% 62%, var(--hk-glow), transparent 70%),
+    radial-gradient(circle, var(--hk-grid-line) 1px, transparent 1.5px) 0 0 / 1.25rem 1.25rem,
+    var(--hk-surface);
 }
 
 .rig {
   transform-style: preserve-3d;
-  width: 360px;
-  height: 360px;
+  width: min(360px, 78vw);
+  aspect-ratio: 1;
   position: relative;
-  margin-top: 60px;
+  margin-top: 70px;
 }
 
 /* --- Layers ------------------------------------------------------------ */
@@ -33,14 +43,15 @@
   inset: 0;
   transform-style: preserve-3d;
   transform-origin: 50% 50% 0;
-  border: 0.5px solid var(--lc);
-  border-radius: 8px;
+  border: 1px solid var(--lc);
+  border-radius: 12px;
   background: var(--lc-bg);
   opacity: 0;
   transform: scale(0.85) translateZ(0px);
   transition:
-    transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-    opacity 0.5s;
+    transform 0.7s var(--hk-ease, cubic-bezier(0.22, 1, 0.36, 1)),
+    opacity 0.5s ease-out,
+    box-shadow 0.5s ease-out;
   pointer-events: none;
 }
 
@@ -50,6 +61,9 @@
 
 .active {
   opacity: 1;
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--lc) 35%, transparent),
+    0 0 48px -6px color-mix(in srgb, var(--lc) 55%, transparent);
 }
 
 .dimmed {
@@ -91,8 +105,9 @@
   stroke: var(--lc);
   stroke-width: 0.8;
   transition:
-    stroke-width 0.4s,
-    fill 0.4s;
+    stroke-width 0.35s var(--hk-ease, ease-out),
+    stroke 0.35s var(--hk-ease, ease-out),
+    fill 0.35s var(--hk-ease, ease-out);
 }
 
 .shapeLit {
@@ -119,7 +134,8 @@
 .ctrls {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  margin-top: 1.25rem;
   position: relative;
   z-index: 2;
 }
@@ -154,8 +170,8 @@
   opacity: 0;
   transform: translateY(4px);
   transition:
-    opacity 0.3s,
-    transform 0.3s;
+    opacity 0.3s ease-out,
+    transform 0.4s var(--hk-ease-spring, ease-out);
   white-space: nowrap;
   text-align: center;
 }
@@ -203,7 +219,19 @@
 }
 
 .dotOn {
-  transform: scale(1.3);
+  transform: scale(1.35);
+  animation: dotRing 1.8s ease-out infinite;
+}
+
+@keyframes dotRing {
+  0% {
+    outline: 0 solid color-mix(in srgb, var(--sl-color-white) 45%, transparent);
+    outline-offset: 0;
+  }
+  100% {
+    outline: 1px solid transparent;
+    outline-offset: 7px;
+  }
 }
 
 .dotDim {
@@ -289,28 +317,46 @@
   align-items: center;
   box-sizing: border-box;
   gap: 4px;
-  padding: 3px 10px;
-  border-radius: 6px;
-  font-size: 12px;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 13px;
   font-family: inherit;
   line-height: 1.4;
   border: 1px solid;
+  border-bottom-width: 2px;
   cursor: pointer;
   transition:
-    transform 0.15s,
-    box-shadow 0.15s,
+    transform 0.2s var(--hk-ease-spring, ease-out),
+    box-shadow 0.2s ease-out,
+    filter 0.2s ease-out,
     opacity 0.3s;
+}
+
+.shortcutPill:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+}
+
+.shortcutPill:active {
+  transform: translateY(1px);
+  border-bottom-width: 1px;
+}
+
+.shortcutPill:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
 }
 
 .pillKey {
   font-family: var(--sl-font-mono, monospace);
   font-weight: 600;
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .pillDesc {
-  opacity: 0.7;
-  font-size: 11px;
+  opacity: 0.75;
+  font-size: 12px;
 }
 
 .pillAdvances {
@@ -323,9 +369,10 @@
 }
 
 /* Fired flash */
-.pillFired {
-  transform: scale(1.08);
-  box-shadow: 0 0 8px currentColor;
+.pillFired,
+.pillFired:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 18px -2px currentColor;
 }
 
 /* Pill enter/exit transitions */
@@ -393,31 +440,30 @@
 .codePanel {
   flex: 0 1 320px;
   min-width: 0;
-  border: 1px solid var(--sl-color-gray-4);
-  border-radius: 8px;
+  border: 1px solid var(--hk-card-border);
+  border-radius: 14px;
   overflow: hidden;
-  align-self: center;
-  background: var(--sl-color-bg-nav, var(--sl-color-gray-7));
+  background: var(--hk-surface);
 }
 
 .codePanelHeader {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 10px 14px;
   font-size: 12px;
   font-weight: 500;
-  color: var(--sl-color-gray-3);
-  border-bottom: 1px solid var(--sl-color-gray-4);
-  background: var(--sl-color-gray-6);
+  color: var(--sl-color-gray-2);
+  border-bottom: 1px solid var(--hk-rule);
+  background: var(--hk-surface);
 }
 
 .codePre {
   margin: 0;
-  padding: 12px;
+  padding: 14px;
   font-family: var(--sl-font-mono, monospace);
   font-size: 12px;
-  line-height: 1.5;
+  line-height: 1.6;
   overflow-x: auto;
   color: var(--sl-color-gray-2);
   background: transparent;
@@ -429,18 +475,21 @@
   height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
+  transition: background-color 0.3s ease-out;
 }
 
 /* Stack vertically on narrow screens */
-@media (max-width: 860px) {
+@media (max-width: 60rem) {
   .split {
-    flex-direction: column;
+    grid-template-columns: minmax(0, 1fr);
   }
 
-  .codePanel {
-    flex-basis: auto;
-    width: 100%;
-    max-width: 400px;
+  .stage {
+    min-height: 24rem;
+  }
+
+  .rig {
+    width: min(360px, 58vw);
   }
 }
 

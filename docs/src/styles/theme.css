@@ -62,10 +62,10 @@
   --sl-color-red: oklch(0.6 0.16 var(--hk-hue-red));
   --sl-color-red-high: oklch(0.82 0.07 var(--hk-hue-red));
 
-  /* No shadows — hierarchy from size/weight only */
-  --sl-shadow-sm: none;
-  --sl-shadow-md: none;
-  --sl-shadow-lg: none;
+  /* Shadows — soft, low-contrast elevation */
+  --sl-shadow-sm: 0 1px 2px oklch(0 0 0 / 0.3);
+  --sl-shadow-md: 0 8px 24px -8px oklch(0 0 0 / 0.5);
+  --sl-shadow-lg: 0 24px 60px -20px oklch(0 0 0 / 0.65);
 
   /* Typography */
   --sl-font: "Lilex Variable", monospace;
@@ -76,8 +76,16 @@
   --hk-card-border: oklch(from var(--hk-base-white) l c h / 0.1);
   --hk-rule: oklch(from var(--hk-base-white) l c h / 0.07);
   --hk-danger: oklch(0.6 0.16 var(--hk-hue-red));
-  --hk-label-tracking: 0.16em;
-  --hk-label-size: 0.5rem;
+  --hk-label-tracking: 0.08em;
+  --hk-label-size: 0.6875rem;
+  --hk-radius: 10px;
+  --hk-radius-sm: 6px;
+  --hk-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --hk-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --hk-surface: oklch(from var(--hk-base-white) l c h / 0.035);
+  --hk-surface-hover: oklch(from var(--hk-base-white) l c h / 0.06);
+  --hk-glow: oklch(from var(--hk-base-accent) l c h / 0.22);
+  --hk-grid-line: oklch(from var(--hk-base-white) l c h / 0.045);
   --hk-ink: var(--hk-base-white);
   --hk-ink-inverse: var(--hk-base-black);
   --hk-green: var(--sl-color-green);
@@ -143,15 +151,19 @@
   --sl-color-red: oklch(0.58 0.14 var(--hk-hue-red));
   --sl-color-red-low: oklch(0.92 0.04 var(--hk-hue-red));
 
-  /* No shadows */
-  --sl-shadow-sm: none;
-  --sl-shadow-md: none;
-  --sl-shadow-lg: none;
+  /* Shadows */
+  --sl-shadow-sm: 0 1px 2px oklch(0.3 0.02 var(--hk-hue-warm) / 0.12);
+  --sl-shadow-md: 0 8px 24px -10px oklch(0.3 0.02 var(--hk-hue-warm) / 0.22);
+  --sl-shadow-lg: 0 24px 60px -24px oklch(0.3 0.02 var(--hk-hue-warm) / 0.3);
 
   /* ── Hotter Keys tokens (light) ── */
   --hk-card-bg: var(--sl-color-gray-6);
-  --hk-card-border: oklch(from var(--hk-base-black) l c h / 0.7);
-  --hk-rule: oklch(from var(--hk-base-black) l c h / 0.7);
+  --hk-card-border: oklch(from var(--hk-base-black) l c h / 0.18);
+  --hk-rule: oklch(from var(--hk-base-black) l c h / 0.12);
+  --hk-surface: oklch(from var(--hk-base-black) l c h / 0.03);
+  --hk-surface-hover: oklch(from var(--hk-base-black) l c h / 0.06);
+  --hk-glow: oklch(from var(--hk-base-accent) l c h / 0.16);
+  --hk-grid-line: oklch(from var(--hk-base-black) l c h / 0.06);
   --hk-ink: var(--hk-base-black);
   --hk-ink-inverse: var(--hk-base-white);
   --hk-canvas-text: var(--hk-base-black);

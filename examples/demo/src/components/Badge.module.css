@@ -4,11 +4,13 @@
   gap: 0.5em;
   padding: 0.1em 0.4em;
   border-radius: 0.2rem;
-  font-size: 0.65em;
+  font-size: 0.6875rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   border: 1px solid oklch(from currentColor l c h / 0.3);
+  background: oklch(from currentColor l c h / 0.1);
+  animation: pop 0.22s var(--hk-ease-spring);
 }
 
 .green {
@@ -30,4 +32,21 @@
 .pill {
   border-radius: 10e5px;
   background: oklch(from currentColor l c h / 0.08);
+}
+
+@keyframes pop {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .badge {
+    animation: none;
+  }
 }

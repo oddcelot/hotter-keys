@@ -1,3 +1,56 @@
+/* ── Local design tokens (mirror docs/src/styles/theme.css) ── */
+
+:root {
+  --hk-radius: 10px;
+  --hk-radius-sm: 6px;
+  --hk-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --hk-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --hk-surface: oklch(from var(--hk-base-white) l c h / 0.035);
+  --hk-surface-hover: oklch(from var(--hk-base-white) l c h / 0.06);
+  --hk-ink: var(--hk-base-white);
+  --hk-danger: var(--hk-red);
+  --hk-shadow-md: 0 4px 14px oklch(from var(--hk-base-black) l c h / 0.35);
+  --hk-shadow-lg: 0 18px 48px oklch(from var(--hk-base-black) l c h / 0.5);
+  /* Never below 11px */
+  --hk-label-size: 0.6875rem;
+  --hk-label-tracking: 0.08em;
+}
+
+@keyframes hk-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hk-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hk-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+}
+
+@keyframes hk-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
 /* ── Layout ── */
 
 .container {
@@ -32,7 +85,7 @@
 .card {
   background: var(--hk-card-bg);
   border: 1px solid var(--hk-card-border);
-  border-radius: 6px;
+  border-radius: var(--hk-radius);
   padding: 0;
   overflow: hidden;
 }
@@ -43,10 +96,10 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.4rem 0.75rem;
+  padding: 0.55rem 0.75rem;
   border-bottom: 1px solid var(--hk-rule);
-  /*font-size: 0.8125rem;*/
-  transition: background 0.3s ease-out;
+  border-radius: var(--hk-radius-sm);
+  transition: background-color 0.35s var(--hk-ease);
 }
 
 .row:last-child {
@@ -57,7 +110,20 @@
   background: oklch(from var(--hk-green) l c h / 0.12);
 }
 
-/* ── Kbd variants ── */
+/* ── Keyboard keys ── */
+
+kbd {
+  padding: 0.15rem 0.5rem;
+  background: var(--hk-surface-hover);
+  border-radius: 5px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  color: var(--hk-ink);
+  transition:
+    background-color 0.2s var(--hk-ease),
+    border-color 0.2s var(--hk-ease),
+    color 0.2s var(--hk-ease);
+}
 
 kbd.fired {
   background: var(--hk-green-low);
@@ -65,14 +131,43 @@ kbd.fired {
   color: var(--hk-green);
 }
 
-/* ── Button ── */
+/* ── Buttons ── */
+
+button {
+  border-radius: 5px;
+  transition:
+    border-color 0.2s var(--hk-ease),
+    background-color 0.2s var(--hk-ease),
+    color 0.2s var(--hk-ease),
+    transform 0.1s var(--hk-ease);
+}
+
+button:hover:not(:disabled) {
+  border-color: oklch(from var(--hk-ink) l c h / 0.5);
+  background: var(--hk-surface-hover);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--hk-accent-color);
+  outline-offset: 2px;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
 
 .btn-ghost {
   border-color: transparent;
   color: var(--hk-gray-text);
 }
 
-.btn-ghost:hover {
+.btn-ghost:hover:not(:disabled) {
+  border-color: transparent;
   color: var(--hk-canvas-text);
 }
 
@@ -87,22 +182,34 @@ kbd.fired {
 .focus-panel {
   background: var(--hk-card-bg);
   border: 1px solid var(--hk-card-border);
-  border-radius: 6px;
-  padding: 0.75rem;
+  border-radius: var(--hk-radius);
+  padding: 0.9rem;
   cursor: pointer;
   outline: none;
-  transition: border-color 0.15s;
+  transition:
+    border-color 0.25s var(--hk-ease),
+    box-shadow 0.25s var(--hk-ease),
+    transform 0.25s var(--hk-ease);
   min-height: 7rem;
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
 }
 
+.focus-panel:hover {
+  border-color: oklch(from var(--hk-ink) l c h / 0.3);
+}
+
 .focus-panel:focus-within {
   border-color: var(--hk-accent-color);
+  box-shadow:
+    0 0 0 3px oklch(from var(--hk-base-accent) l c h / 0.18),
+    var(--hk-shadow-md);
+  transform: translateY(-2px);
 }
 
 .focus-panel-label {
+  font-size: var(--hk-label-size);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: var(--hk-label-tracking);
@@ -117,14 +224,18 @@ kbd.fired {
   height: 6px;
   border-radius: 50%;
   background: var(--hk-gray-4);
-  transition: background 0.15s;
+  transition:
+    background-color 0.2s var(--hk-ease),
+    box-shadow 0.2s var(--hk-ease);
 }
 
 .focus-panel:focus-within .focus-dot {
   background: var(--hk-green);
+  box-shadow: 0 0 0 3px oklch(from var(--hk-green) l c h / 0.25);
 }
 
 .focus-panel-hint {
+  font-size: var(--hk-label-size);
   color: var(--hk-gray-4);
 }
 
@@ -154,13 +265,22 @@ kbd.fired {
 
 .modal-dialog::backdrop {
   background: oklch(from var(--hk-base-black) l c h / 0.6);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+}
+
+.modal-dialog[open] {
+  animation: hk-modal-in 0.28s var(--hk-ease);
+}
+
+.modal-dialog[open]::backdrop {
+  animation: hk-fade-in 0.28s ease-out;
 }
 
 .modal-content {
   background: var(--hk-canvas);
   border: 1px solid var(--hk-card-border);
-  border-radius: 8px;
+  border-radius: 14px;
+  box-shadow: var(--hk-shadow-lg);
   padding: 1.25rem;
   font-family: var(--hk-font);
   color: var(--hk-canvas-text);
@@ -170,6 +290,12 @@ kbd.fired {
   font-size: 0.75rem;
 }
 
+/* ── Log entries ── */
+
+.log-scroll .row {
+  animation: hk-slide-in 0.3s var(--hk-ease);
+}
+
 /* ── Scrollable log ── */
 
 .log-scroll {
@@ -177,4 +303,20 @@ kbd.fired {
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--hk-gray-5) transparent;
+}
+
+/* ── Reduced motion ── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .focus-panel:focus-within {
+    transform: none;
+  }
 }
